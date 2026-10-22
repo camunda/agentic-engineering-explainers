@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nano Workforce — Agent Graph Orchestration</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #bfe3d0; font-family: ui-rounded, system-ui, -apple-system, sans-serif; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 18px; left: 22px; color: #1f1d2b; pointer-events: none; }
+  #hud h1 { margin: 0; font-size: 26px; letter-spacing: .3px; }
+  #hud .sub { font-size: 14px; opacity: .7; margin-top: 2px; }
+  #level { margin-top: 14px; display: flex; gap: 6px; }
+  #level span { padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.55); font-size: 13px; font-weight: 600; transition: all .3s; }
+  #level span.on { background: #1f1d2b; color: #fff; }
+  #stats { position: fixed; top: 18px; right: 22px; text-align: right; color: #1f1d2b; pointer-events: none; font-size: 14px; line-height: 1.6; }
+  #stats b { font-size: 20px; }
+  #help { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(31,29,43,.72); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: 12.5px; pointer-events: none; white-space: nowrap; }
+  #caption { position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1f1d2b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+</head>
+<body>
+<div id="hud">
+  <h1>Nano Workforce</h1>
+  <div class="sub">Agent Graph Orchestration for the Agentic SDLC</div>
+  <div id="level"><span data-l="0">Organisation</span><span data-l="1">Processes</span><span data-l="2">Codebase</span></div>
+</div>
+<div id="stats"></div>
+<div id="caption"></div>
+<div id="help">drag: pan · right-drag / ctrl-drag: rotate &amp; tilt · scroll: zoom to cursor · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit</div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>
