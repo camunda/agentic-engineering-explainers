@@ -3,7 +3,7 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 import { layers, applyLayers, smooth } from './core.js';
 import { buildWorld, updateWorld, codebases } from './world.js';
 import { buildAgents, stats } from './agents.js';
-import { gardenMode, setGardenMode } from './garden.js';
+import { gardenMode, setGardenMode, setMutating, tickSeason, seasonPhase } from './garden.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -55,15 +55,30 @@ const GARDEN_CAPTIONS = {
   true: 'Tend the soil, build the structure it grows into. I don\u2019t force the plants — I shape the garden.',
   false: 'Just throw seeds and hope: overgrowth, all effort goes into weeding — and a tiny harvest.',
 };
-const captionFor = (level) => (level === 2 ? GARDEN_CAPTIONS[gardenMode.structured] : CAPTIONS[level]);
+const captionFor = (level) => (level !== 2 ? CAPTIONS[level] : gardenMode.structured && gardenMode.mutating ? seasonPhase() : GARDEN_CAPTIONS[gardenMode.structured]);
 const modeEl = document.getElementById('mode');
 const SKY_WILD = new THREE.Color('#e3d3b0');
 function toggleGarden(structured = !gardenMode.structured) {
   setGardenMode(structured);
-  modeEl.querySelectorAll('button').forEach((b) => b.classList.toggle('on', (b.dataset.m === 's') === structured));
+  syncModeButtons();
   if (shownLevel === 2) { caption.textContent = captionFor(2); }
 }
-modeEl.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) toggleGarden(b.dataset.m === 's'); });
+function syncModeButtons() {
+  modeEl.querySelectorAll('button[data-m]').forEach((b) => b.classList.toggle('on', (b.dataset.m === 's') === gardenMode.structured));
+  modeEl.querySelectorAll('button[data-x]').forEach((b) => b.classList.toggle('on', (b.dataset.x === 'm') === gardenMode.mutating));
+  modeEl.classList.toggle('wild', !gardenMode.structured);
+}
+function toggleMutating(on = !gardenMode.mutating) {
+  if (!gardenMode.structured) setGardenMode(true);
+  setMutating(on);
+  syncModeButtons();
+  if (shownLevel === 2) caption.textContent = captionFor(2);
+}
+modeEl.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (b?.dataset.m) toggleGarden(b.dataset.m === 's');
+  if (b?.dataset.x) toggleMutating(b.dataset.x === 'm');
+});
 let shownLevel = -1;
 
 function updateZoom() {
@@ -111,6 +126,7 @@ renderer.domElement.addEventListener('dblclick', (e) => {
 addEventListener('keydown', (e) => {
   if (e.key === ' ') { controls.autoRotate = !controls.autoRotate; e.preventDefault(); }
   if (e.key === 'g' || e.key === 'G') toggleGarden();
+  if (e.key === 'm' || e.key === 'M') toggleMutating();
   if (e.key === '0') flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length()));
   const n = Number(e.key);
   if (n >= 1 && n <= codebases.length) {
@@ -144,6 +160,8 @@ function frame() {
   controls.update(dt);
   const z = updateZoom();
   camera.getWorldDirection(camFwd);
+  tickSeason(dt);
+  if (shownLevel === 2 && gardenMode.structured && gardenMode.mutating && caption.textContent !== seasonPhase()) caption.textContent = seasonPhase();
   updateWorld(dt, t, camFwd);
   for (const a of agents) {
     a.update(dt, t, z.antMode);

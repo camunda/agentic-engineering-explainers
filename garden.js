@@ -62,7 +62,30 @@ function makePlant(kind) {
 // Two ways to grow the same seeds (after the "Growing software: before → approach" comic):
 // structured = tended soil, planters, trellis (CI), greenhouse (quality gates), irrigation;
 // wild = seeds thrown on cracked dirt and hope — overgrowth, weeding, a tiny harvest.
-export const gardenMode = { structured: true, listeners: [] };
+export const gardenMode = { structured: false, mutating: false, listeners: [] };
+// One shared season clock so every garden (and the caption) is on the same beat.
+export const season = { t: 0, length: 48 };
+const SEASON_PHASES = [
+  [0, 'Agents tend the vines; they grow and bear fruit\u2026'],
+  [7, '\u2026and the weight starts to bend the trellis.'],
+  [10, 'A human steps in to reinforce the structure.'],
+  [20.5, 'Agents add a new planter box\u2026'],
+  [24, '\u2026but nothing waters it. It starts to wilt.'],
+  [27, 'A human routes a new irrigation line.'],
+  [35, 'Structure adapted. The garden keeps growing.'],
+];
+export function seasonPhase() {
+  let label = SEASON_PHASES[0][1];
+  for (const [at, l] of SEASON_PHASES) if (season.t >= at) label = l;
+  return label;
+}
+export function tickSeason(dt) {
+  if (gardenMode.structured && gardenMode.mutating) season.t = (season.t + dt) % season.length;
+}
+export function setMutating(on) {
+  gardenMode.mutating = on;
+  season.t = 0;
+}
 export function setGardenMode(structured) {
   gardenMode.structured = structured;
   for (const f of gardenMode.listeners) f(structured);
@@ -139,16 +162,38 @@ export function buildGarden(cb) {
     for (let k = 0; k < 4; k++) addPlant(pick(['flower', 'tomato']), 6 + x, 0.5, -3 - 2.25 + k * 1.5, V(6, 0, -3 - 2.25 + k * 1.5));
   }
 
-  // Trellis with climbing vines.
+  // Trellis with climbing vines. Everything hangs off a pivot at its base so it can lean under load.
   const tz = 6;
-  for (const x of [3, 9]) g.add(mesh(box(0.15, 3, 0.15), woodDark, x, 1.5, tz));
-  for (let y = 0.6; y <= 3; y += 0.6) g.add(mesh(box(6, 0.06, 0.06), wood, 6, y, tz));
-  for (let x = 3.5; x < 9; x += 0.75) {
-    const s = mesh(box(0.06, 3, 0.06), wood, x, 1.5, tz);
+  const trellis = new THREE.Group();
+  trellis.position.set(6, 0, tz);
+  g.add(trellis);
+  for (const x of [-3, 3]) trellis.add(mesh(box(0.15, 3, 0.15), woodDark, x, 1.5, 0));
+  const rails = [];
+  for (let y = 0.6; y <= 3; y += 0.6) { const r = mesh(box(6, 0.06, 0.06), wood, 0, y, 0); r.userData.y = y; trellis.add(r); rails.push(r); }
+  for (let x = -2.5; x < 3; x += 0.75) {
+    const s = mesh(box(0.06, 3, 0.06), wood, x, 1.5, 0);
     s.rotation.z = 0.3;
-    g.add(s);
+    trellis.add(s);
   }
-  for (let k = 0; k < 4; k++) addPlant('vine', 3.8 + k * 1.5, 0, tz + 0.25, V(3.8 + k * 1.5, 0, tz + 1.3));
+  const vines = [];
+  for (let k = 0; k < 4; k++) {
+    const x = 3.8 + k * 1.5;
+    const p = addPlant('vine', x, 0, tz + 0.25, V(x, 0, tz + 1.3));
+    trellis.add(p.obj);
+    p.obj.position.set(x - 6, 0, 0.25);
+    vines.push(p);
+  }
+  // Reinforcement a human adds once the trellis starts to bend: a centre post and back braces.
+  const braces = new THREE.Group();
+  trellis.add(braces);
+  const steelPost = toon(G, '#6b7785');
+  braces.add(mesh(box(0.22, 3.3, 0.22), steelPost, 0, 1.65, -0.15));
+  for (const x of [-3, 0, 3]) {
+    const b = mesh(box(0.14, 3.0, 0.14), steelPost, x, 1.3, -1.0);
+    b.rotation.x = -0.55;
+    braces.add(b);
+  }
+  braces.add(mesh(box(6.4, 0.12, 0.12), steelPost, 0, 3.05, -0.05));
 
   // Irrigation: tank → manifold → planters and greenhouse, with water flowing through it.
   g.add(mesh(cyl(1.2, 1.2, 2.6, 16), steel, -9.3, 1.3, 7));
@@ -197,6 +242,61 @@ export function buildGarden(cb) {
   const sign = sprite(G, cb.name, 1.6, { w: 640, h: 128, font: 'bold 64px system-ui', bg: '#fffaf0', fg: '#1f1d2b', stroke: cb.color });
   sign.position.set(0, 4.2, 10.5);
   root.add(sign);
+
+  // ---- Change over time: a new planter box arrives and needs its own irrigation line. -------
+  const newBox = new THREE.Group();
+  newBox.position.set(-2.5, 0, 7);
+  newBox.add(mesh(box(6.4, 0.8, 1.6), wood, 0, 0.4, 0));
+  newBox.add(mesh(box(6.0, 0.1, 1.2), soil, 0, 0.81, 0, false));
+  const newPlants = [];
+  for (let k = 0; k < 5; k++) {
+    const p = makePlant(pick(['leafy', 'flower', 'tomato']));
+    p.obj.position.set(-2.5 + k * 1.25, 0.85, 0);
+    newBox.add(p.obj);
+    newPlants.push(p);
+  }
+  g.add(newBox);
+  const hose = mesh(cyl(0.08, 0.08, 1, 6), pipeMat, 0, 0.25, 7);
+  hose.rotation.z = Math.PI / 2;
+  g.add(hose);
+  const hoseDrops = [];
+  for (let i = 0; i < 5; i++) { const d = mesh(ball(0.08), water, 0, 0.42, 7, false); g.add(d); hoseDrops.push(d); }
+  spr.position.set(1.5, 0, 10); // sprinkler moves aside to make room for the new box
+
+  // The human gardener: bigger, hard hat, toolbox — the one who changes the structure.
+  const human = new THREE.Group();
+  const hb = new THREE.Group();
+  hb.scale.setScalar(1.45);
+  human.add(hb);
+  hb.add(mesh(new THREE.CapsuleGeometry(0.3, 0.5, 4, 10), toon(G, '#2d5fa8'), 0, 0.65, 0));
+  hb.add(mesh(new THREE.SphereGeometry(0.25, 12, 10), toon(G, '#f1c7a1'), 0, 1.3, 0));
+  hb.add(mesh(new THREE.SphereGeometry(0.29, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), toon(G, '#ff8a1f'), 0, 1.38, 0));
+  hb.add(mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.03, 16), toon(G, '#ff8a1f'), 0, 1.38, 0.04));
+  for (const sx of [1, -1]) hb.add(mesh(new THREE.SphereGeometry(0.035, 6, 4), toon(G, '#1f1d2b'), 0.09 * sx, 1.33, 0.22));
+  const arm = new THREE.Group();
+  arm.position.set(0.38, 0.95, 0);
+  arm.add(mesh(cyl(0.07, 0.07, 0.55, 6), toon(G, '#2d5fa8'), 0, -0.25, 0));
+  const hammer = new THREE.Group();
+  hammer.position.set(0, -0.5, 0.1);
+  hammer.add(mesh(cyl(0.03, 0.03, 0.5, 6), woodDark, 0, 0, 0.2).rotateX(Math.PI / 2));
+  hammer.add(mesh(box(0.12, 0.12, 0.25), steel, 0, 0, 0.45).rotateY(Math.PI / 2));
+  arm.add(hammer);
+  hb.add(arm);
+  hb.add(mesh(box(0.5, 0.3, 0.25), toon(G, '#d23c3c'), -0.45, 0.35, 0));
+  const humanTag = sprite(G, 'HUMAN', 0.45, { w: 320, h: 110, font: 'bold 64px system-ui', bg: '#ff8a1f', fg: '#fff' });
+  humanTag.position.y = 2.9;
+  human.add(humanTag);
+  g.add(human);
+
+  const warn = (text) => {
+    const l = sprite(G, text, 0.75, { ...signStyle, bg: '#ff5a4f', fg: '#fff', stroke: '#fff' });
+    g.add(l);
+    return l;
+  };
+  const bendSign = warn('TRELLIS BENDING!');
+  bendSign.position.set(6, 5.2, tz);
+  const drySign = warn('NO IRRIGATION!');
+  drySign.position.set(-2.5, 3, 7);
 
   // Structure labels, as in the comic.
   label('CI', 6, 3.6, tz);
@@ -305,6 +405,7 @@ export function buildGarden(cb) {
       }
       return;
     }
+    mutate(dt, t);
     let ripe = 0;
     for (const p of plants) {
       if (p.fruit.visible) ripe++;
@@ -329,6 +430,69 @@ export function buildGarden(cb) {
       d.position.set(0, k * 1.2 - k * k * 1.6, k * 2.5);
     });
   }
+  // ---- Season timeline (structured + evolving) -------------------------------------------------
+  const HOME = V(0, 0, 13), AT_TRELLIS = V(6, 0, tz - 1.6), AT_HOSE = V(-7.6, 0, 8.2);
+  const lerpPath = (k, pts) => {
+    const f = Math.min(pts.length - 1.0001, Math.max(0, k) * (pts.length - 1));
+    return pts[Math.floor(f)].clone().lerp(pts[Math.floor(f) + 1], f - Math.floor(f));
+  };
+  const ramp = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+  function mutate(dt, t) {
+    const T = gardenMode.mutating ? season.t : -1;
+    const on = T >= 0;
+    // Load: vines grow heavy with fruit, then the trellis leans until reinforced.
+    const load = on ? ramp(T, 0, 9) : 0;
+    const reinforce = on ? ramp(T, 16, 20) : 0;
+    const bend = load * (1 - reinforce) * (on ? ramp(T, 4, 10) : 0);
+    trellis.rotation.x = bend * 0.32 + Math.sin(t * 3) * 0.015 * bend;
+    trellis.rotation.z = bend * 0.06;
+    rails.forEach((r) => { r.position.y = r.userData.y - bend * 0.25 * (r.userData.y / 3) ** 2; r.rotation.z = Math.sin(r.userData.y * 3) * bend * 0.05; });
+    braces.visible = reinforce > 0;
+    braces.scale.set(1, Math.max(0.01, reinforce), 1);
+    for (const v of vines) {
+      if (on && T < 36) v.growth = Math.max(v.growth, 0.5 + load * 0.5);
+      for (const f of v.fruit.children) f.scale.setScalar(1 + load * 1.3);
+    }
+    bendSign.visible = bend > 0.5;
+    // A new planter box grows in; its plants wilt until a hose is routed to it.
+    const boxIn = on ? ramp(T, 20, 22.5) : 0;
+    newBox.visible = boxIn > 0;
+    newBox.scale.setScalar(Math.max(0.01, boxIn));
+    const hoseLen = on ? ramp(T, 31, 34) : 0;
+    hose.visible = hoseLen > 0;
+    hose.scale.set(1, Math.max(0.01, hoseLen * 2.4), 1);
+    hose.position.x = -7 + hoseLen * 1.2;
+    hoseDrops.forEach((d, i) => { d.visible = hoseLen >= 1; d.position.x = -7 + ((t * 0.8 + i / 5) % 1) * 2.4; });
+    const watered = on ? ramp(T, 34, 38) : 0;
+    const wilt = on ? ramp(T, 22, 28) : 0;
+    for (const p of newPlants) {
+      const gr = 0.9 - wilt * 0.6 + watered * 0.6;
+      p.obj.scale.setScalar(0.45 + 0.6 * gr);
+      p.obj.rotation.z = (1 - watered) * wilt * 0.5;
+      p.leaf.color.copy(LEAF_DRY).lerp(LEAF_WET, Math.min(1, gr));
+      p.fruit.visible = gr > 0.85;
+    }
+    drySign.visible = boxIn >= 1 && hoseLen < 1;
+    // The human walks in, reinforces the trellis, then routes the new hose, then leaves.
+    human.visible = on && T > 9 && T < 44;
+    if (human.visible) {
+      let pos, working = false;
+      if (T < 14) pos = lerpPath(ramp(T, 9, 14), [HOME, V(6, 0, 11), AT_TRELLIS.clone().setZ(tz + 1.6)]);
+      else if (T < 15.5) pos = lerpPath(ramp(T, 14, 15.5), [AT_TRELLIS.clone().setZ(tz + 1.6), V(9.8, 0, tz), AT_TRELLIS]);
+      else if (T < 20.5) { pos = AT_TRELLIS; working = true; }
+      else if (T < 28) pos = lerpPath(ramp(T, 25, 30), [AT_TRELLIS, V(10, 0, 9), V(0, 0, 10.6), AT_HOSE]);
+      else if (T < 34) { pos = lerpPath(ramp(T, 25, 30), [AT_TRELLIS, V(10, 0, 9), V(0, 0, 10.6), AT_HOSE]); working = T > 30; }
+      else pos = lerpPath(ramp(T, 38, 43), [AT_HOSE, V(-4, 0, 10.6), HOME]);
+      const prev = human.position.clone();
+      human.position.copy(pos);
+      const d = pos.clone().sub(prev);
+      if (d.lengthSq() > 1e-6) human.rotation.y = Math.atan2(d.x, d.z);
+      else if (working) human.rotation.y = T < 21 ? 0 : -Math.PI * 0.6;
+      arm.rotation.x = working ? -1.2 + Math.sin(t * 14) * 0.7 : Math.sin(t * 8) * 0.3;
+      hb.position.y = d.lengthSq() > 1e-6 ? Math.abs(Math.sin(t * 10)) * 0.1 : 0;
+    }
+  }
+
   return {
     get plants() { return gardenMode.structured ? plants : wildPlants; },
     get ripe() { return (gardenMode.structured ? plants : wildPlants).filter((p) => p.fruit.visible).length; },

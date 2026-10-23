@@ -22,6 +22,9 @@
   #mode button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1f1d2b; }
   #mode button.on[data-m=s] { background: #2f7d3a; color: #fff; }
   #mode button.on[data-m=w] { background: #7a5a3a; color: #fff; }
+  #mode .sep { width: 1px; margin: 4px 8px; background: rgba(31,29,43,.25); }
+  #mode button.on[data-x] { background: #1f1d2b; color: #fff; }
+  #mode.wild button[data-x], #mode.wild .sep { display: none; }
 </style>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
@@ -35,8 +38,8 @@
 </div>
 <div id="stats"></div>
 <div id="caption"></div>
-<div id="mode"><button data-m="s" class="on">Structured garden</button><button data-m="w">Unstructured garden</button></div>
-<div id="help">drag: pan · right-drag / ctrl-drag: rotate &amp; tilt · scroll: zoom to cursor · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: structured / unstructured garden</div>
+<div id="mode" class="wild"><button data-m="w" class="on">Unstructured garden</button><button data-m="s">Structured garden</button><span class="sep"></span><button data-x="s" class="on">Stable</button><button data-x="m">Evolving</button></div>
+<div id="help">drag: pan · right-drag / ctrl-drag: rotate &amp; tilt · scroll: zoom to cursor · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: structured / unstructured · m: stable / evolving</div>
 <script type="module" src="./main.js"></script>
 </body>
 </html>
