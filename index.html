@@ -17,6 +17,11 @@
   #stats b { font-size: 20px; }
   #help { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(31,29,43,.72); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: 12.5px; pointer-events: none; white-space: nowrap; }
   #caption { position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1f1d2b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
+  #mode { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); display: flex; gap: 0; background: rgba(255,255,255,.6); border-radius: 999px; padding: 4px; opacity: 0; pointer-events: none; transition: opacity .4s; }
+  #mode.show { opacity: 1; pointer-events: auto; }
+  #mode button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1f1d2b; }
+  #mode button.on[data-m=s] { background: #2f7d3a; color: #fff; }
+  #mode button.on[data-m=w] { background: #7a5a3a; color: #fff; }
 </style>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
@@ -30,7 +35,8 @@
 </div>
 <div id="stats"></div>
 <div id="caption"></div>
-<div id="help">drag: pan · right-drag / ctrl-drag: rotate &amp; tilt · scroll: zoom to cursor · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit</div>
+<div id="mode"><button data-m="s" class="on">Structured garden</button><button data-m="w">Unstructured garden</button></div>
+<div id="help">drag: pan · right-drag / ctrl-drag: rotate &amp; tilt · scroll: zoom to cursor · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: structured / unstructured garden</div>
 <script type="module" src="./main.js"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 import { layers, applyLayers, smooth } from './core.js';
 import { buildWorld, updateWorld, codebases } from './world.js';
 import { buildAgents, stats } from './agents.js';
+import { gardenMode, setGardenMode } from './garden.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -13,8 +14,8 @@ document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const SKY = new THREE.Color('#bfe3d0');
-scene.background = SKY;
-scene.fog = new THREE.Fog(SKY, 500, 1100);
+scene.background = SKY.clone();
+scene.fog = new THREE.Fog(SKY.clone(), 500, 1100);
 
 const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.2, 3000);
 const HOME = { pos: new THREE.Vector3(0, 330, 240), target: new THREE.Vector3(0, 0, 0) };
@@ -50,6 +51,19 @@ const CAPTIONS = [
   'Up close, every agent is a token following a BPMN process: plan, implement, review, merge.',
   'Inside a codebase: a garden. Agents tend the plants; the structures keep it growing.',
 ];
+const GARDEN_CAPTIONS = {
+  true: 'Tend the soil, build the structure it grows into. I don\u2019t force the plants — I shape the garden.',
+  false: 'Just throw seeds and hope: overgrowth, all effort goes into weeding — and a tiny harvest.',
+};
+const captionFor = (level) => (level === 2 ? GARDEN_CAPTIONS[gardenMode.structured] : CAPTIONS[level]);
+const modeEl = document.getElementById('mode');
+const SKY_WILD = new THREE.Color('#e3d3b0');
+function toggleGarden(structured = !gardenMode.structured) {
+  setGardenMode(structured);
+  modeEl.querySelectorAll('button').forEach((b) => b.classList.toggle('on', (b.dataset.m === 's') === structured));
+  if (shownLevel === 2) { caption.textContent = captionFor(2); }
+}
+modeEl.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) toggleGarden(b.dataset.m === 's'); });
 let shownLevel = -1;
 
 function updateZoom() {
@@ -63,8 +77,9 @@ function updateZoom() {
   if (level !== shownLevel) {
     shownLevel = level;
     levelEls.forEach((e, i) => e.classList.toggle('on', i === level));
+    modeEl.classList.toggle('show', level === 2);
     caption.style.opacity = 0;
-    setTimeout(() => { caption.textContent = CAPTIONS[level]; caption.style.opacity = 1; }, 250);
+    setTimeout(() => { caption.textContent = captionFor(shownLevel); caption.style.opacity = 1; }, 250);
   }
   // Ants are drawn bigger when far away so the colony still reads; gardeners appear when close.
   return { d, antMode: d > 150, antScale: Math.max(1, d / 110) };
@@ -95,6 +110,7 @@ renderer.domElement.addEventListener('dblclick', (e) => {
 });
 addEventListener('keydown', (e) => {
   if (e.key === ' ') { controls.autoRotate = !controls.autoRotate; e.preventDefault(); }
+  if (e.key === 'g' || e.key === 'G') toggleGarden();
   if (e.key === '0') flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length()));
   const n = Number(e.key);
   if (n >= 1 && n <= codebases.length) {
@@ -136,13 +152,17 @@ function frame() {
   sun.target.position.copy(controls.target);
   sun.position.copy(controls.target).add(new THREE.Vector3(40, 90, 30));
   sun.castShadow = z.d < 160;
+  // Dusty sky for the wild garden, fading in only at garden level.
+  const wild = gardenMode.structured ? 0 : layers.garden.o;
+  scene.background.copy(SKY).lerp(SKY_WILD, wild);
+  scene.fog.color.copy(scene.background);
 
   statT -= dt;
   if (statT <= 0) {
     statT = 0.5;
     const inGarden = agents.filter((a) => a.tending).length;
     const commuting = agents.filter((a) => a.commuting).length;
-    statsEl.innerHTML = `<b>${agents.length}</b> agents · <b>${codebases.length}</b> codebases<br>${commuting} in transit · ${inGarden} tending code<br><b>${stats.merged}</b> PRs merged · <b>${stats.tended}</b> plants tended`;
+    statsEl.innerHTML = `<b>${agents.length}</b> agents · <b>${codebases.length}</b> codebases<br>${commuting} in transit · ${inGarden} tending code<br><b>${stats.merged}</b> PRs merged · <b>${stats.tended}</b> plants tended<br>${gardenMode.structured ? 'structured' : 'unstructured'} gardens · <b>${codebases.reduce((n, c) => n + c.garden.ripe, 0)}</b> ripe`;
   }
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
