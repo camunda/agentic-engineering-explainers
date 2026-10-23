@@ -62,7 +62,7 @@ function makePlant(kind) {
 // Two ways to grow the same seeds (after the "Growing software: before → approach" comic):
 // structured = tended soil, planters, trellis (CI), greenhouse (quality gates), irrigation;
 // wild = seeds thrown on cracked dirt and hope — overgrowth, weeding, a tiny harvest.
-export const gardenMode = { structured: false, mutating: false, listeners: [] };
+export const gardenMode = { structured: false, mutating: false, build: null, listeners: [] };
 // One shared season clock so every garden (and the caption) is on the same beat.
 export const season = { t: 0, length: 48 };
 const SEASON_PHASES = [
@@ -80,14 +80,38 @@ export function seasonPhase() {
   return label;
 }
 export function tickSeason(dt) {
+  if (gardenMode.build) {
+    gardenMode.build.t += dt;
+    if (gardenMode.build.t >= BUILD_LENGTH) { gardenMode.build = null; for (const f of gardenMode.listeners) f(true); }
+    return;
+  }
   if (gardenMode.structured && gardenMode.mutating) season.t = (season.t + dt) % season.length;
 }
 export function setMutating(on) {
   gardenMode.mutating = on;
   season.t = 0;
 }
+// Unstructured → structured is not a switch, it's work: a human walks in with agents and builds it.
+export const BUILD_LENGTH = 25;
+const BUILD_PHASES = [
+  [0, 'A human walks into the overgrown garden with a crew of agents\u2026'],
+  [1.5, 'First, clear the weeds and prepare the soil.'],
+  [5.5, 'Build planter boxes: modules with clear boundaries.'],
+  [10.5, 'Put up the greenhouse: quality gates.'],
+  [13.5, 'Raise the trellis: CI for things to grow along.'],
+  [16, 'Lay the irrigation: architecture that feeds every bed.'],
+  [21.5, 'Label it all. Now the agents can tend it.'],
+];
+export function buildPhase() {
+  let label = BUILD_PHASES[0][1];
+  for (const [at, l] of BUILD_PHASES) if (gardenMode.build.t >= at) label = l;
+  return label;
+}
 export function setGardenMode(structured) {
+  const was = gardenMode.structured;
+  if (was === structured) return;
   gardenMode.structured = structured;
+  gardenMode.build = structured && !was ? { t: 0 } : null;
   for (const f of gardenMode.listeners) f(structured);
 }
 
@@ -110,6 +134,10 @@ export function buildGarden(cb) {
   const wildPlants = [];
   const local = [];
 
+  // Build stages: each slice of g's children pops in during the unstructured → structured build.
+  const stages = [];
+  const mark = (t0, t1, at, regroup = true) => stages.push({ from: g.children.length, t0, t1, at, regroup });
+  mark(1.5, 5.5, V(0, 0, 2));
   g.add(mesh(new THREE.CircleGeometry(12.5, 48).rotateX(-Math.PI / 2), bed, 0, 0.02, 0, false));
   const path = mesh(new THREE.RingGeometry(12.5, 13.6, 48).rotateX(-Math.PI / 2), gravel, 0, 0.025, 0, false);
   root.add(path);
@@ -130,6 +158,7 @@ export function buildGarden(cb) {
 
   // Planter boxes — one per area of the codebase.
   for (const [i, z] of [-7, -3.5, 0, 3.5].entries()) {
+    mark(5.5 + (3 - i) * 1.25, 6.75 + (3 - i) * 1.25, V(1.3, 0, z + 0.4));
     g.add(mesh(box(6.4, 0.8, 1.6), wood, -2.5, 0.4, z));
     g.add(mesh(box(6.0, 0.1, 1.2), soil, -2.5, 0.81, z, false));
     for (let k = 0; k < 5; k++) {
@@ -139,6 +168,7 @@ export function buildGarden(cb) {
   }
 
   // Greenhouse.
+  mark(10.5, 13.5, V(6, 0, 1.6));
   const gh = new THREE.Group();
   gh.position.set(6, 0, -3);
   g.add(gh);
@@ -164,6 +194,7 @@ export function buildGarden(cb) {
 
   // Trellis with climbing vines. Everything hangs off a pivot at its base so it can lean under load.
   const tz = 6;
+  mark(13.5, 16, V(6, 0, tz + 1.6));
   const trellis = new THREE.Group();
   trellis.position.set(6, 0, tz);
   g.add(trellis);
@@ -195,6 +226,7 @@ export function buildGarden(cb) {
   }
   braces.add(mesh(box(6.4, 0.12, 0.12), steelPost, 0, 3.05, -0.05));
 
+  mark(16, 20, V(-7.8, 0, 5));
   // Irrigation: tank → manifold → planters and greenhouse, with water flowing through it.
   g.add(mesh(cyl(1.2, 1.2, 2.6, 16), steel, -9.3, 1.3, 7));
   g.add(mesh(cyl(1.25, 1.25, 0.2, 16), pipeMat, -9.3, 2.65, 7));
@@ -215,6 +247,7 @@ export function buildGarden(cb) {
     p.rotation.z = Math.PI / 2;
     g.add(p);
   }
+  mark(19.5, 20, null, false); // water starts flowing once the pipes are in
   const drops = [];
   for (let i = 0; i < 26; i++) {
     const d = mesh(ball(0.1), water, 0, 0, 0, false);
@@ -222,6 +255,7 @@ export function buildGarden(cb) {
     g.add(d);
     drops.push(d);
   }
+  mark(20, 21.5, V(-1, 0, 8.5));
   // Rotating sprinkler on the lawn.
   const spr = new THREE.Group();
   spr.position.set(-2.5, 0, 8.6);
@@ -243,6 +277,7 @@ export function buildGarden(cb) {
   sign.position.set(0, 4.2, 10.5);
   root.add(sign);
 
+  mark(-1, -1, null, false); // managed by the season timeline, not the build
   // ---- Change over time: a new planter box arrives and needs its own irrigation line. -------
   const newBox = new THREE.Group();
   newBox.position.set(-2.5, 0, 7);
@@ -298,6 +333,7 @@ export function buildGarden(cb) {
   const drySign = warn('NO IRRIGATION!');
   drySign.position.set(-2.5, 3, 7);
 
+  mark(21.5, 24, V(8, 0, 4));
   // Structure labels, as in the comic.
   label('CI', 6, 3.6, tz);
   label('QUALITY GATES', 6, 4.6, -3);
@@ -317,6 +353,38 @@ export function buildGarden(cb) {
     harvest.push(m);
   }
   g.add(crate);
+  stages.push({ from: g.children.length });
+  // Gather each stage into a group pivoting at its ground centroid so it can grow up out of the soil.
+  for (let i = 0; i < stages.length - 1; i++) {
+    const st = stages[i];
+    st.objs = g.children.slice(st.from, stages[i + 1].from);
+  }
+  stages.pop();
+  for (const st of stages) {
+    if (!st.regroup) continue;
+    const c = V(0, 0, 0);
+    for (const o of st.objs) c.add(o.position);
+    c.multiplyScalar(1 / st.objs.length).setY(0);
+    st.group = new THREE.Group();
+    st.group.position.copy(c);
+    g.add(st.group);
+    for (const o of st.objs) { st.group.add(o); o.position.sub(c); }
+  }
+  // Helper agents who build alongside the human.
+  const crew = [];
+  for (const [i, col] of ['#e8603c', '#3c7ee8', '#2fa36b', '#8a4fd6'].entries()) {
+    const a = new THREE.Group();
+    a.add(mesh(new THREE.CapsuleGeometry(0.28, 0.45, 4, 10), toon(G, col), 0, 0.6, 0));
+    a.add(mesh(new THREE.SphereGeometry(0.24, 12, 10), toon(G, '#f1c7a1'), 0, 1.2, 0));
+    a.add(mesh(cyl(0.42, 0.42, 0.04, 16), toon(G, '#e9cf7a'), 0, 1.36, 0));
+    a.add(mesh(cyl(0.18, 0.22, 0.2, 12), toon(G, '#e9cf7a'), 0, 1.46, 0));
+    const plank = mesh(box(1.4, 0.08, 0.25), wood, 0, 1.0, 0.35);
+    a.add(plank);
+    a.userData = { off: V(Math.cos(i * 1.6 + 0.6) * 1.8, 0, Math.sin(i * 1.6 + 0.6) * 1.8), plank, phase: i * 1.3 };
+    a.position.set(rand(-2, 2), 0, 13 + i * 0.6);
+    g.add(a);
+    crew.push(a);
+  }
 
   // ---- Wild garden: no soil prep, no structure. ---------------------------------------------
   w.add(mesh(new THREE.CircleGeometry(12.5, 48).rotateX(-Math.PI / 2), crackedMat, 0, 0.02, 0, false));
@@ -378,7 +446,22 @@ export function buildGarden(cb) {
   label('MORE SEEDS!\nGROW FASTER!', 0, 4.4, 0, 1.0, w);
   let overgrowth = 0.6;
 
-  const apply = (on) => { g.visible = on; w.visible = !on; };
+  const apply = (on) => {
+    g.visible = on;
+    w.visible = !on || !!gardenMode.build;
+    if (gardenMode.build) {
+      for (const p of plants) p.growth = rand(0.2, 0.35); // freshly planted
+      human.position.set(0, 0, 13);
+      crew.forEach((a, i) => a.position.set(-1.5 + i, 0, 13.5));
+      tangle.scale.set(1, 1, 1);
+    }
+    if (!on || !gardenMode.build) {
+      for (const st of stages) { if (st.group) { st.group.visible = true; st.group.scale.setScalar(1); } else for (const o of st.objs) o.visible = true; }
+      for (const a of crew) a.visible = false;
+      tangle.visible = weeds.visible = true;
+      for (const p of wildPlants) p.obj.visible = true;
+    }
+  };
   gardenMode.listeners.push(apply);
   apply(gardenMode.structured);
 
@@ -406,6 +489,7 @@ export function buildGarden(cb) {
       return;
     }
     mutate(dt, t);
+    if (gardenMode.build) buildStep(dt, t);
     let ripe = 0;
     for (const p of plants) {
       if (p.fruit.visible) ripe++;
@@ -438,7 +522,7 @@ export function buildGarden(cb) {
   };
   const ramp = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
   function mutate(dt, t) {
-    const T = gardenMode.mutating ? season.t : -1;
+    const T = gardenMode.mutating && !gardenMode.build ? season.t : -1;
     const on = T >= 0;
     // Load: vines grow heavy with fruit, then the trellis leans until reinforced.
     const load = on ? ramp(T, 0, 9) : 0;
@@ -490,6 +574,55 @@ export function buildGarden(cb) {
       else if (working) human.rotation.y = T < 21 ? 0 : -Math.PI * 0.6;
       arm.rotation.x = working ? -1.2 + Math.sin(t * 14) * 0.7 : Math.sin(t * 8) * 0.3;
       hb.position.y = d.lengthSq() > 1e-6 ? Math.abs(Math.sin(t * 10)) * 0.1 : 0;
+    }
+  }
+
+  // ---- Build transition -----------------------------------------------------------------------
+  const easeBack = (k) => 1 + 2.2 * (k - 1) ** 3 + 1.2 * (k - 1) ** 2;
+  const tmp = V(0, 0, 0);
+  function buildStep(dt, t) {
+    const T = gardenMode.build.t;
+    // Clear the wild: overgrowth shrinks away as the crew pulls it.
+    const clear = ramp(T, 1, 5);
+    tangle.scale.set(Math.max(0.01, 1 - clear), Math.max(0.01, (1 - clear) * 1.1), Math.max(0.01, 1 - clear));
+    weeds.scale.set(1, Math.max(0.01, 1 - clear), 1);
+    for (const p of wildPlants) p.obj.scale.setScalar(Math.max(0.01, (1 - clear) * 0.8));
+    w.visible = clear < 1;
+    // Stages grow in, the human working at whichever one is being built.
+    let active = null;
+    for (const st of stages) {
+      if (st.t0 < 0) continue;
+      const k = ramp(T, st.t0, st.t1);
+      if (st.group) { st.group.visible = k > 0; st.group.scale.setScalar(Math.max(0.01, easeBack(k))); }
+      else for (const o of st.objs) o.visible = k >= 1;
+      if (st.at && T >= st.t0 - 1.2 && T < st.t1) active = st;
+    }
+    const target = active ? active.at : T < 1.5 ? V(0, 0, 4) : V(0, 0, 11);
+    human.visible = true;
+    const d = tmp.copy(target).sub(human.position).setY(0);
+    const dist = d.length();
+    const moving = dist > 0.15;
+    if (moving) {
+      human.position.addScaledVector(d, Math.min(1, (6 * dt) / dist));
+      human.rotation.y = Math.atan2(d.x, d.z);
+    } else if (active) {
+      const c = active.group ? active.group.position : target;
+      human.rotation.y = Math.atan2(c.x - human.position.x, c.z - human.position.z);
+    }
+    const working = !moving && (active || T < 5.5);
+    arm.rotation.x = working ? -1.2 + Math.sin(t * 14) * 0.7 : Math.sin(t * 8) * 0.3;
+    hb.position.y = moving ? Math.abs(Math.sin(t * 10)) * 0.1 : 0;
+    // The crew fans out around the human, carrying planks and bobbing as they hammer.
+    for (const a of crew) {
+      a.visible = true;
+      const goal = tmp.copy(human.position).add(a.userData.off);
+      goal.x = Math.max(-11, Math.min(11, goal.x)); goal.z = Math.max(-11, Math.min(12.5, goal.z));
+      const ad = goal.sub(a.position).setY(0);
+      const al = ad.length();
+      if (al > 0.2) { a.position.addScaledVector(ad, Math.min(1, (5 * dt) / al)); a.rotation.y = Math.atan2(ad.x, ad.z); }
+      else a.rotation.y = Math.atan2(human.position.x - a.position.x, human.position.z - a.position.z);
+      a.position.y = al > 0.2 ? Math.abs(Math.sin(t * 11 + a.userData.phase)) * 0.12 : Math.max(0, Math.sin(t * 9 + a.userData.phase)) * 0.15;
+      a.userData.plank.visible = T > 4.5 && T < 22;
     }
   }
 

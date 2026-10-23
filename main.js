@@ -3,7 +3,7 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 import { layers, applyLayers, smooth } from './core.js';
 import { buildWorld, updateWorld, codebases } from './world.js';
 import { buildAgents, stats } from './agents.js';
-import { gardenMode, setGardenMode, setMutating, tickSeason, seasonPhase } from './garden.js';
+import { gardenMode, setGardenMode, setMutating, tickSeason, seasonPhase, buildPhase } from './garden.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -55,7 +55,7 @@ const GARDEN_CAPTIONS = {
   true: 'Tend the soil, build the structure it grows into. I don\u2019t force the plants — I shape the garden.',
   false: 'Just throw seeds and hope: overgrowth, all effort goes into weeding — and a tiny harvest.',
 };
-const captionFor = (level) => (level !== 2 ? CAPTIONS[level] : gardenMode.structured && gardenMode.mutating ? seasonPhase() : GARDEN_CAPTIONS[gardenMode.structured]);
+const captionFor = (level) => (level !== 2 ? CAPTIONS[level] : gardenMode.build ? buildPhase() : gardenMode.structured && gardenMode.mutating ? seasonPhase() : GARDEN_CAPTIONS[gardenMode.structured]);
 const modeEl = document.getElementById('mode');
 const SKY_WILD = new THREE.Color('#e3d3b0');
 function toggleGarden(structured = !gardenMode.structured) {
@@ -161,7 +161,7 @@ function frame() {
   const z = updateZoom();
   camera.getWorldDirection(camFwd);
   tickSeason(dt);
-  if (shownLevel === 2 && gardenMode.structured && gardenMode.mutating && caption.textContent !== seasonPhase()) caption.textContent = seasonPhase();
+  if (shownLevel === 2 && caption.style.opacity !== '0' && caption.textContent !== captionFor(2)) caption.textContent = captionFor(2);
   updateWorld(dt, t, camFwd);
   for (const a of agents) {
     a.update(dt, t, z.antMode);
@@ -171,7 +171,7 @@ function frame() {
   sun.position.copy(controls.target).add(new THREE.Vector3(40, 90, 30));
   sun.castShadow = z.d < 160;
   // Dusty sky for the wild garden, fading in only at garden level.
-  const wild = gardenMode.structured ? 0 : layers.garden.o;
+  const wild = (gardenMode.build ? 1 - Math.min(1, gardenMode.build.t / 6) : gardenMode.structured ? 0 : 1) * layers.garden.o;
   scene.background.copy(SKY).lerp(SKY_WILD, wild);
   scene.fog.color.copy(scene.background);
 
