@@ -25,6 +25,22 @@
   #mode .sep { width: 1px; margin: 4px 8px; background: rgba(31,29,43,.25); }
   #mode button.on[data-x] { background: #1f1d2b; color: #fff; }
   #mode.wild button[data-x], #mode.wild .sep { display: none; }
+  #tour { position: fixed; top: 150px; left: 22px; width: 300px; background: rgba(255,255,255,.88); color: #1f1d2b; border-radius: 16px; padding: 16px 18px 14px; box-shadow: 0 6px 24px rgba(31,29,43,.15); transition: transform .35s, opacity .35s; }
+  #tour .count { font-size: 12px; font-weight: 700; opacity: .55; letter-spacing: .5px; }
+  #tour h2 { margin: 4px 0 8px; font-size: 19px; }
+  #tour p { margin: 0 0 14px; font-size: 14.5px; line-height: 1.5; }
+  #tour .nav { display: flex; align-items: center; gap: 8px; }
+  #tour .nav button { border: 0; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: #1f1d2b; color: #fff; }
+  #tour .nav button[data-t=prev] { background: rgba(31,29,43,.1); color: #1f1d2b; }
+  #tour .nav button:disabled { opacity: .3; cursor: default; }
+  #tour .dots { flex: 1; display: flex; gap: 5px; justify-content: center; }
+  #tour .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(31,29,43,.2); }
+  #tour .dots i.on { background: #1f1d2b; }
+  #tour .keys { margin-top: 10px; font-size: 11.5px; opacity: .5; }
+  #tour [data-t=toggle] { position: absolute; top: 10px; right: 10px; border: 0; background: none; font-size: 16px; cursor: pointer; color: #1f1d2b; opacity: .6; }
+  #tour.collapsed { transform: translateX(calc(-100% + 18px)); opacity: .9; }
+  #tour.collapsed [data-t=toggle] { transform: rotate(180deg); right: -2px; }
+  #tour.collapsed > :not([data-t=toggle]) { visibility: hidden; }
 </style>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
@@ -36,10 +52,18 @@
   <div class="sub">Agent Graph Orchestration for the Agentic SDLC</div>
   <div id="level"><span data-l="0">Organisation</span><span data-l="1">Processes</span><span data-l="2">Codebase</span></div>
 </div>
+<div id="tour">
+  <button data-t="toggle" title="Hide / show guide (T)">&#x276E;</button>
+  <div class="count"></div>
+  <h2></h2>
+  <p></p>
+  <div class="nav"><button data-t="prev">&#x2190; Previous</button><span class="dots"></span><button data-t="next">Next &#x2192;</button></div>
+  <div class="keys">&#x2190; / &#x2192; to navigate &middot; T to hide</div>
+</div>
 <div id="stats"></div>
 <div id="caption"></div>
 <div id="mode" class="wild"><button data-m="w" class="on">Unstructured garden</button><button data-m="s">Structured garden</button><span class="sep"></span><button data-x="s" class="on">Stable</button><button data-x="m">Evolving</button></div>
-<div id="help">drag: pan · right-drag / ctrl-drag: rotate &amp; tilt · scroll: zoom to cursor · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: structured / unstructured · m: stable / evolving</div>
+<div id="help">drag: pan · right-drag: rotate · scroll: zoom · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: garden mode · m: evolving · ←/→: guide · t: hide guide</div>
 <script type="module" src="./main.js"></script>
 </body>
 </html>

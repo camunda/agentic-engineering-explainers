@@ -3,7 +3,7 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 import { layers, applyLayers, smooth } from './core.js';
 import { buildWorld, updateWorld, codebases } from './world.js';
 import { buildAgents, stats } from './agents.js';
-import { gardenMode, setGardenMode, setMutating, tickSeason, seasonPhase, buildPhase } from './garden.js';
+import { gardenMode, setGardenMode, setMutating, tickSeason, seasonPhase, buildPhase, finishBuild } from './garden.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -135,6 +135,68 @@ addEventListener('keydown', (e) => {
     flyTo(c.center, controls.target.distanceTo(c.center) < 5 && d < 130 ? 34 : 120, d < 130 ? 0.95 : 0.7);
   }
 });
+// --- Guided tour sidebar ------------------------------------------------------------------------
+const TOUR_CB = codebases[0];
+const toGarden = () => flyTo(TOUR_CB.center, 34, 0.95);
+function wildGarden() {
+  setMutating(false);
+  setGardenMode(false);
+  syncModeButtons();
+}
+const TOUR = [
+  { title: 'An organisation of agents', text: 'From far away, Nano Workforce looks like an ant colony. Agents stream between codebases (the anthills) and the merge queue in the middle.',
+    go: () => { flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length())); controls.autoRotate = true; } },
+  { title: 'Every agent follows a process', text: 'Zoom in on a codebase and each ant turns out to be a token moving through a BPMN process: plan, implement, review, merge. Gateways send work back for rework.',
+    go: () => flyTo(TOUR_CB.center, 120, 0.7) },
+  { title: 'Inside: a garden', text: 'Inside the codebase is a garden. Without structure, it\u2019s seeds thrown on cracked dirt: overgrowth, constant weeding, and a tiny harvest. More agents just means more seeds.',
+    go: () => { wildGarden(); toGarden(); } },
+  { title: 'Humans build the structure', text: 'Structure doesn\u2019t appear by flipping a switch. A human walks in with a crew of agents and builds it: soil, planter boxes (modules), a greenhouse (quality gates), a trellis (CI) and irrigation (architecture).',
+    go: () => { wildGarden(); setGardenMode(true); syncModeButtons(); toGarden(); } },
+  { title: 'Agents tend a structured garden', text: 'Now the agents have something to grow into. They tend the plants, and the structure keeps the growth healthy and the harvest coming.',
+    go: () => { setGardenMode(true); finishBuild(); setMutating(false); syncModeButtons(); toGarden(); } },
+  { title: 'The structure keeps evolving', text: 'Growth puts load on the structure. When the trellis bends, a human reinforces it. When agents add a planter box, a human routes new irrigation. Those are the human jobs in the software garden.',
+    go: () => { setGardenMode(true); finishBuild(); toggleMutating(true); toGarden(); } },
+  { title: 'Back to the organisation', text: 'Multiply that across every codebase: agents doing the tending at scale, and humans shaping the garden they grow in.',
+    go: () => { setMutating(false); syncModeButtons(); flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length())); } },
+];
+const tourEl = document.getElementById('tour');
+let tourStep = -1;
+function showStep(i) {
+  tourStep = Math.max(0, Math.min(TOUR.length - 1, i));
+  const st = TOUR[tourStep];
+  tourEl.querySelector('.count').textContent = `${tourStep + 1} / ${TOUR.length}`;
+  tourEl.querySelector('h2').textContent = st.title;
+  tourEl.querySelector('p').textContent = st.text;
+  tourEl.querySelector('[data-t=prev]').disabled = tourStep === 0;
+  tourEl.querySelector('[data-t=next]').disabled = tourStep === TOUR.length - 1;
+  tourEl.querySelector('.dots').innerHTML = TOUR.map((_, k) => `<i class="${k === tourStep ? 'on' : ''}"></i>`).join('');
+  controls.autoRotate = false;
+  st.go();
+}
+const toggleTour = () => tourEl.classList.toggle('collapsed');
+tourEl.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-t]');
+  if (!b) return;
+  if (b.dataset.t === 'next') showStep(tourStep + 1);
+  if (b.dataset.t === 'prev') showStep(tourStep - 1);
+  if (b.dataset.t === 'toggle') toggleTour();
+});
+addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') { showStep(tourStep + 1); e.preventDefault(); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { showStep(Math.max(0, tourStep - 1)); e.preventDefault(); }
+  if (e.key === 't' || e.key === 'T') toggleTour();
+});
+// Fill in step 1's text without moving the camera, so the page still opens on the auto-orbit.
+{
+  const st = TOUR[0];
+  tourEl.querySelector('.count').textContent = `1 / ${TOUR.length}`;
+  tourEl.querySelector('h2').textContent = st.title;
+  tourEl.querySelector('p').textContent = st.text;
+  tourEl.querySelector('[data-t=prev]').disabled = true;
+  tourEl.querySelector('.dots').innerHTML = TOUR.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('');
+  tourStep = 0;
+}
+
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();

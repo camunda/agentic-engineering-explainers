@@ -102,6 +102,9 @@ const BUILD_PHASES = [
   [16, 'Lay the irrigation: architecture that feeds every bed.'],
   [21.5, 'Label it all. Now the agents can tend it.'],
 ];
+export function finishBuild() {
+  if (gardenMode.build) gardenMode.build.t = Math.max(gardenMode.build.t, BUILD_LENGTH - 0.001);
+}
 export function buildPhase() {
   let label = BUILD_PHASES[0][1];
   for (const [at, l] of BUILD_PHASES) if (gardenMode.build.t >= at) label = l;

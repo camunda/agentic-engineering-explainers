@@ -4,6 +4,6 @@
     open http://localhost:8931
 
 Fully offline (three.js vendored). Drag pan · right-drag rotate/tilt · scroll zoom-to-cursor ·
-double-click fly in · 1–6 codebases (press twice to enter the garden) · 0 overview · space auto-orbit · g toggles structured / unstructured garden · m toggles stable / evolving (structured).
+double-click fly in · 1–6 codebases (press twice to enter the garden) · 0 overview · space auto-orbit · g toggles structured / unstructured garden · m toggles stable / evolving (structured) · ←/→ (or PageUp/PageDown) step through the guide sidebar · t hides it.
 
 Live: https://jwulf.github.io/nano-workforce-presentation/
