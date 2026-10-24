@@ -3,7 +3,7 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 import { layers, applyLayers, smooth } from './core.js';
 import { buildWorld, updateWorld, codebases } from './world.js';
 import { buildAgents, stats } from './agents.js';
-import { gardenMode, setGardenMode, setMutating, tickSeason, seasonPhase, buildPhase, finishBuild } from './garden.js';
+import { gardenMode, gardenKind, setGardenMode, setGardenKind, setSim, setMutating, tickSeason, seasonPhase, buildPhase, finishBuild } from './garden.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -55,7 +55,13 @@ const GARDEN_CAPTIONS = {
   true: 'Tend the soil, build the structure it grows into. I don\u2019t force the plants — I shape the garden.',
   false: 'Just throw seeds and hope: overgrowth, all effort goes into weeding — and a tiny harvest.',
 };
-const captionFor = (level) => (level !== 2 ? CAPTIONS[level] : gardenMode.build ? buildPhase() : gardenMode.structured && gardenMode.mutating ? seasonPhase() : GARDEN_CAPTIONS[gardenMode.structured]);
+const PARTIAL_CAPTIONS = {
+  human: 'Partial structure at human speed: manageable \u2014 but someone is always watering, re-tying, patching.',
+  wait: 'Agentic speed, agents wait for the human: the human is the bottleneck.',
+  carry: 'Agentic speed, agents carry on: unhandled changes escape containment.',
+};
+const partialCaption = () => PARTIAL_CAPTIONS[gardenMode.speed === 'human' ? 'human' : gardenMode.policy];
+const captionFor = (level) => (level !== 2 ? CAPTIONS[level] : gardenMode.build ? buildPhase() : gardenMode.partial ? partialCaption() : gardenMode.structured && gardenMode.mutating ? seasonPhase() : GARDEN_CAPTIONS[gardenMode.structured]);
 const modeEl = document.getElementById('mode');
 const SKY_WILD = new THREE.Color('#e3d3b0');
 function toggleGarden(structured = !gardenMode.structured) {
@@ -64,9 +70,22 @@ function toggleGarden(structured = !gardenMode.structured) {
   if (shownLevel === 2) { caption.textContent = captionFor(2); }
 }
 function syncModeButtons() {
-  modeEl.querySelectorAll('button[data-m]').forEach((b) => b.classList.toggle('on', (b.dataset.m === 's') === gardenMode.structured));
+  const kind = gardenKind();
+  modeEl.querySelectorAll('button[data-m]').forEach((b) => b.classList.toggle('on', b.dataset.m === kind));
   modeEl.querySelectorAll('button[data-x]').forEach((b) => b.classList.toggle('on', (b.dataset.x === 'm') === gardenMode.mutating));
-  modeEl.classList.toggle('wild', !gardenMode.structured);
+  modeEl.querySelectorAll('button[data-sp]').forEach((b) => b.classList.toggle('on', b.dataset.sp === gardenMode.speed));
+  modeEl.querySelectorAll('button[data-po]').forEach((b) => b.classList.toggle('on', b.dataset.po === gardenMode.policy));
+  modeEl.className = modeEl.className.replace(/\bkind-\w+/g, '').trim() + ` kind-${kind}`;
+}
+function setKind(kind) {
+  setGardenKind(kind);
+  syncModeButtons();
+  if (shownLevel === 2) caption.textContent = captionFor(2);
+}
+function setPartialSim(opts) {
+  setSim(opts);
+  syncModeButtons();
+  if (shownLevel === 2) caption.textContent = captionFor(2);
 }
 function toggleMutating(on = !gardenMode.mutating) {
   if (!gardenMode.structured) setGardenMode(true);
@@ -76,7 +95,10 @@ function toggleMutating(on = !gardenMode.mutating) {
 }
 modeEl.addEventListener('click', (e) => {
   const b = e.target.closest('button');
-  if (b?.dataset.m) toggleGarden(b.dataset.m === 's');
+  if (b?.dataset.m) setKind(b.dataset.m);
+  if (b?.dataset.sp) setPartialSim({ speed: b.dataset.sp });
+  if (b?.dataset.po) setPartialSim({ policy: b.dataset.po });
+  if (b?.dataset.adv !== undefined) modeEl.classList.toggle('advanced');
   if (b?.dataset.x) toggleMutating(b.dataset.x === 'm');
 });
 let shownLevel = -1;
@@ -126,6 +148,7 @@ renderer.domElement.addEventListener('dblclick', (e) => {
 addEventListener('keydown', (e) => {
   if (e.key === ' ') { controls.autoRotate = !controls.autoRotate; e.preventDefault(); }
   if (e.key === 'g' || e.key === 'G') toggleGarden();
+  if (e.key === 'p' || e.key === 'P') setKind('partial');
   if (e.key === 'm' || e.key === 'M') toggleMutating();
   if (e.key === '0') flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length()));
   const n = Number(e.key);
@@ -138,6 +161,13 @@ addEventListener('keydown', (e) => {
 // --- Guided tour sidebar ------------------------------------------------------------------------
 const TOUR_CB = codebases[0];
 const toGarden = () => flyTo(TOUR_CB.center, 34, 0.95);
+function partialStep(speed, policy) {
+  setMutating(false);
+  setGardenKind('partial');
+  setSim({ speed, policy });
+  syncModeButtons();
+  toGarden();
+}
 function wildGarden() {
   setMutating(false);
   setGardenMode(false);
@@ -150,11 +180,17 @@ const TOUR = [
     go: () => flyTo(TOUR_CB.center, 120, 0.7) },
   { title: 'Inside: a garden', text: 'Inside the codebase is a garden. Without structure, it\u2019s seeds thrown on cracked dirt: overgrowth, constant weeding, and a tiny harvest. More agents just means more seeds.',
     go: () => { wildGarden(); toGarden(); } },
+  { title: 'Most gardens are partly structured', text: 'A couple of proper planter boxes, some dirt mounds that need watering by hand, a stick trellis, leaky pipes. At human speed it works: the human keeps up, but they are never not fixing something.',
+    go: () => partialStep('human', 'wait') },
+  { title: 'Agentic speed: the human is the bottleneck', text: 'Now agents make changes 8\u00d7 faster. Most changes still need a human. If agents wait for the human, the queue grows, beds dry out waiting, and output is capped at the speed of one person.',
+    go: () => partialStep('agentic', 'wait') },
+  { title: '\u2026or it escapes containment', text: 'If agents don\u2019t wait, changes nobody handled pile up: vines escape the trellis, dry beds die, things get planted wherever. The garden slides back into an overgrown mess.',
+    go: () => partialStep('agentic', 'carry') },
   { title: 'Humans build the structure', text: 'Structure doesn\u2019t appear by flipping a switch. A human walks in with a crew of agents and builds it: soil, planter boxes (modules), a greenhouse (quality gates), a trellis (CI) and irrigation (architecture).',
-    go: () => { wildGarden(); setGardenMode(true); syncModeButtons(); toGarden(); } },
+    go: () => { setMutating(false); setGardenKind('partial'); setGardenMode(true); syncModeButtons(); toGarden(); } },
   { title: 'Agents tend a structured garden', text: 'Now the agents have something to grow into. They tend the plants, and the structure keeps the growth healthy and the harvest coming.',
     go: () => { setGardenMode(true); finishBuild(); setMutating(false); syncModeButtons(); toGarden(); } },
-  { title: 'The structure keeps evolving', text: 'Growth puts load on the structure. When the trellis bends, a human reinforces it. When agents add a planter box, a human routes new irrigation. Those are the human jobs in the software garden.',
+  { title: 'The structure keeps evolving', text: 'Growth puts load on the structure. When the trellis bends, a human reinforces it. When agents add a planter box, a human routes new irrigation. With good structure, everyday change is absorbed by the garden itself; humans only step in to change the structure. That\u2019s what lets it run at agentic speed.',
     go: () => { setGardenMode(true); finishBuild(); toggleMutating(true); toGarden(); } },
   { title: 'Back to the organisation', text: 'Multiply that across every codebase: agents doing the tending at scale, and humans shaping the garden they grow in.',
     go: () => { setMutating(false); syncModeButtons(); flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length())); } },
@@ -205,6 +241,15 @@ addEventListener('resize', () => {
 
 // --- Loop --------------------------------------------------------------------------------------
 const statsEl = document.getElementById('stats');
+// Partial garden: the human-throughput numbers, averaged over all gardens.
+function partialStats() {
+  if (!gardenMode.partial) return '';
+  const sims = codebases.map((c) => c.garden.partial.sim);
+  const avg = (f) => sims.reduce((n, s) => n + f(s), 0) / sims.length;
+  const busy = Math.round(avg((s) => s.busy) * 100);
+  const mess = Math.round(avg((s) => s.mess) * 100);
+  return `<br><b>${busy}%</b> human busy · <b>${avg((s) => s.queue.length).toFixed(1)}</b> ${gardenMode.policy === 'carry' ? 'unhandled' : 'waiting'}<br><b>${Math.round(avg((s) => s.rate))}</b> changes/min · <b>${mess}%</b> out of control`;
+}
 const timer = new THREE.Timer();
 const camFwd = new THREE.Vector3();
 let statT = 0;
@@ -242,7 +287,7 @@ function frame() {
     statT = 0.5;
     const inGarden = agents.filter((a) => a.tending).length;
     const commuting = agents.filter((a) => a.commuting).length;
-    statsEl.innerHTML = `<b>${agents.length}</b> agents · <b>${codebases.length}</b> codebases<br>${commuting} in transit · ${inGarden} tending code<br><b>${stats.merged}</b> PRs merged · <b>${stats.tended}</b> plants tended<br>${gardenMode.structured ? 'structured' : 'unstructured'} gardens · <b>${codebases.reduce((n, c) => n + c.garden.ripe, 0)}</b> ripe`;
+    statsEl.innerHTML = `<b>${agents.length}</b> agents · <b>${codebases.length}</b> codebases<br>${commuting} in transit · ${inGarden} tending code<br><b>${stats.merged}</b> PRs merged · <b>${stats.tended}</b> plants tended<br>${{ wild: 'unstructured', partial: 'partially structured', structured: 'structured' }[gardenKind()]} gardens · <b>${codebases.reduce((n, c) => n + c.garden.ripe, 0)}</b> ripe${partialStats()}`;
   }
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

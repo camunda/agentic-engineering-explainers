@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { layers, mesh, toon, rand, pick, V, sprite, textCanvas } from './core.js';
+import { buildPartial } from './partial.js';
 
 const G = 'garden';
 const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
@@ -62,7 +63,10 @@ function makePlant(kind) {
 // Two ways to grow the same seeds (after the "Growing software: before → approach" comic):
 // structured = tended soil, planters, trellis (CI), greenhouse (quality gates), irrigation;
 // wild = seeds thrown on cracked dirt and hope — overgrowth, weeding, a tiny harvest.
-export const gardenMode = { structured: false, mutating: false, build: null, listeners: [] };
+// kind: 'wild' | 'partial' | 'structured' (structured is kept as a boolean for the existing code).
+// speed / policy only drive the partial garden's simulation (see partial.js).
+export const gardenMode = { structured: false, partial: false, mutating: false, build: null, speed: 'human', policy: 'wait', listeners: [] };
+export const gardenKind = () => (gardenMode.structured ? 'structured' : gardenMode.partial ? 'partial' : 'wild');
 // One shared season clock so every garden (and the caption) is on the same beat.
 export const season = { t: 0, length: 48 };
 const SEASON_PHASES = [
@@ -94,7 +98,7 @@ export function setMutating(on) {
 // Unstructured → structured is not a switch, it's work: a human walks in with agents and builds it.
 export const BUILD_LENGTH = 25;
 const BUILD_PHASES = [
-  [0, 'A human walks into the overgrown garden with a crew of agents\u2026'],
+  [0, 'A human walks into the garden with a crew of agents\u2026'],
   [1.5, 'First, clear the weeds and prepare the soil.'],
   [5.5, 'Build planter boxes: modules with clear boundaries.'],
   [10.5, 'Put up the greenhouse: quality gates.'],
@@ -111,11 +115,21 @@ export function buildPhase() {
   return label;
 }
 export function setGardenMode(structured) {
-  const was = gardenMode.structured;
-  if (was === structured) return;
-  gardenMode.structured = structured;
-  gardenMode.build = structured && !was ? { t: 0 } : null;
-  for (const f of gardenMode.listeners) f(structured);
+  setGardenKind(structured ? 'structured' : 'wild');
+}
+export function setGardenKind(kind) {
+  const was = gardenKind();
+  if (was === kind) return;
+  gardenMode.structured = kind === 'structured';
+  gardenMode.partial = kind === 'partial';
+  gardenMode.build = kind === 'structured' ? { t: 0, from: was } : null;
+  for (const f of gardenMode.listeners) f(gardenMode.structured, true);
+}
+// Speed / policy changes restart the partial garden's simulation from a clean state.
+export function setSim({ speed = gardenMode.speed, policy = gardenMode.policy } = {}) {
+  gardenMode.speed = speed;
+  gardenMode.policy = policy;
+  for (const f of gardenMode.listeners) f(gardenMode.structured, true);
 }
 
 const signStyle = { w: 640, h: 128, font: 'bold 60px system-ui', bg: '#fff3a8', fg: '#1f1d2b', stroke: '#1f1d2b' };
@@ -449,9 +463,13 @@ export function buildGarden(cb) {
   label('MORE SEEDS!\nGROW FASTER!', 0, 4.4, 0, 1.0, w);
   let overgrowth = 0.6;
 
-  const apply = (on) => {
+  const apply = (on, resetSim) => {
+    const fromPartial = gardenMode.build?.from === 'partial';
     g.visible = on;
-    w.visible = !on || !!gardenMode.build;
+    w.visible = (!on && !gardenMode.partial) || (!!gardenMode.build && !fromPartial);
+    partial.group.visible = (!on && gardenMode.partial) || (!!gardenMode.build && fromPartial);
+    partial.group.scale.set(1, 1, 1);
+    if (resetSim) partial.reset();
     if (gardenMode.build) {
       for (const p of plants) p.growth = rand(0.2, 0.35); // freshly planted
       human.position.set(0, 0, 13);
@@ -465,6 +483,7 @@ export function buildGarden(cb) {
       for (const p of wildPlants) p.obj.visible = true;
     }
   };
+  const partial = buildPartial(root, { makePlant, mode: gardenMode });
   gardenMode.listeners.push(apply);
   apply(gardenMode.structured);
 
@@ -476,6 +495,7 @@ export function buildGarden(cb) {
 
   function update(dt, t) {
     const S = gardenMode.structured;
+    if (!S && gardenMode.partial) { partial.update(dt, t); return; }
     if (!S) {
       // Wild: everything competes, weeds choke the plants, effort goes into weeding.
       overgrowth = Math.min(1.25, overgrowth + dt * 0.03);
@@ -590,7 +610,11 @@ export function buildGarden(cb) {
     tangle.scale.set(Math.max(0.01, 1 - clear), Math.max(0.01, (1 - clear) * 1.1), Math.max(0.01, 1 - clear));
     weeds.scale.set(1, Math.max(0.01, 1 - clear), 1);
     for (const p of wildPlants) p.obj.scale.setScalar(Math.max(0.01, (1 - clear) * 0.8));
-    w.visible = clear < 1;
+    if (gardenMode.build.from === 'partial') {
+      w.visible = false;
+      partial.group.visible = clear < 1;
+      partial.group.scale.set(1, Math.max(0.01, 1 - clear), 1);
+    } else w.visible = clear < 1;
     // Stages grow in, the human working at whichever one is being built.
     let active = null;
     for (const st of stages) {
@@ -630,8 +654,9 @@ export function buildGarden(cb) {
   }
 
   return {
-    get plants() { return gardenMode.structured ? plants : wildPlants; },
-    get ripe() { return (gardenMode.structured ? plants : wildPlants).filter((p) => p.fruit.visible).length; },
+    get plants() { return gardenMode.structured ? plants : gardenMode.partial ? partial.plants : wildPlants; },
+    get ripe() { return (gardenMode.structured ? plants : gardenMode.partial ? partial.plants : wildPlants).filter((p) => p.fruit.visible).length; },
+    partial,
     update,
   };
 }

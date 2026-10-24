@@ -16,15 +16,19 @@
   #stats { position: fixed; top: 18px; right: 22px; text-align: right; color: #1f1d2b; pointer-events: none; font-size: 14px; line-height: 1.6; }
   #stats b { font-size: 20px; }
   #help { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(31,29,43,.72); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: 12.5px; pointer-events: none; white-space: nowrap; }
-  #caption { position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1f1d2b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
+  #caption { white-space: nowrap; position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1f1d2b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
   #mode { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); display: flex; gap: 0; background: rgba(255,255,255,.6); border-radius: 999px; padding: 4px; opacity: 0; pointer-events: none; transition: opacity .4s; }
   #mode.show { opacity: 1; pointer-events: auto; }
-  #mode button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1f1d2b; }
-  #mode button.on[data-m=s] { background: #2f7d3a; color: #fff; }
-  #mode button.on[data-m=w] { background: #7a5a3a; color: #fff; }
+  #mode button { white-space: nowrap; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1f1d2b; }
+  #mode button.on[data-m=structured] { background: #2f7d3a; color: #fff; }
+  #mode button.on[data-m=partial] { background: #b07a2a; color: #fff; }
+  #mode button.on[data-m=wild] { background: #7a5a3a; color: #fff; }
+  #mode button.on[data-sp], #mode button.on[data-po] { background: #1f1d2b; color: #fff; }
+  #mode button[data-adv] { opacity: .5; padding: 4px 10px; font-size: 16px; }
+  #mode.advanced button[data-adv] { opacity: 1; }
   #mode .sep { width: 1px; margin: 4px 8px; background: rgba(31,29,43,.25); }
   #mode button.on[data-x] { background: #1f1d2b; color: #fff; }
-  #mode.wild button[data-x], #mode.wild .sep { display: none; }
+  #mode:not(.kind-structured) .grp-s, #mode:not(.kind-partial) .grp-p, #mode:not(.advanced) .adv { display: none !important; }
   #tour { position: fixed; top: 150px; left: 22px; width: 300px; background: rgba(255,255,255,.88); color: #1f1d2b; border-radius: 16px; padding: 16px 18px 14px; box-shadow: 0 6px 24px rgba(31,29,43,.15); transition: transform .35s, opacity .35s; }
   #tour .count { font-size: 12px; font-weight: 700; opacity: .55; letter-spacing: .5px; }
   #tour h2 { margin: 4px 0 8px; font-size: 19px; }
@@ -62,8 +66,8 @@
 </div>
 <div id="stats"></div>
 <div id="caption"></div>
-<div id="mode" class="wild"><button data-m="w" class="on">Unstructured garden</button><button data-m="s">Structured garden</button><span class="sep"></span><button data-x="s" class="on">Stable</button><button data-x="m">Evolving</button></div>
-<div id="help">drag: pan · right-drag: rotate · scroll: zoom · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: garden mode · m: evolving · ←/→: guide · t: hide guide</div>
+<div id="mode" class="kind-wild"><button data-m="wild" class="on">Unstructured</button><button data-m="partial">Partial</button><button data-m="structured">Structured</button><span class="sep grp-s"></span><button class="grp-s on" data-x="s">Stable</button><button class="grp-s" data-x="m">Evolving</button><span class="sep grp-p adv"></span><button class="grp-p adv on" data-sp="human">Human speed</button><button class="grp-p adv" data-sp="agentic">Agentic speed</button><span class="sep grp-p adv"></span><button class="grp-p adv on" data-po="wait">Agents wait</button><button class="grp-p adv" data-po="carry">Agents carry on</button><button data-adv title="Advanced: speed &amp; policy switches">&#x2699;</button></div>
+<div id="help">drag: pan · right-drag: rotate · scroll: zoom · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: garden mode · p: partial · m: evolving · ←/→: guide · t: hide guide</div>
 <script type="module" src="./main.js"></script>
 </body>
 </html>
