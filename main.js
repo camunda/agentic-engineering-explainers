@@ -47,7 +47,7 @@ const agents = buildAgents(scene, 180);
 const levelEls = [...document.querySelectorAll('#level span')];
 const caption = document.getElementById('caption');
 const CAPTIONS = [
-  'A software organisation of agents — streaming between codebases and the merge queue like a colony.',
+  'A software organisation of agents — dispatched by the Nano Workforce app to codebases, streaming back and forth like a colony.',
   'Up close, every agent is a token following a BPMN process: plan, implement, review, merge.',
   'Inside a codebase: a garden. Agents tend the plants; the structures keep it growing.',
 ];
@@ -174,7 +174,7 @@ function wildGarden() {
   syncModeButtons();
 }
 const TOUR = [
-  { title: 'An organisation of agents', text: 'From far away, Nano Workforce looks like an ant colony. Agents stream between codebases (the anthills) and the merge queue in the middle.',
+  { title: 'An organisation of agents', text: 'From far away, Nano Workforce looks like an ant colony. The Nano Workforce app in the middle orchestrates them, dispatching agents out to the codebases (the anthills) and back.',
     go: () => { flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length())); controls.autoRotate = true; } },
   { title: 'Every agent follows a process', text: 'Zoom in on a codebase and each ant turns out to be a token moving through a BPMN process: plan, implement, review, merge. Gateways send work back for rework.',
     go: () => flyTo(TOUR_CB.center, 120, 0.7) },
