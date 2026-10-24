@@ -40,13 +40,13 @@ export function buildWorld(scene) {
   }
   A.add(tufts);
 
-  // Hub: the Nano Workforce app, which orchestrates the agents and dispatches them to codebases.
+  // Hub: the orchestrator, which coordinates the agents and dispatches them to codebases.
   const stone = toon('always', '#c9c2b4');
   A.add(mesh(new THREE.CylinderGeometry(13, 14, 1.2, 32), stone, 0, 0.6, 0));
   A.add(mesh(new THREE.CylinderGeometry(3, 4, 14, 8), toon('always', '#efe7d6'), 0, 7, 0));
   hub.beaconMat = toon('always', '#ffd34d', { emissive: '#ffb800', emissiveIntensity: 0.4 });
   A.add(mesh(new THREE.IcosahedronGeometry(2.6, 1), hub.beaconMat, 0, 16, 0));
-  const hl = sprite('label', 'Nano Workforce app', 6, { w: 900, h: 140, font: 'bold 70px system-ui', bg: 'rgba(31,29,43,.85)', fg: '#fff' });
+  const hl = sprite('label', 'Orchestrator', 6, { w: 900, h: 140, font: 'bold 70px system-ui', bg: 'rgba(31,29,43,.85)', fg: '#fff' });
   hl.position.set(0, 26, 0);
   layers.label.group.add(hl);
 
