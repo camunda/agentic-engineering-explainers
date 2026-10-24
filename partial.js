@@ -126,6 +126,8 @@ export function buildPartial(root, { makePlant, mode }) {
   root.add(pg);
   const plants = [];
   const local = [];
+  // Named pieces, so the refactor into a structured garden can keep, move or take out each one.
+  const parts = { cracks: [], keep: [], tank: [], pipes: [], frame: [], vines: [] };
   const addPlant = (kind, parent, x, y, z, ax, az) => {
     const p = makePlant(kind);
     p.obj.position.set(x, y, z);
@@ -135,19 +137,23 @@ export function buildPartial(root, { makePlant, mode }) {
     return p;
   };
 
-  pg.add(mesh(new THREE.CircleGeometry(12.5, 48).rotateX(-Math.PI / 2), ground, 0, 0.02, 0, false));
+  parts.ground = mesh(new THREE.CircleGeometry(12.5, 48).rotateX(-Math.PI / 2), ground, 0, 0.02, 0, false);
+  pg.add(parts.ground);
   for (let i = 0; i < 18; i++) {
     const a = rand(0, 6.28), r = rand(4, 11);
     const c = mesh(box(rand(1, 2.5), 0.02, 0.07), crack, Math.cos(a) * r, 0.035, Math.sin(a) * r, false);
     c.rotation.y = rand(0, 3.14);
     pg.add(c);
+    parts.cracks.push(c);
   }
 
   // Two proper planter boxes, fed by irrigation.
   for (const [i, z] of [-7, -3.5].entries()) {
-    pg.add(mesh(box(6.4, 0.8, 1.6), wood, -2.5, 0.4, z));
-    pg.add(mesh(box(6.0, 0.1, 1.2), soil, -2.5, 0.81, z, false));
-    for (let k = 0; k < 5; k++) addPlant(['leafy', 'tomato'][i], pg, -5 + k * 1.25, 0.85, z, -5 + k * 1.25, z + 1.25);
+    const bx = mesh(box(6.4, 0.8, 1.6), wood, -2.5, 0.4, z);
+    const sl = mesh(box(6.0, 0.1, 1.2), soil, -2.5, 0.81, z, false);
+    pg.add(bx, sl);
+    parts.keep.push(bx, sl);
+    for (let k = 0; k < 5; k++) parts.keep.push(addPlant(['leafy', 'tomato'][i], pg, -5 + k * 1.25, 0.85, z, -5 + k * 1.25, z + 1.25).obj);
   }
   // Dirt-mound beds with no irrigation: someone has to water them by hand.
   const beds = [];
@@ -155,7 +161,7 @@ export function buildPartial(root, { makePlant, mode }) {
     const m = mesh(new THREE.SphereGeometry(1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), mound, x, 0, z);
     m.scale.set(3.2, 0.35, 0.9);
     pg.add(m);
-    const bed = { at: V(x, 0, z + 1.4), plants: [], dry: 0, pending: false };
+    const bed = { at: V(x, 0, z + 1.4), plants: [], dry: 0, pending: false, mound: m };
     for (let k = 0; k < 4; k++) bed.plants.push(addPlant(kind, pg, x - 2.1 + k * 1.4, 0.25, z, x - 2.1 + k * 1.4, z + 1.3));
     beds.push(bed);
   }
@@ -163,8 +169,9 @@ export function buildPartial(root, { makePlant, mode }) {
   handSign.position.set(-2.5, 2.2, 2.4);
   pg.add(handSign);
   // A half-built greenhouse frame nobody finished.
-  for (const [x, z] of [[3.5, -6.5], [8.5, -6.5], [3.5, 0.5]]) pg.add(mesh(box(0.12, 2.6, 0.12), toon(G, '#f4f1e8'), x, 1.3, z));
-  pg.add(mesh(box(5, 0.08, 0.08), toon(G, '#f4f1e8'), 6, 2.6, -6.5));
+  for (const [x, z] of [[3.5, -6.5], [8.5, -6.5], [3.5, 0.5]]) parts.frame.push(mesh(box(0.12, 2.6, 0.12), toon(G, '#f4f1e8'), x, 1.3, z));
+  parts.frame.push(mesh(box(5, 0.08, 0.08), toon(G, '#f4f1e8'), 6, 2.6, -6.5));
+  pg.add(...parts.frame);
 
   // Stick-and-string trellis that sags whenever re-tying is overdue.
   const tz = 6;
@@ -185,11 +192,12 @@ export function buildPartial(root, { makePlant, mode }) {
     const x = 3.8 + k * 1.5;
     const p = addPlant('vine', trellis, x - 6, 0, 0.25, x, tz + 1.3);
     p.obj.scale.setScalar(0.8);
+    parts.vines.push(p);
   }
 
   // Irrigation that only reaches the two planters, and springs leaks.
-  pg.add(mesh(cyl(1.2, 1.2, 2.6, 16), steel, -9.3, 1.3, 7));
-  pg.add(mesh(cyl(1.25, 1.25, 0.2, 16), pipeMat, -9.3, 2.65, 7));
+  parts.tank.push(mesh(cyl(1.2, 1.2, 2.6, 16), steel, -9.3, 1.3, 7), mesh(cyl(1.25, 1.25, 0.2, 16), pipeMat, -9.3, 2.65, 7));
+  pg.add(...parts.tank);
   const pts = [V(-8, 0.25, 7), V(-7, 0.25, 7), V(-7, 0.25, -7), V(-5.5, 0.25, -7)];
   const pipeCurve = new THREE.CurvePath();
   for (let i = 0; i < pts.length - 1; i++) {
@@ -199,10 +207,12 @@ export function buildPartial(root, { makePlant, mode }) {
     p.rotation.order = 'YXZ';
     p.rotation.set(Math.PI / 2, Math.atan2(b.x - a.x, b.z - a.z), 0);
     pg.add(p);
+    parts.pipes.push(p);
   }
   const branch = mesh(cyl(0.08, 0.08, 1.5, 6), pipeMat, -6.2, 0.25, -3.5);
   branch.rotation.z = Math.PI / 2;
   pg.add(branch);
+  parts.pipes.push(branch);
   const drops = [];
   for (let i = 0; i < 16; i++) {
     const d = mesh(ball(0.1), water, 0, 0.42, 0, false);
@@ -387,6 +397,7 @@ export function buildPartial(root, { makePlant, mode }) {
 
   return {
     group: pg, plants, sim, update, reset, beds,
+    parts: Object.assign(parts, { trellis, drops, leaks, over, strays, waiters, waitSign, handSign, human: H.human }),
     get ripe() { return plants.filter((p) => p.fruit.visible).length; },
   };
 }

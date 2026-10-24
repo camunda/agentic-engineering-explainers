@@ -186,7 +186,7 @@ const TOUR = [
     go: () => partialStep('agentic', 'wait') },
   { title: '\u2026or it escapes containment', text: 'If agents don\u2019t wait, changes nobody handled pile up: vines escape the trellis, dry beds die, things get planted wherever. The garden slides back into an overgrown mess.',
     go: () => partialStep('agentic', 'carry') },
-  { title: 'Humans build the structure', text: 'Structure doesn\u2019t appear by flipping a switch. A human walks in with a crew of agents and builds it: soil, planter boxes (modules), a greenhouse (quality gates), a trellis (CI) and irrigation (architecture).',
+  { title: 'Humans refactor the structure', text: 'Not a rewrite. The human stops planting and turns their attention to the structure: KEEP what works, TAKE OUT what doesn\u2019t, MOVE plants into better beds, ADD what is missing: planter boxes (modules), a greenhouse (quality gates), a trellis (CI), irrigation (architecture).',
     go: () => { setMutating(false); setGardenKind('partial'); setGardenMode(true); syncModeButtons(); toGarden(); } },
   { title: 'Agents tend a structured garden', text: 'Now the agents have something to grow into. They tend the plants, and the structure keeps the growth healthy and the harvest coming.',
     go: () => { setGardenMode(true); finishBuild(); setMutating(false); syncModeButtons(); toGarden(); } },

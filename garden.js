@@ -86,7 +86,7 @@ export function seasonPhase() {
 export function tickSeason(dt) {
   if (gardenMode.build) {
     gardenMode.build.t += dt;
-    if (gardenMode.build.t >= BUILD_LENGTH) { gardenMode.build = null; for (const f of gardenMode.listeners) f(true); }
+    if (gardenMode.build.t >= gardenMode.build.length) { gardenMode.build = null; for (const f of gardenMode.listeners) f(true); }
     return;
   }
   if (gardenMode.structured && gardenMode.mutating) season.t = (season.t + dt) % season.length;
@@ -107,11 +107,24 @@ const BUILD_PHASES = [
   [21.5, 'Label it all. Now the agents can tend it.'],
 ];
 export function finishBuild() {
-  if (gardenMode.build) gardenMode.build.t = Math.max(gardenMode.build.t, BUILD_LENGTH - 0.001);
+  if (gardenMode.build) gardenMode.build.t = Math.max(gardenMode.build.t, gardenMode.build.length - 0.001);
 }
+// Partial → structured is a refactor, not a rewrite: keep what works, take out, move, add.
+export const REFACTOR_LENGTH = 34;
+const REFACTOR_PHASES = [
+  [0, 'The human stops planting and steps back to look at the structure.'],
+  [1.5, 'KEEP what works: the two planter boxes and the water tank.'],
+  [3, 'TAKE OUT what doesn\u2019t: weeds, strays, the half-built greenhouse.'],
+  [7, 'ADD planter boxes, then MOVE the plants out of the dirt mounds.'],
+  [13.5, 'ADD a greenhouse and MOVE the last mound\u2019s plants into it.'],
+  [17.5, 'Swap the stick trellis: TAKE OUT, ADD a real one, MOVE the vines across.'],
+  [24, 'Replace the leaky pipes with irrigation that reaches every bed.'],
+  [27.5, 'Label the structure. The agents go back to tending, now at agentic speed.'],
+];
 export function buildPhase() {
-  let label = BUILD_PHASES[0][1];
-  for (const [at, l] of BUILD_PHASES) if (gardenMode.build.t >= at) label = l;
+  const phases = gardenMode.build.from === 'partial' ? REFACTOR_PHASES : BUILD_PHASES;
+  let label = phases[0][1];
+  for (const [at, l] of phases) if (gardenMode.build.t >= at) label = l;
   return label;
 }
 export function setGardenMode(structured) {
@@ -122,7 +135,7 @@ export function setGardenKind(kind) {
   if (was === kind) return;
   gardenMode.structured = kind === 'structured';
   gardenMode.partial = kind === 'partial';
-  gardenMode.build = kind === 'structured' ? { t: 0, from: was } : null;
+  gardenMode.build = kind === 'structured' ? { t: 0, from: was, length: was === 'partial' ? REFACTOR_LENGTH : BUILD_LENGTH } : null;
   for (const f of gardenMode.listeners) f(gardenMode.structured, true);
 }
 // Speed / policy changes restart the partial garden's simulation from a clean state.
@@ -153,8 +166,9 @@ export function buildGarden(cb) {
 
   // Build stages: each slice of g's children pops in during the unstructured → structured build.
   const stages = [];
-  const mark = (t0, t1, at, regroup = true) => stages.push({ from: g.children.length, t0, t1, at, regroup });
-  mark(1.5, 5.5, V(0, 0, 2));
+  // rt = timing when refactoring from the partial garden ([0, 0] = kept as-is, already there).
+  const mark = (t0, t1, at, regroup = true, rt = [t0, t1], name) => { const st = { from: g.children.length, t0, t1, at, regroup, rt, name }; stages.push(st); return st; };
+  mark(1.5, 5.5, V(0, 0, 2), true, [3, 6], 'bed');
   g.add(mesh(new THREE.CircleGeometry(12.5, 48).rotateX(-Math.PI / 2), bed, 0, 0.02, 0, false));
   const path = mesh(new THREE.RingGeometry(12.5, 13.6, 48).rotateX(-Math.PI / 2), gravel, 0, 0.025, 0, false);
   root.add(path);
@@ -175,7 +189,7 @@ export function buildGarden(cb) {
 
   // Planter boxes — one per area of the codebase.
   for (const [i, z] of [-7, -3.5, 0, 3.5].entries()) {
-    mark(5.5 + (3 - i) * 1.25, 6.75 + (3 - i) * 1.25, V(1.3, 0, z + 0.4));
+    mark(5.5 + (3 - i) * 1.25, 6.75 + (3 - i) * 1.25, V(1.3, 0, z + 0.4), true, [[0, 0], [0, 0], [7, 9], [9.5, 11.5]][i], `planter${i}`);
     g.add(mesh(box(6.4, 0.8, 1.6), wood, -2.5, 0.4, z));
     g.add(mesh(box(6.0, 0.1, 1.2), soil, -2.5, 0.81, z, false));
     for (let k = 0; k < 5; k++) {
@@ -185,7 +199,7 @@ export function buildGarden(cb) {
   }
 
   // Greenhouse.
-  mark(10.5, 13.5, V(6, 0, 1.6));
+  mark(10.5, 13.5, V(6, 0, 1.6), true, [13.5, 16.5], 'greenhouse');
   const gh = new THREE.Group();
   gh.position.set(6, 0, -3);
   g.add(gh);
@@ -211,7 +225,7 @@ export function buildGarden(cb) {
 
   // Trellis with climbing vines. Everything hangs off a pivot at its base so it can lean under load.
   const tz = 6;
-  mark(13.5, 16, V(6, 0, tz + 1.6));
+  mark(13.5, 16, V(6, 0, tz + 1.6), true, [19.5, 21.5], 'trellis');
   const trellis = new THREE.Group();
   trellis.position.set(6, 0, tz);
   g.add(trellis);
@@ -243,10 +257,11 @@ export function buildGarden(cb) {
   }
   braces.add(mesh(box(6.4, 0.12, 0.12), steelPost, 0, 3.05, -0.05));
 
-  mark(16, 20, V(-7.8, 0, 5));
+  mark(16, 20, V(-7.8, 0, 5), true, [0, 0], 'tank');
   // Irrigation: tank → manifold → planters and greenhouse, with water flowing through it.
   g.add(mesh(cyl(1.2, 1.2, 2.6, 16), steel, -9.3, 1.3, 7));
   g.add(mesh(cyl(1.25, 1.25, 0.2, 16), pipeMat, -9.3, 2.65, 7));
+  mark(16, 20, V(-7.8, 0, 5), true, [24, 27], 'pipes');
   const pts = [V(-8, 0.25, 7), V(-7, 0.25, 7), V(-7, 0.25, -8.6), V(6, 0.25, -8.6), V(6, 0.25, -6.6)];
   const pipeCurve = new THREE.CurvePath();
   for (let i = 0; i < pts.length - 1; i++) pipeCurve.add(new THREE.LineCurve3(pts[i], pts[i + 1]));
@@ -264,7 +279,7 @@ export function buildGarden(cb) {
     p.rotation.z = Math.PI / 2;
     g.add(p);
   }
-  mark(19.5, 20, null, false); // water starts flowing once the pipes are in
+  mark(19.5, 20, null, false, [27, 27.5]); // water starts flowing once the pipes are in
   const drops = [];
   for (let i = 0; i < 26; i++) {
     const d = mesh(ball(0.1), water, 0, 0, 0, false);
@@ -272,7 +287,7 @@ export function buildGarden(cb) {
     g.add(d);
     drops.push(d);
   }
-  mark(20, 21.5, V(-1, 0, 8.5));
+  mark(20, 21.5, V(-1, 0, 8.5), true, [27.5, 28.5]);
   // Rotating sprinkler on the lawn.
   const spr = new THREE.Group();
   spr.position.set(-2.5, 0, 8.6);
@@ -350,7 +365,7 @@ export function buildGarden(cb) {
   const drySign = warn('NO IRRIGATION!');
   drySign.position.set(-2.5, 3, 7);
 
-  mark(21.5, 24, V(8, 0, 4));
+  mark(21.5, 24, V(8, 0, 4), true, [28.5, 31]);
   // Structure labels, as in the comic.
   label('CI', 6, 3.6, tz);
   label('QUALITY GATES', 6, 4.6, -3);
@@ -463,6 +478,7 @@ export function buildGarden(cb) {
   label('MORE SEEDS!\nGROW FASTER!', 0, 4.4, 0, 1.0, w);
   let overgrowth = 0.6;
 
+  const R = { active: false, snap: new Map(), moves: [] }; // refactor state (see refactorStart)
   const apply = (on, resetSim) => {
     const fromPartial = gardenMode.build?.from === 'partial';
     g.visible = on;
@@ -476,6 +492,8 @@ export function buildGarden(cb) {
       crew.forEach((a, i) => a.position.set(-1.5 + i, 0, 13.5));
       tangle.scale.set(1, 1, 1);
     }
+    if (R.active && !fromPartial) refactorRestore();
+    if (fromPartial && !R.active) refactorStart();
     if (!on || !gardenMode.build) {
       for (const st of stages) { if (st.group) { st.group.visible = true; st.group.scale.setScalar(1); } else for (const o of st.objs) o.visible = true; }
       for (const a of crew) a.visible = false;
@@ -603,28 +621,142 @@ export function buildGarden(cb) {
   // ---- Build transition -----------------------------------------------------------------------
   const easeBack = (k) => 1 + 2.2 * (k - 1) ** 3 + 1.2 * (k - 1) ** 2;
   const tmp = V(0, 0, 0);
+  // ---- Refactor: partial → structured --------------------------------------------------------
+  const R_HUMAN = [
+    [0, V(0, 0, 9)], [3, V(5, 0, -1)], [7, V(1.3, 0, 1.6)], [9.5, V(1.3, 0, 5.2)], [13.5, V(6, 0, 1.6)],
+    [17.5, V(6, 0, 8.2)], [24, V(-7.8, 0, 3)], [27.5, V(-1, 0, 8.5)], [28.5, V(8, 0, 4)], [31, V(0, 0, 12)],
+  ];
+  const TAG_STYLE = {
+    KEEP: '#2f9e44', 'TAKE OUT': '#e03131', MOVE: '#1c7ed6', ADD: '#f08c00',
+  };
+  const tags = [];
+  const tag = (verb, x, y, z, a, b) => {
+    const sp = sprite(G, verb, 0.6, { w: 420, h: 128, font: 'bold 66px system-ui', bg: TAG_STYLE[verb], fg: '#fff', stroke: '#fff' });
+    sp.position.set(x, y, z);
+    sp.visible = false;
+    g.add(sp);
+    tags.push({ sp, a, b });
+  };
+  tag('KEEP', -2.5, 2.4, -7, 1.5, 6); tag('KEEP', -2.5, 2.4, -3.5, 1.5, 6); tag('KEEP', -9.3, 4.2, 7, 1.5, 6);
+  tag('TAKE OUT', 0, 3, 0, 3, 6); tag('TAKE OUT', 6, 3.6, -3, 3, 5.5); tag('TAKE OUT', 6, 4, 6, 17.5, 19.5); tag('TAKE OUT', -7, 2, 0, 23.5, 25);
+  tag('ADD', -2.5, 2.4, 0, 7, 9); tag('ADD', -2.5, 2.4, 3.5, 9.5, 11.5); tag('ADD', 6, 5.6, -3, 13.5, 16.5); tag('ADD', 6, 4.4, 6, 19.5, 21.5); tag('ADD', -7, 2.2, -1, 25, 27.5);
+  tag('MOVE', -2.5, 2.8, 0.5, 9, 10.5); tag('MOVE', -2.5, 2.8, 4.2, 11.5, 13); tag('MOVE', 6, 3.4, -1.5, 16.5, 18); tag('MOVE', 6, 4.2, 7, 22, 23.5);
+  const bubble = sprite(G, '?', 0.55, { w: 128, h: 128, font: 'bold 96px system-ui', bg: '#ffffff', fg: '#1f1d2b', radius: 64, stroke: '#1f1d2b' });
+  bubble.position.y = 3.6;
+  bubble.visible = false;
+  human.add(bubble);
+
+  const inStage = (name) => {
+    const st = stages.find((x) => x.name === name);
+    return plants.filter((p) => { for (let o = p.obj; o; o = o.parent) if (o === st.group) return true; return false; });
+  };
+  function refactorStart() {
+    R.active = true;
+    R.snap.clear();
+    partial.group.traverse((o) => o !== partial.group && R.snap.set(o, { parent: o.parent, pos: o.position.clone(), rot: o.rotation.clone(), scale: o.scale.clone(), vis: o.visible }));
+    const P = partial.parts;
+    P.ground.position.y = 0.012; // sit under the new soil while it spreads
+    for (const n of ['planter0', 'planter1']) for (const p of inStage(n)) p.growth = 0.85; // kept: already growing
+    const bd = partial.beds;
+    R.moves = [
+      { from: bd[0].plants, to: inStage('planter2'), w: [9, 10.5], mound: bd[0].mound },
+      { from: bd[1].plants, to: inStage('planter3'), w: [11.5, 13], mound: bd[1].mound },
+      { from: bd[2].plants, to: inStage('greenhouse'), w: [16.5, 18], mound: bd[2].mound },
+      { from: P.vines, to: inStage('trellis'), w: [22, 23.5] },
+    ];
+    for (const m of R.moves) { m.started = false; for (const p of m.to) p.growth = 0.8; }
+    R.vinesFreed = false;
+  }
+  function refactorRestore() {
+    R.active = false;
+    for (const [o, sn] of R.snap) {
+      if (o.parent !== sn.parent && sn.parent) sn.parent.add(o);
+      o.position.copy(sn.pos); o.rotation.copy(sn.rot); o.scale.copy(sn.scale); o.visible = sn.vis;
+    }
+    for (const m of R.moves) for (const p of m.to) p.obj.visible = true;
+    for (const tg of tags) tg.sp.visible = false;
+    bubble.visible = false;
+  }
+  const shrink = (o, k) => {
+    const sn = R.snap.get(o);
+    o.visible = k < 1;
+    if (sn) o.scale.copy(sn.scale).multiplyScalar(Math.max(0.01, 1 - k));
+  };
+  function refactorStep(T) {
+    const P = partial.parts;
+    partial.group.visible = true;
+    for (const tg of tags) tg.sp.visible = T >= tg.a && T < tg.b;
+    // Kept pieces are swapped for their identical structured counterparts; the sim's actors leave.
+    for (const o of [...P.keep, ...P.tank, ...P.waiters, P.waitSign, P.human]) o.visible = false;
+    for (const l of P.leaks) l.puddle.visible = l.spurt.visible = T < 3;
+    // Take out: overgrowth, strays, the half-built greenhouse.
+    P.over.set(Math.min(1, partial.sim.mess * 1.3) * (1 - ramp(T, 3, 6)));
+    for (const p of P.strays) if (p.obj.visible) shrink(p.obj, ramp(T, 3, 6));
+    for (const f of P.frame) shrink(f, ramp(T, 3, 5));
+    P.ground.visible = T < 6;
+    for (const c of P.cracks) c.visible = T < 6;
+    P.handSign.visible = T < 7;
+    // The stick trellis comes out (its vines are lifted off first and wait to be moved).
+    if (T >= 17.5 && !R.vinesFreed) { for (const v of P.vines) partial.group.attach(v.obj); R.vinesFreed = true; }
+    shrink(P.trellis, ramp(T, 17.5, 19.5));
+    for (const o of [...P.pipes, ...P.drops]) o.visible = T < 24;
+    for (const m of R.moves) if (m.mound) { const sn = R.snap.get(m.mound); m.mound.scale.set(sn.scale.x, sn.scale.y * Math.max(0.01, 1 - ramp(T, m.w[0], m.w[1] + 0.5)), sn.scale.z); }
+  }
+  // Move: plants are lifted out of mounds / off the old trellis and arc into their new beds.
+  const wp = V(0, 0, 0);
+  function refactorPlants(T) {
+    for (const m of R.moves) {
+      const k = ramp(T, m.w[0], m.w[1]);
+      for (const p of m.to) p.obj.visible = k >= 1;
+      if (k <= 0) continue;
+      if (!m.started) {
+        m.started = true;
+        for (const f of m.from) { partial.group.attach(f.obj); f.start = f.obj.position.clone(); }
+      }
+      m.from.forEach((f, i) => {
+        f.obj.visible = k < 1;
+        const to = m.to[i % m.to.length];
+        to.obj.getWorldPosition(wp);
+        partial.group.worldToLocal(wp);
+        f.obj.position.lerpVectors(f.start, wp, k);
+        f.obj.position.y += Math.sin(Math.PI * k) * 2.5;
+      });
+    }
+  }
+
   function buildStep(dt, t) {
     const T = gardenMode.build.t;
+    const fromP = gardenMode.build.from === 'partial';
+    if (fromP) refactorStep(T);
     // Clear the wild: overgrowth shrinks away as the crew pulls it.
     const clear = ramp(T, 1, 5);
     tangle.scale.set(Math.max(0.01, 1 - clear), Math.max(0.01, (1 - clear) * 1.1), Math.max(0.01, 1 - clear));
     weeds.scale.set(1, Math.max(0.01, 1 - clear), 1);
     for (const p of wildPlants) p.obj.scale.setScalar(Math.max(0.01, (1 - clear) * 0.8));
-    if (gardenMode.build.from === 'partial') {
-      w.visible = false;
-      partial.group.visible = clear < 1;
-      partial.group.scale.set(1, Math.max(0.01, 1 - clear), 1);
-    } else w.visible = clear < 1;
+    if (fromP) w.visible = false;
+    else w.visible = clear < 1;
     // Stages grow in, the human working at whichever one is being built.
     let active = null;
     for (const st of stages) {
       if (st.t0 < 0) continue;
-      const k = ramp(T, st.t0, st.t1);
+      const [t0, t1] = fromP ? st.rt : [st.t0, st.t1];
+      const k = t1 <= t0 ? (T >= t0 ? 1 : 0) : ramp(T, t0, t1);
       if (st.group) { st.group.visible = k > 0; st.group.scale.setScalar(Math.max(0.01, easeBack(k))); }
       else for (const o of st.objs) o.visible = k >= 1;
-      if (st.at && T >= st.t0 - 1.2 && T < st.t1) active = st;
+      if (st.at && T >= t0 - 1.2 && T < t1) active = st;
     }
-    const target = active ? active.at : T < 1.5 ? V(0, 0, 4) : V(0, 0, 11);
+    if (fromP) refactorPlants(T);
+    let target = active ? active.at : T < 1.5 ? V(0, 0, 4) : V(0, 0, 11);
+    let thinking = false;
+    if (fromP) {
+      // The human's attention shifts from planting to the structure: survey, decide, then rework.
+      let at = R_HUMAN[0];
+      for (const h of R_HUMAN) if (T >= h[0]) at = h;
+      target = at[1];
+      thinking = T < 3 || T - at[0] < 1;
+      active = null;
+    }
+    bubble.visible = thinking;
     human.visible = true;
     const d = tmp.copy(target).sub(human.position).setY(0);
     const dist = d.length();
@@ -636,7 +768,7 @@ export function buildGarden(cb) {
       const c = active.group ? active.group.position : target;
       human.rotation.y = Math.atan2(c.x - human.position.x, c.z - human.position.z);
     }
-    const working = !moving && (active || T < 5.5);
+    const working = !thinking && !moving && (fromP ? T < 31 : active || T < 5.5);
     arm.rotation.x = working ? -1.2 + Math.sin(t * 14) * 0.7 : Math.sin(t * 8) * 0.3;
     hb.position.y = moving ? Math.abs(Math.sin(t * 10)) * 0.1 : 0;
     // The crew fans out around the human, carrying planks and bobbing as they hammer.
@@ -649,7 +781,7 @@ export function buildGarden(cb) {
       if (al > 0.2) { a.position.addScaledVector(ad, Math.min(1, (5 * dt) / al)); a.rotation.y = Math.atan2(ad.x, ad.z); }
       else a.rotation.y = Math.atan2(human.position.x - a.position.x, human.position.z - a.position.z);
       a.position.y = al > 0.2 ? Math.abs(Math.sin(t * 11 + a.userData.phase)) * 0.12 : Math.max(0, Math.sin(t * 9 + a.userData.phase)) * 0.15;
-      a.userData.plank.visible = T > 4.5 && T < 22;
+      a.userData.plank.visible = T > 4.5 && T < gardenMode.build.length - 3;
     }
   }
 
