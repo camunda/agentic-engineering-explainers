@@ -7,3 +7,5 @@ Fully offline (three.js vendored). Drag pan · right-drag rotate/tilt · scroll 
 double-click fly in · 1–6 codebases (press twice to enter the garden) · 0 overview · space auto-orbit · g toggles structured / unstructured garden · p partial garden (⚙ in the mode pill: human/agentic speed, agents wait/carry on) · m toggles stable / evolving (structured) · ←/→ (or PageUp/PageDown) step through the guide sidebar · t hides it.
 
 Live: https://jwulf.github.io/nano-workforce-presentation/
+
+`humans.html` is a companion scroll-through page: the role of humans in the agentic SDLC (vision, validation, and the structural work that keeps code good). It's linked from the garden's top-left corner.
