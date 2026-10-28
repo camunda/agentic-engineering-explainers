@@ -3,73 +3,76 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nano Workforce — Agent Graph Orchestration</title>
+<title>Agentic Engineering Basics</title>
+<meta name="description" content="Agentic Engineering Basics: interactive explainers on how software gets built when agents do the implementation." />
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #bfe3d0; font-family: ui-rounded, system-ui, -apple-system, sans-serif; }
-  canvas { display: block; }
-  #hud { position: fixed; top: 18px; left: 22px; color: #1f1d2b; pointer-events: none; }
-  #hud h1 { margin: 0; font-size: 26px; letter-spacing: .3px; }
-  #hud .sub { font-size: 14px; opacity: .7; margin-top: 2px; }
-  #humansLink { pointer-events: auto; display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 700; color: #1f1d2b; text-decoration: none; border-bottom: 2px solid #ff8a1f; }
-  #level { margin-top: 14px; display: flex; gap: 6px; }
-  #level span { padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.55); font-size: 13px; font-weight: 600; transition: all .3s; }
-  #level span.on { background: #1f1d2b; color: #fff; }
-  #stats { position: fixed; top: 18px; right: 22px; text-align: right; color: #1f1d2b; pointer-events: none; font-size: 14px; line-height: 1.6; }
-  #stats b { font-size: 20px; }
-  #help { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(31,29,43,.72); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: 12.5px; pointer-events: none; white-space: nowrap; }
-  #caption { white-space: nowrap; position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1f1d2b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
-  #mode { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); display: flex; gap: 0; background: rgba(255,255,255,.6); border-radius: 999px; padding: 4px; opacity: 0; pointer-events: none; transition: opacity .4s; }
-  #mode.show { opacity: 1; pointer-events: auto; }
-  #mode button { white-space: nowrap; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1f1d2b; }
-  #mode button.on[data-m=structured] { background: #2f7d3a; color: #fff; }
-  #mode button.on[data-m=partial] { background: #b07a2a; color: #fff; }
-  #mode button.on[data-m=wild] { background: #7a5a3a; color: #fff; }
-  #mode button.on[data-sp], #mode button.on[data-po] { background: #1f1d2b; color: #fff; }
-  #mode button[data-adv] { opacity: .5; padding: 4px 10px; font-size: 16px; }
-  #mode.advanced button[data-adv] { opacity: 1; }
-  #mode .sep { width: 1px; margin: 4px 8px; background: rgba(31,29,43,.25); }
-  #mode button.on[data-x] { background: #1f1d2b; color: #fff; }
-  #mode:not(.kind-structured) .grp-s, #mode:not(.kind-partial) .grp-p, #mode:not(.advanced) .adv { display: none !important; }
-  #tour { position: fixed; top: 150px; left: 22px; width: 300px; background: rgba(255,255,255,.88); color: #1f1d2b; border-radius: 16px; padding: 16px 18px 14px; box-shadow: 0 6px 24px rgba(31,29,43,.15); transition: transform .35s, opacity .35s; }
-  #tour .count { font-size: 12px; font-weight: 700; opacity: .55; letter-spacing: .5px; }
-  #tour h2 { margin: 4px 0 8px; font-size: 19px; }
-  #tour p { margin: 0 0 14px; font-size: 14.5px; line-height: 1.5; }
-  #tour .nav { display: flex; align-items: center; gap: 8px; }
-  #tour .nav button { border: 0; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: #1f1d2b; color: #fff; }
-  #tour .nav button[data-t=prev] { background: rgba(31,29,43,.1); color: #1f1d2b; }
-  #tour .nav button:disabled { opacity: .3; cursor: default; }
-  #tour .dots { flex: 1; display: flex; gap: 5px; justify-content: center; }
-  #tour .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(31,29,43,.2); }
-  #tour .dots i.on { background: #1f1d2b; }
-  #tour .keys { margin-top: 10px; font-size: 11.5px; opacity: .5; }
-  #tour [data-t=toggle] { position: absolute; top: 10px; right: 10px; border: 0; background: none; font-size: 16px; cursor: pointer; color: #1f1d2b; opacity: .6; }
-  #tour.collapsed { transform: translateX(calc(-100% + 18px)); opacity: .9; }
-  #tour.collapsed [data-t=toggle] { transform: rotate(180deg); right: -2px; }
-  #tour.collapsed > :not([data-t=toggle]) { visibility: hidden; }
+  :root { --ink: #1f1d2b; --bg: #bfe3d0; --paper: #fbf8f0; --muted: rgba(31,29,43,.62); --accent: #ff8a1f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  main { width: min(1080px, 100%); margin: 0 auto; padding: 72px 6vw 80px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.05; margin: 10px 0 18px; letter-spacing: -.8px; }
+  .lead { font-size: 21px; max-width: 720px; margin: 0 0 48px; }
+  h2 { font-size: 15px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; margin: 0 0 16px; }
+  ol.toc { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; counter-reset: ch; }
+  ol.toc li { counter-increment: ch; }
+  .card { display: flex; flex-direction: column; height: 100%; background: var(--paper); border-radius: 22px; overflow: hidden; color: inherit; text-decoration: none;
+    box-shadow: 0 10px 30px rgba(31,29,43,.12); transition: transform .2s, box-shadow .2s; }
+  a.card:hover, a.card:focus-visible { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(31,29,43,.18); outline: none; }
+  .thumb { aspect-ratio: 16 / 10; background: #a9d6bf center / cover no-repeat; position: relative; }
+  .thumb::before { content: counter(ch, decimal-leading-zero); position: absolute; left: 14px; top: 12px; padding: 2px 10px; border-radius: 999px;
+    background: var(--ink); color: #fff; font-weight: 800; font-size: 13px; }
+  .body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .body h3 { margin: 0; font-size: 22px; line-height: 1.2; }
+  .body p { margin: 0; font-size: 15px; color: var(--muted); }
+  .meta { margin-top: auto; padding-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .meta span { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: rgba(31,29,43,.08); }
+  .card.soon { background: transparent; box-shadow: none; border: 2px dashed rgba(31,29,43,.25); }
+  .card.soon .thumb { background: none; display: grid; place-items: center; font-size: 40px; opacity: .35; }
+  footer { margin-top: 56px; font-size: 13px; color: var(--muted); }
+  footer a { color: inherit; }
 </style>
-<script type="importmap">
-{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
-</script>
 </head>
 <body>
-<div id="hud">
-  <h1>Nano Workforce</h1>
-  <div class="sub">Agent Graph Orchestration for the Agentic SDLC</div>
-  <div id="level"><span data-l="0">Organisation</span><span data-l="1">Processes</span><span data-l="2">Codebase</span></div>
-  <a id="humansLink" href="./humans.html">The role of humans &#x2192;</a>
-</div>
-<div id="tour">
-  <button data-t="toggle" title="Hide / show guide (T)">&#x276E;</button>
-  <div class="count"></div>
-  <h2></h2>
-  <p></p>
-  <div class="nav"><button data-t="prev">&#x2190; Previous</button><span class="dots"></span><button data-t="next">Next &#x2192;</button></div>
-  <div class="keys">&#x2190; / &#x2192; to navigate &middot; T to hide</div>
-</div>
-<div id="stats"></div>
-<div id="caption"></div>
-<div id="mode" class="kind-wild"><button data-m="wild" class="on">Unstructured</button><button data-m="partial">Partial</button><button data-m="structured">Structured</button><span class="sep grp-s"></span><button class="grp-s on" data-x="s">Stable</button><button class="grp-s" data-x="m">Evolving</button><span class="sep grp-p adv"></span><button class="grp-p adv on" data-sp="human">Human speed</button><button class="grp-p adv" data-sp="agentic">Agentic speed</button><span class="sep grp-p adv"></span><button class="grp-p adv on" data-po="wait">Agents wait</button><button class="grp-p adv" data-po="carry">Agents carry on</button><button data-adv title="Advanced: speed &amp; policy switches">&#x2699;</button></div>
-<div id="help">drag: pan · right-drag: rotate · scroll: zoom · double-click: fly in · 1–6: codebases · 0: overview · space: auto-orbit · g: garden mode · p: partial · m: evolving · ←/→: guide · t: hide guide</div>
-<script type="module" src="./main.js"></script>
+<main>
+  <div class="kicker">Interactive explainers</div>
+  <h1>Agentic Engineering Basics</h1>
+  <p class="lead">How software gets built when agents do the implementation: what the system looks like, where humans fit, and what keeps the code good as it grows.</p>
+
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li>
+      <a class="card" href="./garden.html">
+        <div class="thumb" style="background-image:url(./thumbs/garden.jpg)"></div>
+        <div class="body">
+          <h3>The organisation of agents</h3>
+          <p>Zoom from a colony of agents, through the processes they follow, into a codebase garden. Watch it run wild, then partly structured, then refactored into a structure that holds up at agentic speed.</p>
+          <div class="meta"><span>3D &middot; guided tour</span><span>Best on desktop</span></div>
+        </div>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="./humans.html">
+        <div class="thumb" style="background-image:url(./thumbs/humans.jpg)"></div>
+        <div class="body">
+          <h3>The role of humans</h3>
+          <p>Humans move to the edges: vision and validation, with agents implementing in the middle. And the answer to &ldquo;how will I know the code is any good?&rdquo;</p>
+          <div class="meta"><span>Scroll-through</span><span>~5 min</span></div>
+        </div>
+      </a>
+    </li>
+    <li>
+      <div class="card soon" aria-label="More chapters coming soon">
+        <div class="thumb">&#x2026;</div>
+        <div class="body">
+          <h3>More coming soon</h3>
+          <p>New chapters will be added here.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <footer>Built with three.js &middot; <a href="https://github.com/jwulf/nano-workforce-presentation">Source on GitHub</a></footer>
+</main>
 </body>
 </html>
