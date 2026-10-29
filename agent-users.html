@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Designing for agent users — Agentic Engineering Basics</title>
+<style>
+  :root {
+    --ink: #1f1d2b; --bg: #bfe3d0; --paper: #fbf8f0; --muted: rgba(31,29,43,.62);
+    --human: #ff8a1f; --agent: #3c7ee8; --review: #8a4fd6; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(31,29,43,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(31,29,43,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .card { background: var(--paper); border-radius: 22px; padding: 22px; box-shadow: 0 10px 30px rgba(31,29,43,.12); }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 13px; }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+
+  /* Terminal */
+  .term { overflow-x: auto; background: #1f1d2b; color: #e9e6f5; border-radius: 18px; padding: 16px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; line-height: 1.65; min-height: 250px; white-space: pre; overflow: hidden; }
+  .term .p { color: #8fe0a0; } .term .c { color: #8f8aa8; } .term .e { color: #ff8f8f; } .term .y { color: #f5b84a; } .term .k { color: #9cc3ff; }
+  .term .bar { font-family: ui-rounded, system-ui, sans-serif; font-weight: 800; font-size: 12px; color: #fff; margin-bottom: 8px; display: flex; gap: 6px; white-space: normal; }
+  .term .bar span { padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.12); }
+  .term .bar span.on { background: #fff; color: #1f1d2b; }
+
+  /* Streams */
+  .streams { display: grid; gap: 10px; }
+  .stream { display: grid; grid-template-columns: 118px 1fr; gap: 12px; align-items: center; background: var(--paper); border-radius: 14px; padding: 12px 14px; }
+  .stream .w { font-family: ui-monospace, monospace; font-size: 13px; font-weight: 800; padding: 5px 8px; border-radius: 8px; color: #fff; text-align: center; }
+  .stream > div { min-width: 0; overflow-wrap: break-word; }
+  .stream b { display: block; font-size: 15px; }
+  .stream span { font-size: 13.5px; color: var(--muted); }
+
+  /* Context budget */
+  .budget { background: var(--paper); border-radius: 22px; padding: 18px; }
+  .ctxw { height: 34px; border-radius: 10px; background: rgba(31,29,43,.08); position: relative; overflow: hidden; margin: 8px 0 4px; }
+  .ctxw i { position: absolute; left: 0; top: 0; bottom: 0; transition: width 1.2s ease; }
+  .ctxw i.task { background: var(--agent); }
+  .ctxw i.out { background: var(--warn); }
+  .budget .row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); }
+  .budget .cmd { font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; margin-top: 12px; min-height: 20px; }
+  .budget .cap { font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 10px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 6px; }
+  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+
+  /* Self-describing */
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; text-align: left; }
+  .twocol .card h3 { margin: 6px 0 8px; font-size: 19px; }
+  .twocol .card p { font-size: 15px; }
+
+  /* SDK principles */
+  .sdkp { display: grid; gap: 9px; }
+  .sp { background: var(--paper); border-radius: 14px; padding: 12px 14px; }
+  .sp b { display: block; font-size: 15.5px; }
+  .sp span { font-size: 13.5px; color: var(--muted); }
+
+  @media (max-width: 820px) {
+    .wrap, .twocol { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+    .term { font-size: 11px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">Agentic Engineering Basics<span>Designing for agent users</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Designing for agent users">
+  <div class="wrap single">
+    <div class="kicker reveal">Agentic Engineering Basics</div>
+    <h1 class="reveal d1">Designing for agent users</h1>
+    <p class="lead reveal d2">Agents don't only build our software. More and more, they're the ones <b>using</b> it.<br>So we design our tools for them, as first-class users.</p>
+    <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x1F9D1;&#x200D;&#x1F4BB; &#x1F91D; &#x1F916;</div>
+    <div class="scroll-hint">Scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="two" data-title="Two audiences">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Two audiences, one tool</div>
+      <h2 class="reveal d1">Humans want a table. Agents want data.</h2>
+      <p class="reveal d2"><code>c8ctl</code>, the Camunda 8 CLI, serves both. People get aligned, readable tables. Agents switch to JSON with <code>--json</code> for one command or <code>c8ctl output json</code> for the session, and get output they can parse without guessing.</p>
+      <p class="reveal d3">Scraping a table meant for humans is fragile: a column changes width or a header gets renamed, and the agent's parsing quietly breaks.</p>
+      <p class="reveal d4 muted">The repo even has a file just for agent consumers, <code>CONTEXT.md</code>: &ldquo;invariants and conventions for AI agents consuming c8ctl programmatically.&rdquo;</p>
+    </div>
+    <div class="term reveal d2" id="term1"></div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="contract" data-title="The output contract">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The contract</div>
+      <h2 class="reveal d1">Every channel has one job.</h2>
+      <p class="reveal d2">An agent composes tools the way a shell script does: pipe the data, check the exit code, read the error. That only works if each channel carries one kind of thing, every time.</p>
+      <p class="reveal d3">In JSON mode, c8ctl writes data to stdout and operational messages (info, warnings, errors) to stderr as JSON. Failure is exit code 1 with a structured error. An agent never has to tell a warning from a result by reading English.</p>
+    </div>
+    <div class="streams">
+      <div class="stream reveal d1"><span class="w" style="background:var(--ok)">stdout</span><div><b>Data, and only data</b><span>JSON the agent can pipe straight into <code>jq</code> or its next step.</span></div></div>
+      <div class="stream reveal d2"><span class="w" style="background:var(--warn)">stderr</span><div><b>Messages, also as JSON</b><span><code>{"status":"warning","message":"…"}</code>: never mixed into the data.</span></div></div>
+      <div class="stream reveal d3"><span class="w" style="background:var(--bad)">exit code</span><div><b>0 or 1</b><span>Success or failure, without parsing anything. <code>--dry-run</code> exits 0.</span></div></div>
+      <div class="stream reveal d4"><span class="w" style="background:var(--review)">errors</span><div><b>Structured</b><span><code>{"status":"error","message":"…"}</code> on stderr, so the agent can decide what to do next.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="context" data-title="Spend context carefully">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Agent flags</div>
+      <h2 class="reveal d1">An agent's attention is a budget. Don't make it pay for columns it doesn't need.</h2>
+      <p class="reveal d2">Every byte a tool prints lands in the agent's context window, crowding out the task. c8ctl has <b>agent flags</b>, listed in their own section of the help: <code>--fields</code> picks the keys to return, and <code>--limit</code> caps the results.</p>
+      <p class="reveal d3">From CONTEXT.md: &ldquo;Use this to reduce context window size when parsing output programmatically.&rdquo;</p>
+    </div>
+    <div class="budget reveal d2">
+      <div class="row"><span>agent context window</span><span id="ctxPct">&nbsp;</span></div>
+      <div class="ctxw"><i class="task" style="width:22%"></i><i class="out" id="outBar" style="left:22%;width:0"></i></div>
+      <div class="legend"><span><i style="background:var(--agent)"></i>the task</span><span><i style="background:var(--warn)"></i>tool output</span></div>
+      <div class="cmd" id="budCmd">&nbsp;</div>
+      <div class="cap" id="budCap">&nbsp;</div>
+      <p class="src">Proportions are illustrative.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="dryrun" data-title="Look before you leap">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Safety</div>
+      <h2 class="reveal d1">Let agents look before they leap.</h2>
+      <p class="reveal d2"><code>--dry-run</code> shows the exact API request a command would send (method, URL, body) without executing it, as JSON, with exit code 0.</p>
+      <p class="reveal d3">An agent can check that it built the right request before it cancels a process instance. A human, or a reviewing agent, can approve the intent instead of the outcome.</p>
+      <p class="reveal d4 muted">Inside c8ctl, each command declares whether it is <code>mutating</code>. That kind of metadata lets the tool, and its users, treat destructive actions differently.</p>
+      <p class="src reveal d4">Terminal output on this page is abbreviated and illustrative; the flags and output shapes come from c8ctl CONTEXT.md.</p>
+    </div>
+    <div class="term reveal d2" id="term2"></div>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="describe" data-title="Self-describing">
+  <div class="wrap single">
+    <div class="kicker reveal">Discoverability</div>
+    <h2 class="reveal d1">The tool describes itself, in a form an agent can read.</h2>
+    <p class="reveal d2">In JSON mode, <code>c8ctl help</code> returns the whole command tree as structured data: <code>commands</code>, <code>globalFlags</code>, <code>searchFlags</code>, <code>agentFlags</code>, <code>resourceAliases</code>. An agent can learn the tool by asking it.</p>
+    <div class="twocol">
+      <div class="card reveal d2">
+        <span class="tag" style="background:var(--ok)">Never stale</span>
+        <h3>Derived from the registry</h3>
+        <p class="muted">Help, completions, argument parsing and validation all come from one <code>COMMAND_REGISTRY</code>. What the agent is told is exactly what the tool accepts. (See <a href="./derive.html">Derivation over duplication</a>.)</p>
+      </div>
+      <div class="card reveal d3">
+        <span class="tag" style="background:var(--agent)">Meet agents where they are</span>
+        <h3>Docs and protocols for agents</h3>
+        <p class="muted"><code>CONTEXT.md</code> states the invariants an agent can rely on. <code>c8ctl mcp-proxy</code> bridges to an MCP server, for agents that speak the Model Context Protocol.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="sdks" data-title="SDKs have agent users too">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Beyond the CLI</div>
+      <h2 class="reveal d1">The agent writing code against your SDK is a user too.</h2>
+      <p class="reveal d2">An agent learns an API from its types, its errors and its examples. Most of the time it doesn't read the docs. So the SDKs put the truth where the agent looks.</p>
+      <p class="reveal d3">The same choices help humans. Designing for agents mostly means taking away the ambiguity a human would have quietly worked around.</p>
+    </div>
+    <div class="sdkp">
+      <div class="sp reveal d1"><b>Types that tell the truth</b><span>&ldquo;Type honesty&rdquo;: a field marked optional really is optional at runtime. Semantic keys stop a <code>JobKey</code> being passed where a <code>ProcessInstanceKey</code> belongs.</span></div>
+      <div class="sp reveal d2"><b>Errors you can branch on</b><span>Go: a typed <code>*APIError</code> plus sentinel errors, tested with <code>errors.Is</code>/<code>errors.As</code>. And no silent failure: no zero values or best-guess defaults.</span></div>
+      <div class="sp reveal d3"><b>The best example in the editor</b><span>Examples injected into API docs and IntelliSense point to the ergonomic helper, not the raw call, so the first thing an agent sees is the best way.</span></div>
+      <div class="sp reveal d4"><b>One shape across languages</b><span>Seven SDKs share a structure, config conventions and AGENTS.md layout. An agent that learns one can work in all of them.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">Agents are users. Design for them on purpose.</h2>
+    <p class="lead reveal d2">Give them data, not prose. Give each channel one job. Respect their context budget. Let them preview before acting. Make the tool describe itself from its single source of truth. And make types, errors and examples tell the truth, because that's where agents look.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./index.html">Back to contents</a>
+      <a class="pill ghost" href="./no-flaky.html">&#x2190; There are no flaky tests</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  async function type(el, html, cmd) {
+    el.insertAdjacentHTML('beforeend', '<span class="p">$ </span>');
+    for (const ch of cmd) { el.insertAdjacentHTML('beforeend', esc(ch)); await sleep(28); }
+    el.insertAdjacentHTML('beforeend', '\n'); await sleep(450);
+    el.insertAdjacentHTML('beforeend', html + '\n');
+  }
+
+  // Text vs JSON output.
+  onEnter('two', async () => {
+    const t = document.getElementById('term1');
+    const TEXT = `<span class="c">Key               Process ID      State      Start</span>
+2251799813685249  order-process   ACTIVE     2026-10-28 09:14
+2251799813685311  order-process   COMPLETED  2026-10-28 09:02
+2251799813685377  invoice         INCIDENT   2026-10-27 17:40`;
+    const JSON_ = `[
+  { <span class="k">"Key"</span>: <span class="y">"2251799813685249"</span>,
+    <span class="k">"processDefinitionId"</span>: <span class="y">"order-process"</span>, <span class="k">"State"</span>: <span class="y">"ACTIVE"</span> },
+  { <span class="k">"Key"</span>: <span class="y">"2251799813685311"</span>,
+    <span class="k">"processDefinitionId"</span>: <span class="y">"order-process"</span>, <span class="k">"State"</span>: <span class="y">"COMPLETED"</span> },
+  { <span class="k">"Key"</span>: <span class="y">"2251799813685377"</span>,
+    <span class="k">"processDefinitionId"</span>: <span class="y">"invoice"</span>, <span class="k">"State"</span>: <span class="y">"INCIDENT"</span> }
+]`;
+    for (;;) {
+      t.innerHTML = '<div class="bar"><span class="on">For a human</span><span>For an agent</span></div>';
+      await type(t, TEXT, 'c8ctl list pi');
+      await sleep(3200);
+      t.innerHTML = '<div class="bar"><span>For a human</span><span class="on">For an agent</span></div>';
+      await type(t, JSON_, 'c8ctl list pi --json --fields Key,processDefinitionId,State');
+      await sleep(4200);
+    }
+  });
+
+  // Context budget: full output vs --fields + --limit.
+  onEnter('context', async () => {
+    const bar = document.getElementById('outBar'), cmd = document.getElementById('budCmd'), cap = document.getElementById('budCap'), pct = document.getElementById('ctxPct');
+    for (;;) {
+      bar.style.width = '0'; pct.innerHTML = '&nbsp;';
+      cmd.textContent = '$ c8ctl search pi --json'; cap.textContent = 'Every field of every matching instance\u2026';
+      await sleep(600); bar.style.width = '70%'; pct.textContent = '92% used'; await sleep(1400);
+      cap.innerHTML = '<span style="color:var(--bad)">The task is crowded out</span> by columns the agent never needed.';
+      await sleep(3200);
+      bar.style.width = '0'; pct.innerHTML = '&nbsp;'; await sleep(900);
+      cmd.textContent = '$ c8ctl search pi --json --fields Key,State --limit 20';
+      cap.textContent = 'Only the keys it needs, only as many as it needs\u2026';
+      await sleep(600); bar.style.width = '5%'; pct.textContent = '27% used'; await sleep(1400);
+      cap.innerHTML = '<span style="color:var(--ok)">Room left to think.</span>';
+      await sleep(3400);
+    }
+  });
+
+  // Dry run.
+  onEnter('dryrun', async () => {
+    const t = document.getElementById('term2');
+    const OUT = `{
+  <span class="k">"dryRun"</span>: true,
+  <span class="k">"command"</span>: <span class="y">"cancel process-instance"</span>,
+  <span class="k">"method"</span>: <span class="y">"POST"</span>,
+  <span class="k">"url"</span>: <span class="y">"…/v2/process-instances/2251799813685249/cancellation"</span>,
+  <span class="k">"body"</span>: null
+}
+<span class="c">exit 0: nothing was cancelled</span>`;
+    for (;;) {
+      t.innerHTML = '';
+      await type(t, OUT, 'c8ctl cancel pi 2251799813685249 --dry-run');
+      await sleep(1500);
+      t.insertAdjacentHTML('beforeend', '<span class="c"># looks right; now do it</span>\n');
+      await sleep(900);
+      await type(t, '<span class="c">(stderr)</span> {"status":"success","message":"…cancelled"}', 'c8ctl cancel pi 2251799813685249');
+      await sleep(4200);
+    }
+  });
+</script>
+</body>
+</html>

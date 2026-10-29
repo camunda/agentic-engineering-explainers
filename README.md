@@ -6,6 +6,10 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `humans.html`: the role of humans in the agentic SDLC (scroll-through)
 - `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
 - `zero-eyes.html`: Zero-eyes PR approval (scroll-through with interactive demos)
+- `enforce.html`: Rules that enforce themselves (scroll-through)
+- `derive.html`: Derivation over duplication (scroll-through)
+- `no-flaky.html`: There are no flaky tests (scroll-through)
+- `agent-users.html`: Designing for agent users (scroll-through)
 
 To add a chapter: add the page, a card in `index.html` (thumbnail in `thumbs/`), and a link back to `./index.html`.
 

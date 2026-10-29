@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Derivation over duplication — Agentic Engineering Basics</title>
+<style>
+  :root {
+    --ink: #1f1d2b; --bg: #bfe3d0; --paper: #fbf8f0; --muted: rgba(31,29,43,.62);
+    --human: #ff8a1f; --agent: #3c7ee8; --review: #8a4fd6; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(31,29,43,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(31,29,43,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .card { background: var(--paper); border-radius: 22px; padding: 22px; box-shadow: 0 10px 30px rgba(31,29,43,.12); }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 13px; }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+
+  /* Drift demo */
+  .drift { background: var(--paper); border-radius: 22px; padding: 18px; }
+  .drift .src-node { background: var(--ink); color: #fff; border-radius: 12px; padding: 10px 14px; font-family: ui-monospace, monospace; font-size: 13px; text-align: center; }
+  .drift .src-node .add { color: #8fe0a0; opacity: 0; transition: opacity .4s; }
+  .drift .src-node .add.on { opacity: 1; }
+  .copies { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+  .copy { border-radius: 12px; padding: 9px 12px; font-size: 13px; font-weight: 700; background: rgba(31,29,43,.06); border: 2px solid transparent; transition: background .4s, border-color .4s; }
+  .copy small { display: block; font-family: ui-monospace, monospace; font-weight: 500; font-size: 11.5px; color: var(--muted); }
+  .copy.fresh { background: #effaf1; border-color: var(--ok); }
+  .copy.stale { background: #fff0f0; border-color: var(--bad); }
+  .mode { display: flex; gap: 6px; margin-bottom: 12px; }
+  .mode span { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(31,29,43,.08); }
+  .mode span.on { background: var(--ink); color: #fff; }
+  .drift .cap { font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 12px; }
+  .wire { height: 18px; position: relative; }
+  .wire::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 2px dashed rgba(31,29,43,.3); }
+  .drift.derived .wire::before { border-left: 2px solid var(--ok); }
+
+  /* Fan-out */
+  .fan { background: var(--paper); border-radius: 22px; padding: 18px; display: grid; gap: 10px; justify-items: center; }
+  .node { border-radius: 12px; padding: 8px 14px; font-size: 13px; font-weight: 800; text-align: center; transition: transform .3s, box-shadow .3s; }
+  .node small { display: block; font-weight: 600; font-size: 11px; opacity: .75; }
+  .node.lit { transform: scale(1.06); box-shadow: 0 6px 16px rgba(31,29,43,.25); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .sdk { background: var(--agent); color: #fff; min-width: 70px; }
+  .down { font-weight: 900; opacity: .35; line-height: .9; }
+
+  /* Edit the generator */
+  .regen { background: var(--paper); border-radius: 22px; padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .regen .col h4 { margin: 0 0 8px; font-size: 14px; }
+  .file { font-family: ui-monospace, monospace; font-size: 11.5px; background: #1f1d2b; color: #e9e6f5; border-radius: 10px; padding: 10px; min-height: 108px; line-height: 1.6; }
+  .file .hl { background: rgba(143,224,160,.25); border-radius: 3px; }
+  .file .bug { color: #ff8f8f; }
+  .file .c { color: #8f8aa8; }
+  .regen .st { font-size: 12px; font-weight: 800; margin-top: 8px; min-height: 36px; }
+  .regen .cap { grid-column: 1 / -1; font-size: 14px; font-weight: 700; min-height: 22px; text-align: center; }
+  .regen .cap button { margin-left: 8px; }
+
+  /* Derived docs */
+  .outs { display: grid; gap: 10px; }
+  .out { display: grid; grid-template-columns: 1fr 26px 1fr; gap: 8px; align-items: center; background: var(--paper); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
+  .out > div { min-width: 0; overflow-wrap: break-word; }
+  .out b { display: block; font-size: 15px; }
+  .out span { color: var(--muted); font-size: 13px; }
+  .out .arr { font-weight: 900; text-align: center; color: var(--ok); }
+
+  /* Drift check */
+  .ci { background: #1f1d2b; color: #e9e6f5; border-radius: 18px; padding: 16px 18px; font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.75; min-height: 240px; }
+  .ci .p { color: #8f8aa8; } .ci .g { color: #8fe0a0; } .ci .r { color: #ff8f8f; } .ci .y { color: #f5b84a; }
+  .ci div { opacity: 0; transition: opacity .3s; } .ci div.on { opacity: 1; }
+
+  /* Two commits */
+  .commits { display: grid; gap: 12px; }
+  .commit { background: var(--paper); border-radius: 16px; padding: 14px 16px; }
+  .commit .msg { font-family: ui-monospace, monospace; font-size: 13.5px; font-weight: 700; }
+  .commit .stat { display: flex; gap: 10px; align-items: center; margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--muted); }
+  .commit .bar { height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--ok) 0 60%, var(--bad) 60%); }
+  .commit .why { font-size: 13.5px; color: var(--muted); margin-top: 6px; }
+  .commit.bad { background: transparent; border: 2px dashed rgba(31,29,43,.3); }
+
+  @media (max-width: 820px) {
+    .wrap, .regen { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .ci div { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">Agentic Engineering Basics<span>Derivation over duplication</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Derivation over duplication">
+  <div class="wrap single">
+    <div class="kicker reveal">Agentic Engineering Basics</div>
+    <h1 class="reveal d1">Derivation over duplication</h1>
+    <p class="lead reveal d2">Every fact in a system should be written down once.<br>Everything else that needs it should be <b>generated</b> from that one place, and checked.</p>
+    <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x1F331; &#x2192; &#x1F333;</div>
+    <div class="scroll-hint">Scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="drift" data-title="Copies drift">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Why</div>
+      <h2 class="reveal d1">Hand-kept copies drift. Agents make them drift faster.</h2>
+      <p class="reveal d2">When the same fact lives in four places, every change has to find all four. An agent working from its context window finds the ones it can see.</p>
+      <p class="reveal d3">The result is the whack-a-mole from the zero-eyes chapter, but for facts: types that disagree with the API, docs that disagree with the code, examples that no longer compile.</p>
+      <p class="reveal d4"><b>Derivation removes the copies.</b> There's one place to change, and the rest follows.</p>
+    </div>
+    <div class="drift reveal d2" id="driftBox">
+      <div class="mode"><span id="mHand" class="on">Hand-kept copies</span><span id="mDer">Derived</span></div>
+      <div class="src-node">API spec: <b>ProcessInstance</b> { key, state<span class="add" id="addField">, tenantId</span> }</div>
+      <div class="wire"></div>
+      <div class="copies">
+        <div class="copy" data-i="0">TypeScript types<small>ProcessInstance.ts</small></div>
+        <div class="copy" data-i="1">Python models<small>process_instance.py</small></div>
+        <div class="copy" data-i="2">README example<small>README.md</small></div>
+        <div class="copy" data-i="3">CLI help<small>c8ctl help get pi</small></div>
+      </div>
+      <div class="cap" id="driftCap">&nbsp;</div>
+      <p class="src">Illustrative change.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="fan" data-title="One spec, seven SDKs">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">At scale</div>
+      <h2 class="reveal d1">One spec. Seven SDKs. No hand-written API surface.</h2>
+      <p class="reveal d2">The Camunda Orchestration Cluster SDKs (TypeScript, Python, C#, Go, Java, Rust, PHP) are generated from one OpenAPI spec in the <code>camunda/camunda</code> monorepo.</p>
+      <p class="reveal d3">A shared bundler fetches and normalises the spec. Each SDK's pipeline generates the models, the client, the facade and the <b>semantic key types</b>: <code>JobKey</code> and <code>ProcessInstanceKey</code> are distinct types in every language, because the spec says so.</p>
+      <p class="reveal d4 muted">The hand-written part is the runtime: auth, retry, backpressure, workers. That's where the judgement lives.</p>
+    </div>
+    <div class="fan reveal d2" id="fanBox">
+      <div class="node" style="background:var(--human);color:#fff" data-l="0">OpenAPI spec<small>camunda/camunda</small></div>
+      <div class="down">&#x2193;</div>
+      <div class="node" style="background:var(--review);color:#fff" data-l="1">camunda-schema-bundler<small>fetch &middot; bundle &middot; normalise</small></div>
+      <div class="down">&#x2193;</div>
+      <div class="row" data-l="2">
+        <div class="node sdk">TS</div><div class="node sdk">Python</div><div class="node sdk">C#</div><div class="node sdk">Go</div><div class="node sdk">Java</div><div class="node sdk">Rust</div><div class="node sdk">PHP</div>
+      </div>
+      <div class="down">&#x2193;</div>
+      <div class="row" data-l="3">
+        <div class="node" style="background:var(--ok);color:#fff">models</div><div class="node" style="background:var(--ok);color:#fff">client</div><div class="node" style="background:var(--ok);color:#fff">facade</div><div class="node" style="background:var(--ok);color:#fff">semantic keys</div>
+      </div>
+      <div class="down">&#x2193;</div>
+      <div class="node" style="background:var(--agent);color:#fff" data-l="4">c8ctl<small>consumes the TS SDK</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="generator" data-title="Fix the generator">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The one rule</div>
+      <h2 class="reveal d1">Never edit the output. Fix the generator.</h2>
+      <p class="reveal d2">Every SDK marks its generated directories as <b>never hand-edit</b>: <code>src/gen/</code>, <code>client/</code>, <code>generated/</code>. When the output is wrong, the fix goes in a numbered post-processing hook, so the pipeline stays reproducible.</p>
+      <p class="reveal d3">A hand edit is the most tempting fix for an agent: it's local, it's quick, and the test passes. And the next regeneration silently wipes it out.</p>
+    </div>
+    <div class="regen reveal d2" id="regen">
+      <div class="col">
+        <h4>&#x270F;&#xFE0F; Hand-edit the output</h4>
+        <div class="file" id="fA"></div>
+        <div class="st" id="sA">&nbsp;</div>
+      </div>
+      <div class="col">
+        <h4>&#x1FA9D; Fix it in a hook</h4>
+        <div class="file" id="fB"></div>
+        <div class="st" id="sB">&nbsp;</div>
+      </div>
+      <div class="cap" id="regenCap">&nbsp;</div>
+      <p class="src" style="grid-column:1/-1;margin:0;text-align:center">Illustrative file names.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="docs" data-title="Docs are derived too">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Not just code</div>
+      <h2 class="reveal d1">Docs, help and examples are derived too.</h2>
+      <p class="reveal d2">Documentation is the copy that drifts most, because nothing executes it. So we make sure something does.</p>
+      <p class="reveal d3">README code blocks are <b>injected from compiled example files</b>. If the API changes, the example stops compiling, long before a user copies broken code.</p>
+    </div>
+    <div class="outs">
+      <div class="out reveal d1"><div><b>examples/readme.ts</b><span>type-checked</span></div><div class="arr">&#x2192;</div><div><b>README code blocks</b><span>all seven SDKs</span></div></div>
+      <div class="out reveal d2"><div><b>examples/operation-map.json</b><span>op &rarr; example region</span></div><div class="arr">&#x2192;</div><div><b>@example in API docs</b><span>and IntelliSense</span></div></div>
+      <div class="out reveal d2"><div><b>ConfigResolver::configReference()</b><span>PHP SDK</span></div><div class="arr">&#x2192;</div><div><b>README config reference</b><span>every env var</span></div></div>
+      <div class="out reveal d3"><div><b>COMMAND_REGISTRY</b><span>c8ctl</span></div><div class="arr">&#x2192;</div><div><b>help &middot; completions &middot; arg parsing &middot; validation</b><span>&ldquo;no metadata is duplicated anywhere&rdquo;</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="check" data-title="Prove it's derived">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Trust, but regenerate</div>
+      <h2 class="reveal d1">A derived file is only derived if CI proves it.</h2>
+      <p class="reveal d2">Otherwise &ldquo;generated&rdquo; is just a comment at the top of the file. Each gate regenerates and compares: <code>sync-readme-snippets --check</code>, <code>make config-reference-check</code>, <code>make example-coverage</code>.</p>
+      <p class="reveal d3">Upstream drift is handled differently. The Go SDK re-bundles the spec nightly. When the spec has moved, the drift job is <b>report-only</b>: it uploads a patch for a follow-up regeneration PR instead of failing, so routine upstream churn doesn't hide a real regression.</p>
+    </div>
+    <div class="ci reveal d2" id="ci"></div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="commits" data-title="Two commits">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Reviewability</div>
+      <h2 class="reveal d1">Change the generator in one commit. Regenerate in the next.</h2>
+      <p class="reveal d2">Generator changes are small and meaningful. Regenerated output is large and mechanical. Mix them, and nobody (human or agent) can review the change.</p>
+      <p class="reveal d3">Keeping them apart also keeps backports clean (the target branch regenerates its own output) and keeps <code>git blame</code> useful on both sides.</p>
+    </div>
+    <div class="commits">
+      <div class="commit bad reveal d1">
+        <div class="msg">fix: handle nullable tenant ids</div>
+        <div class="stat"><div class="bar" style="width:100%"></div><span>+4,812 &minus;3,906</span></div>
+        <div class="why">Twelve meaningful lines, somewhere in 8,700. Good luck.</div>
+      </div>
+      <div class="commit reveal d2">
+        <div class="msg">fix: handle nullable tenant ids in key hook</div>
+        <div class="stat"><div class="bar" style="width:6%"></div><span>+9 &minus;3</span></div>
+        <div class="why">The actual change. Easy to review, easy to cherry-pick.</div>
+      </div>
+      <div class="commit reveal d3">
+        <div class="msg">chore(gen): regenerate for nullable tenant ids</div>
+        <div class="stat"><div class="bar" style="width:94%;background:rgba(31,29,43,.25)"></div><span>+4,803 &minus;3,903</span></div>
+        <div class="why">Mechanical. Verified by regenerating, not by reading.</div>
+      </div>
+      <p class="src reveal d4">Illustrative commits; the convention is from the SDKs' AGENTS.md.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">If an agent could update it in one place and forget another, derive it.</h2>
+    <p class="lead reveal d2">Write each fact once. Generate types, clients, docs, help and examples from it. Fix the generator, never the output. Let CI prove the derived files match, and keep generator changes reviewable.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./no-flaky.html">Next: There are no flaky tests &#x2192;</a>
+      <a class="pill ghost" href="./enforce.html">&#x2190; Rules that enforce themselves</a>
+      <a class="pill ghost" href="./index.html">Contents</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // Drift: hand-kept copies vs derived.
+  onEnter('drift', async () => {
+    const box = document.getElementById('driftBox'), copies = [...box.querySelectorAll('.copy')];
+    const add = document.getElementById('addField'), cap = document.getElementById('driftCap');
+    const mH = document.getElementById('mHand'), mD = document.getElementById('mDer');
+    for (;;) {
+      for (const derived of [false, true]) {
+        box.classList.toggle('derived', derived); mH.classList.toggle('on', !derived); mD.classList.toggle('on', derived);
+        copies.forEach((c) => (c.className = 'copy')); add.classList.remove('on');
+        cap.textContent = derived ? 'Now each surface is generated from the spec.' : 'Four places know the shape of a process instance.';
+        await sleep(2200);
+        add.classList.add('on');
+        cap.textContent = 'The API gains a field: tenantId.';
+        await sleep(1500);
+        if (!derived) {
+          cap.textContent = 'An agent updates the files it found\u2026';
+          for (const i of [0, 2]) { copies[i].classList.add('fresh'); await sleep(700); }
+          await sleep(900);
+          for (const i of [1, 3]) copies[i].classList.add('stale');
+          cap.innerHTML = '<span style="color:var(--bad)">Two copies are now wrong.</span> Nothing failed. Users will find them.';
+        } else {
+          cap.textContent = 'Regenerate\u2026';
+          await sleep(700);
+          for (const c of copies) { c.classList.add('fresh'); await sleep(250); }
+          cap.innerHTML = '<span style="color:var(--ok)">All four updated.</span> There was nothing to forget.';
+        }
+        await sleep(4200);
+      }
+    }
+  });
+
+  // Fan-out: light up each layer in turn.
+  onEnter('fan', async () => {
+    const box = document.getElementById('fanBox');
+    const layers = [0, 1, 2, 3, 4].map((l) => {
+      const el = box.querySelector(`[data-l="${l}"]`);
+      return el.classList.contains('row') ? [...el.children] : [el];
+    });
+    for (;;) {
+      for (const L of layers) { L.forEach((n) => n.classList.add('lit')); await sleep(700); L.forEach((n) => n.classList.remove('lit')); }
+      await sleep(1600);
+    }
+  });
+
+  // Hand edit vs hook: regeneration wipes the hand edit.
+  onEnter('generator', async () => {
+    const fA = document.getElementById('fA'), fB = document.getElementById('fB');
+    const sA = document.getElementById('sA'), sB = document.getElementById('sB'), cap = document.getElementById('regenCap');
+    const GEN = (body) => `<div class="c">// src/gen/sdk.gen.ts (generated)</div><div>getJob(key: <span class="${body}">${body === 'bug' ? 'string' : 'JobKey'}</span>)</div>`;
+    for (;;) {
+      fA.innerHTML = GEN('bug'); fB.innerHTML = GEN('bug');
+      sA.innerHTML = sB.innerHTML = '<span style="color:var(--bad)">&#x2716; key typed as plain string</span>';
+      cap.textContent = 'The generator emits the wrong type for a key.';
+      await sleep(2600);
+      fA.innerHTML = GEN('hl');
+      sA.innerHTML = '<span style="color:var(--ok)">&#x2714; fixed in the generated file</span>';
+      fB.innerHTML = '<div class="c">// hooks/post/210-semantic-keys.ts</div><div class="hl">rewriteKeyParams(spec, sdk)</div>';
+      sB.innerHTML = '<span style="color:var(--ok)">&#x2714; fixed in the pipeline</span>';
+      cap.textContent = 'Both fixes pass the tests today.';
+      await sleep(3000);
+      cap.textContent = 'Next week, the spec changes and the pipeline regenerates\u2026';
+      await sleep(2000);
+      fA.innerHTML = GEN('bug');
+      sA.innerHTML = '<span style="color:var(--bad)">&#x2716; edit silently overwritten</span>';
+      fB.innerHTML = GEN('hl');
+      sB.innerHTML = '<span style="color:var(--ok)">&#x2714; still fixed, for every operation</span>';
+      cap.innerHTML = 'Only the hook survives regeneration.';
+      await sleep(5000);
+    }
+  });
+
+  // Drift check log.
+  onEnter('check', async () => {
+    const ci = document.getElementById('ci');
+    const LINES = [
+      ['p', '$ make generate'], ['g', '\u2714 client/ regenerated from external-spec/bundled'],
+      ['p', '$ git diff --exit-code client/ facade_generated.go'], ['g', '\u2714 no diff: committed output matches the generator'],
+      ['p', '$ tsx scripts/sync-readme-snippets.ts --check'], ['r', '\u2716 README.md out of sync with examples/readme.ts (region: DeployResources)'],
+      ['p', '# nightly: re-bundle from upstream'], ['y', '\u26A0 generation drift: spec moved upstream; patch uploaded as artifact'], ['g', '\u2714 pipeline itself still works: other jobs green'],
+    ];
+    for (;;) {
+      ci.innerHTML = LINES.map(([c, t]) => `<div class="${c}">${t}</div>`).join('');
+      for (const d of ci.children) { await sleep(d.className === 'p' ? 500 : 900); d.classList.add('on'); }
+      await sleep(5000);
+    }
+  });
+</script>
+</body>
+</html>
