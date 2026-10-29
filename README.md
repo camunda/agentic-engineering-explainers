@@ -5,6 +5,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `garden.html`: the organisation of agents (three.js semantic-zoom presentation, described below)
 - `humans.html`: the role of humans in the agentic SDLC (scroll-through)
 - `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
+- `zero-eyes.html`: Zero-eyes PR approval (scroll-through with interactive demos)
 
 To add a chapter: add the page, a card in `index.html` (thumbnail in `thumbs/`), and a link back to `./index.html`.
 
