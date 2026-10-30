@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The merge button is part of the system — Agentic Engineering Basics</title>
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .hero-gate { font-size: 70px; margin-top: 24px; letter-spacing: 8px; }
+
+  /* Lanes: a protected branch and an unprotected one, same auto-merging agent */
+  .lanes { background: var(--paper); border-radius: 22px; padding: 18px; display: grid; gap: 14px; }
+  .lane { display: grid; grid-template-columns: 1fr 74px; gap: 10px; align-items: center; }
+  .lane .label { grid-column: 1 / -1; font-size: 13px; font-weight: 800; }
+  .track { position: relative; height: 46px; border-radius: 12px; background: rgba(27,27,27,.06); overflow: hidden; }
+  .gate { position: absolute; left: 68%; top: 4px; bottom: 4px; width: 8px; border-radius: 4px; }
+  .gate.open { background: repeating-linear-gradient(180deg, rgba(27,27,27,.35) 0 5px, transparent 5px 10px); }
+  .gate.shut { background: var(--ink); }
+  .gate small { position: absolute; top: -2px; left: 12px; font-size: 10px; font-weight: 800; white-space: nowrap; color: var(--muted); }
+  .chg { position: absolute; top: 12px; left: -30px; width: 22px; height: 22px; border-radius: 6px; transition: left 2.2s linear, top .4s, opacity .4s; }
+  .chg.good { background: var(--agent); } .chg.bad { background: var(--bad); }
+  .main { height: 46px; border-radius: 12px; border: 2px solid rgba(27,27,27,.2); display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 3px; padding: 4px; font-size: 10px; font-weight: 800; position: relative; }
+  .main i { width: 7px; height: 7px; border-radius: 2px; background: var(--bad); }
+  .main b { position: absolute; top: -17px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .lanes .cap { font-size: 14px; font-weight: 700; min-height: 22px; }
+
+  /* Ladder */
+  .ladder { display: grid; gap: 8px; }
+  .rung { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; background: var(--paper); border-radius: 14px; padding: 11px 14px; }
+  .rung .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 13px; }
+  .rung b { display: block; font-size: 16px; }
+  .rung span { font-size: 13.5px; color: var(--muted); }
+  .rung.weak { background: transparent; border: 2px dashed rgba(27,27,27,.25); }
+  .rung.new { outline: 3px solid var(--agent); }
+
+  /* Code box */
+  .codebox { background: #1b1b1b; color: #e9e6f5; border-radius: 14px; padding: 14px; font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.6; text-align: left; }
+  .codebox .h { font-family: ui-rounded, system-ui, sans-serif; font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+  .codebox .attr { color: #f5b84a; }
+  .codebox .c { color: #8f8aa8; }
+  .codebox .r { color: #ff8f8f; } .codebox .g { color: #8fe0a0; }
+
+  /* Fleet matrix */
+  .fleet { background: var(--paper); border-radius: 22px; padding: 18px; }
+  .fleet table { width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 12.5px; }
+  .fleet th { font-weight: 800; text-align: center; padding: 2px; }
+  .fleet th.row { text-align: left; font-weight: 700; white-space: nowrap; }
+  .fleet td { height: 28px; border-radius: 7px; text-align: center; font-weight: 900; color: #fff; transition: background .6s; }
+  .fleet td.y { background: var(--ok); } .fleet td.n { background: var(--bad); } .fleet td.a { background: var(--warn); }
+  .fleet .ref { color: var(--agent); }
+  .fleet .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; font-weight: 700; margin-top: 8px; }
+  .fleet .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .fleet .cap { font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 10px; }
+  .toggle { margin-top: 6px; }
+
+  /* Pipeline */
+  .pipe { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 28px; text-align: center; }
+  .stage { background: var(--paper); border-radius: 14px; padding: 12px 8px; position: relative; transition: background .4s, outline-color .4s; outline: 3px solid transparent; }
+  .stage .ic { font-size: 26px; }
+  .stage b { display: block; font-size: 13.5px; margin-top: 4px; }
+  .stage span { display: block; font-size: 11.5px; color: var(--muted); }
+  .stage.lit { outline-color: var(--agent); }
+  .stage.gate.lit { outline-color: var(--ok); }
+  .stage.gate.off { background: transparent; border: 2px dashed rgba(27,27,27,.3); }
+  .stage.gate.off b { text-decoration: line-through; }
+  .stage.badout { outline-color: var(--bad); background: #fde5e5; }
+  .pipecap { margin-top: 18px; font-size: 16px; font-weight: 700; min-height: 52px; }
+
+  /* Hand-off */
+  .handoff { display: grid; gap: 10px; }
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; background: var(--paper); border-radius: 14px; padding: 12px 14px; text-align: left; }
+  .step .ic { font-size: 24px; text-align: center; }
+  .step b { display: block; }
+  .step span { font-size: 14px; color: var(--muted); }
+  .step.wall { background: transparent; border: 2px dashed var(--human); }
+  .arrow { text-align: center; font-weight: 900; opacity: .4; line-height: .8; }
+
+  @media (max-width: 820px) {
+    .wrap { grid-template-columns: 1fr; }
+    .pipe { grid-template-columns: repeat(2, 1fr); }
+    .fleet { padding: 12px; overflow-x: auto; }
+    .fleet table { font-size: 11px; border-spacing: 3px; }
+    .fleet th.row { white-space: normal; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+<link rel="stylesheet" href="./brand/brand.css" />
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">Agentic Engineering Basics<span>The merge button is part of the system</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="The merge button is part of the system">
+  <div class="wrap single">
+    <div class="kicker reveal">Agentic Engineering Basics</div>
+    <h1 class="reveal d1">The merge button is part of the system</h1>
+    <p class="lead reveal d2">Agents review, fix, merge and release. Every loop in this series ends at the same place: a merge.<br>What makes that merge safe isn&rsquo;t the agent pressing the button. It&rsquo;s what the platform refuses to merge.</p>
+    <div class="hero-gate reveal d3" aria-hidden="true">&#x1F916; &#x2192; &#x1F6AA; &#x2192; &#x1F4E6;</div>
+    <div class="scroll-hint">Scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="gate" data-title="Zero eyes needs a real gate">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Zero eyes needs a real gate</div>
+      <h2 class="reveal d1">Auto-merge is only as safe as what the branch refuses.</h2>
+      <p class="reveal d2">In <a href="./zero-eyes.html">zero-eyes approval</a>, agents review each other until the review is clean, then the PR merges. That assumes the merge itself checks something.</p>
+      <p class="reveal d3">Auditing our seven SDK repos, we found that it didn&rsquo;t always. <code>main</code> required CI. Some <code>stable/*</code> branches required nothing, so our merge agent <b>could</b> merge a converged PR into a stable branch while CI was red.</p>
+      <p class="reveal d4 muted">The agent did nothing wrong. It merged what the branch allowed it to merge.</p>
+    </div>
+    <div class="lanes reveal d2">
+      <div class="lane">
+        <div class="label">&#x1F6A7; <code>main</code>: required checks in the ruleset</div>
+        <div class="track" id="trackA"><div class="gate shut"><small>CI must pass</small></div></div>
+        <div class="main" id="mainA"><b>main</b></div>
+      </div>
+      <div class="lane">
+        <div class="label">&#x1F6AA; <code>stable/*</code>: no required checks</div>
+        <div class="track" id="trackB"><div class="gate open"><small>CI runs&hellip; nobody waits</small></div></div>
+        <div class="main" id="mainB"><b>stable/*</b></div>
+      </div>
+      <div class="cap" id="laneCap">&nbsp;</div>
+      <p class="src">Same agent, same PRs, same CI. Red squares are PRs with failing CI.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="rung" data-title="The rung above CI">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The enforcement ladder, one rung higher</div>
+      <h2 class="reveal d1">&ldquo;CI runs it&rdquo; isn&rsquo;t the same as &ldquo;the merge waits for it&rdquo;.</h2>
+      <p class="reveal d2"><a href="./enforce.html">Rules that enforce themselves</a> stops at &ldquo;blocked in CI&rdquo;. But a failing job only blocks anything if the branch&rsquo;s ruleset <i>requires</i> it. Otherwise it&rsquo;s a red mark next to a merged PR.</p>
+      <p class="reveal d3">And a required check can still be hollow. One of our SDKs required a <code>generation-drift</code> job that had <code>continue-on-error: true</code>. It was always green, because it couldn&rsquo;t fail.</p>
+      <p class="reveal d4 muted">A gate that fails at random is hollow too. People learn to re-run it, then to ignore it. That&rsquo;s why <a href="./no-flaky.html">there are no flaky tests</a>: our PHP SDK&rsquo;s &ldquo;random&rdquo; red turned out to be an uncached, unretried download.</p>
+    </div>
+    <div>
+      <div class="ladder">
+        <div class="rung new reveal d1"><span class="n" style="background:var(--agent)">&#x2605;</span><div><b>Required by the ruleset</b><span>The platform refuses the merge. No agent, script or tired human can get past it without a bypass someone granted on purpose.</span></div></div>
+        <div class="rung reveal d2"><span class="n" style="background:var(--agent)">4</span><div><b>Runs in CI</b><span>Turns red. Whether anything waits for it depends on the rung above.</span></div></div>
+        <div class="rung weak reveal d3"><span class="n" style="background:var(--bad)">&#x2716;</span><div><b>Runs, but can&rsquo;t fail</b><span><code>continue-on-error</code>, <code>|| true</code>, a step skipped by a condition. Looks like a gate. Isn&rsquo;t.</span></div></div>
+      </div>
+      <div class="codebox reveal d3" style="margin-top:14px">
+        <div class="h">A hollow required check</div>
+        <div>generation-drift:</div>
+        <div>&nbsp;&nbsp;runs-on: ubuntu-latest</div>
+        <div class="attr">&nbsp;&nbsp;continue-on-error: true&nbsp;&nbsp;<span class="c"># reports success either way</span></div>
+        <div>&nbsp;&nbsp;steps: &hellip;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="fleet" data-title="Settings drift too">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Settings drift too</div>
+      <h2 class="reveal d1">Stable branches are where gates rot. Repo settings are where fleets drift.</h2>
+      <p class="reveal d2">Teams protect <code>main</code> carefully. Release branches get whatever was set up the day they were cut, and nobody looks again.</p>
+      <p class="reveal d3">Rulesets, auto-merge, the dependency bot, how releases are triggered: none of it lives in the repo, so none of it is <a href="./derive.html">derived</a> or checked for drift. Seven SDKs generated from one spec had grown seven different safety setups.</p>
+      <p class="reveal d4">The fix is the same as for code: pick the source of truth (here, the three most mature SDKs), audit every repo against it, and converge.</p>
+    </div>
+    <div class="fleet reveal d2">
+      <table id="fleetTable" aria-label="Safety settings per SDK repo"></table>
+      <div class="legend"><span><i style="background:var(--ok)"></i>in place</span><span><i style="background:var(--warn)"></i>handed to a human</span><span><i style="background:var(--bad)"></i>missing</span><span class="ref">&#x25C6; reference repos</span></div>
+      <div class="cap" id="fleetCap">&nbsp;</div>
+      <button class="pill ghost toggle" id="fleetBtn" type="button">Show after</button>
+      <p class="src">Simplified from our audit of the <code>orchestration-cluster-api-*</code> repos. &ldquo;After&rdquo; counts changes that are in open PRs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="loop" data-title="The loop with no human in it">
+  <div class="wrap single" style="max-width:1080px">
+    <div class="kicker reveal">The loop with no human in it</div>
+    <h2 class="reveal d1">A vulnerability is published. A patch ships. Nobody touched it.</h2>
+    <p class="reveal d2">Renovate opens a <code>fix(deps)</code> PR. Required checks run, including a dependency review that blocks high and critical advisories. If everything is green, the PR auto-merges, and semantic-release turns the <code>fix</code> into a patch release on <code>main</code> and on every supported <code>stable/*</code> branch.</p>
+    <p class="reveal d3">That&rsquo;s the goal of zero eyes: hours from advisory to published patch. But it&rsquo;s only safe because every gate in it is real. Take one out and watch what the same loop does.</p>
+    <div class="pipe" id="pipe">
+      <div class="stage" data-s="0"><div class="ic">&#x1F4E2;</div><b>Advisory</b><span>CVE published</span></div>
+      <div class="stage" data-s="1"><div class="ic">&#x1F916;</div><b>Renovate</b><span><code>fix(deps)</code> PR</span></div>
+      <div class="stage gate" data-s="2" id="gateStage"><div class="ic">&#x1F6A7;</div><b>Required checks</b><span>build, tests, dependency review</span></div>
+      <div class="stage" data-s="3"><div class="ic">&#x1F500;</div><b>Auto-merge</b><span>only when green</span></div>
+      <div class="stage" data-s="4"><div class="ic">&#x1F3F7;&#xFE0F;</div><b>semantic-release</b><span><code>fix</code> &#x2192; patch</span></div>
+      <div class="stage" data-s="5"><div class="ic">&#x1F4E6;</div><b>Published</b><span>npm, PyPI, NuGet&hellip;</span></div>
+    </div>
+    <div class="pipecap" id="pipeCap">&nbsp;</div>
+    <button class="pill ghost" id="gateBtn" type="button">Remove the required checks</button>
+    <p class="reveal d4 muted" style="margin-top:20px">Two of our SDKs only released when someone pushed a tag by hand, and four had never had the dependency bot installed. For those, the loop simply stopped partway. That&rsquo;s safe, but the fix never ships.</p>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="keys" data-title="Humans hold the keys">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Humans hold the keys</div>
+      <h2 class="reveal d1">At the admin boundary, hand off a change, not a request.</h2>
+      <p class="reveal d2">Rulesets, app installs and org-wide security settings need admin rights. That&rsquo;s deliberate: an agent that can change the rules of the merge can merge anything.</p>
+      <p class="reveal d3">So the agent does everything up to the permission line: the audit, the exact new ruleset, the PRs it depends on. Then it opens an issue a human can apply in one step and check in one look.</p>
+      <p class="reveal d4 muted">&ldquo;Please improve branch protection&rdquo; sits in a backlog. &ldquo;Run this command, here&rsquo;s why&rdquo; gets done.</p>
+    </div>
+    <div class="handoff">
+      <div class="step reveal d1"><span class="ic">&#x1F50D;</span><div><b>Audit</b><span>Compare every repo&rsquo;s rulesets and settings with the reference repos.</span></div></div>
+      <div class="arrow reveal d1">&#x2193;</div>
+      <div class="step reveal d2"><span class="ic">&#x1F527;</span><div><b>Fix what it&rsquo;s allowed to</b><span>PRs for workflows and bot config. Settings changes on repos where it has admin.</span></div></div>
+      <div class="arrow reveal d2">&#x2193;</div>
+      <div class="step wall reveal d3"><span class="ic">&#x1F511;</span><div><b>Permission line</b><span>An issue with the exact change: which ruleset, which checks, and the command to apply it.</span></div></div>
+      <div class="arrow reveal d3">&#x2193;</div>
+      <div class="step reveal d4"><span class="ic">&#x1F9D1;</span><div><b>A human applies it</b><span>One command, one review. The rules of the merge stay in human hands.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">Don&rsquo;t trust the merge. Make the platform refuse a bad one.</h2>
+    <p class="lead reveal d2">Require the checks that matter, on every branch you release from. Make sure each one can actually fail. Treat repo settings like code: one reference, audited and converged across the fleet. Then let the loop run all the way to a release, with humans holding the keys to the gates.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./index.html">Back to contents</a>
+      <a class="pill ghost" href="./agent-users.html">&#x2190; Designing for agent users</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // Gate: the same converged PRs go to a protected and an unprotected branch; ~1 in 4 has red CI.
+  onEnter('gate', async () => {
+    const lanes = [
+      { track: document.getElementById('trackA'), main: document.getElementById('mainA'), shut: true, slip: 0 },
+      { track: document.getElementById('trackB'), main: document.getElementById('mainB'), shut: false, slip: 0 },
+    ];
+    const cap = document.getElementById('laneCap');
+    const PATTERN = [0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1];
+    let n = 0;
+    const send = (lane, bad) => {
+      const c = document.createElement('div'); c.className = `chg ${bad ? 'bad' : 'good'}`;
+      lane.track.append(c);
+      const w = lane.track.clientWidth;
+      requestAnimationFrame(() => requestAnimationFrame(() => { c.style.left = `${w * (bad && lane.shut ? 0.6 : 1.05)}px`; }));
+      setTimeout(() => {
+        if (bad && lane.shut) { c.style.top = '-30px'; c.style.opacity = '0'; }
+        else if (bad) { lane.slip++; lane.main.append(document.createElement('i')); }
+        setTimeout(() => c.remove(), 600);
+      }, 2300);
+    };
+    for (;;) {
+      const bad = PATTERN[n++ % PATTERN.length] === 1;
+      for (const l of lanes) send(l, bad);
+      await sleep(2400);
+      cap.innerHTML = `Red PRs merged: <span style="color:var(--ok)">${lanes[0].slip} into main</span> &middot; <span style="color:var(--bad)">${lanes[1].slip} into stable/*</span>`;
+      if (lanes[1].slip >= 16) { for (const l of lanes) { l.slip = 0; l.main.querySelectorAll('i').forEach((i) => i.remove()); } }
+    }
+  });
+
+  // Fleet matrix: before and after the audit.
+  {
+    const REPOS = ['js', 'py', 'cs', 'java', 'go', 'rust', 'php'];
+    const REF = new Set(['js', 'py', 'cs']);
+    // y = in place, n = missing, a = done as far as an agent can; handed to a human via an issue
+    const ROWS = [
+      { name: 'PR required on stable/*', before: 'nnnnnyn', after: 'yyyaayy' },
+      { name: 'Checks required on stable/*', before: 'yyynnyy', after: 'yyyaayy' },
+      { name: 'Dependency review on PRs', before: 'nnnnnnn', after: 'yyyyyyy' },
+      { name: 'Renovate installed', before: 'yyynnnn', after: 'yyyaaaa' },
+      { name: 'Auto-merge allowed', before: 'yyynyyn', after: 'yyyayyy' },
+      { name: 'fix \u2192 release automatically', before: 'yyyynny', after: 'yyyyaay' },
+    ];
+    const table = document.getElementById('fleetTable');
+    const cap = document.getElementById('fleetCap');
+    const btn = document.getElementById('fleetBtn');
+    table.innerHTML = '<tr><th></th>' + REPOS.map((r) => `<th class="${REF.has(r) ? 'ref' : ''}">${REF.has(r) ? '\u25C6 ' : ''}${r}</th>`).join('') + '</tr>' +
+      ROWS.map((row, i) => `<tr><th class="row">${row.name}</th>` + REPOS.map((_, j) => `<td data-r="${i}" data-c="${j}"></td>`).join('') + '</tr>').join('');
+    const cells = [...table.querySelectorAll('td')];
+    let after = false;
+    const render = () => {
+      for (const td of cells) {
+        const v = ROWS[+td.dataset.r][after ? 'after' : 'before'][+td.dataset.c];
+        td.className = v; td.textContent = v === 'y' ? '\u2714' : v === 'n' ? '\u2716' : '\u{1F511}';
+      }
+      const count = (k) => cells.filter((td) => td.className === k).length;
+      cap.innerHTML = after
+        ? `<span style="color:var(--ok)">${count('y')} in place</span>. The remaining <span style="color:var(--warn)">${count('a')}</span> each have an issue for the person who can make the change.`
+        : `<span style="color:var(--bad)">${count('n')} gaps</span> across seven repos generated from the same spec.`;
+      btn.textContent = after ? 'Show before' : 'Show after';
+    };
+    btn.addEventListener('click', () => { after = !after; render(); });
+    render();
+  }
+
+  // Pipeline: an advisory flows through; with the gate removed, a broken fix ships.
+  {
+    const stages = [...document.querySelectorAll('#pipe .stage')];
+    const gateStage = document.getElementById('gateStage');
+    const cap = document.getElementById('pipeCap');
+    const btn = document.getElementById('gateBtn');
+    let gateOn = true, run = 0;
+    btn.addEventListener('click', () => {
+      gateOn = !gateOn;
+      gateStage.classList.toggle('off', !gateOn);
+      btn.textContent = gateOn ? 'Remove the required checks' : 'Put the required checks back';
+    });
+    const clear = () => stages.forEach((s) => s.classList.remove('lit', 'badout'));
+    onEnter('loop', async () => {
+      for (;;) {
+        run++;
+        const broken = run % 2 === 0; // every second dependency bump breaks the build
+        clear();
+        for (let i = 0; i < stages.length; i++) {
+          const s = stages[i];
+          if (i === 2) {
+            if (!gateOn) { cap.innerHTML = broken ? 'This bump breaks the build. Nothing is required to pass, so nothing stops it&hellip;' : 'No checks required. This bump happens to be fine.'; await sleep(1400); continue; }
+            s.classList.add('lit');
+            if (broken) {
+              s.classList.add('badout');
+              cap.innerHTML = '<span style="color:var(--ok)">&#x2714; Blocked.</span> This bump breaks the build, so the PR waits for a fix. Nothing merges, nothing ships.';
+              await sleep(4200); break;
+            }
+            cap.innerHTML = 'Build, tests and dependency review all green.';
+            await sleep(1400); continue;
+          }
+          s.classList.add('lit');
+          if (broken && !gateOn && i >= 3) s.classList.add('badout');
+          if (i === 0) cap.textContent = 'A security advisory is published for one of our dependencies.';
+          if (i === 1) cap.innerHTML = 'Renovate opens a <code>fix(deps)</code> PR against <code>main</code> and each <code>stable/*</code> branch.';
+          if (i === 5) {
+            cap.innerHTML = broken && !gateOn
+              ? '<span style="color:var(--bad)">&#x2716; A broken release is published</span>, automatically, to everyone on that line.'
+              : '<span style="color:var(--ok)">&#x2714; Patch release published.</span> No human touched it, and every gate was checked.';
+            await sleep(4200); break;
+          }
+          await sleep(1300);
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>
