@@ -1,0 +1,12 @@
+{
+  "id": "spm-215e5e9e",
+  "skills": {
+    "generate-deck": {
+      "git": "https://github.com/camunda/actora",
+      "reference": "branch:main",
+      "commit": "1d2d4e902f281dcc938072109568b9510e0561e9",
+      "path": "functions/marketing/skills/generate-deck/skills/generate-deck",
+      "store": "actora-acea145f987aeac3@1d2d4e902f281dcc938072109568b9510e0561e9"
+    }
+  }
+}

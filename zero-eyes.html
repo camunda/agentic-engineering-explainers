@@ -6,8 +6,8 @@
 <title>Zero-eyes PR approval — Agentic Engineering Basics</title>
 <style>
   :root {
-    --ink: #1f1d2b; --bg: #bfe3d0; --paper: #fbf8f0; --muted: rgba(31,29,43,.62);
-    --human: #ff8a1f; --agent: #3c7ee8; --review: #8a4fd6; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -19,7 +19,7 @@
   .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
   .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
   nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
-  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(31,29,43,.2); transition: all .3s; position: relative; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
   nav.dots a.on { background: var(--ink); transform: scale(1.3); }
   nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
   nav.dots a:hover span { opacity: .8; }
@@ -33,7 +33,7 @@
   p { font-size: 18px; margin: 0 0 14px; }
   p.lead { font-size: 21px; }
   .muted { color: var(--muted); }
-  .card { background: var(--paper); border-radius: 22px; padding: 22px; box-shadow: 0 10px 30px rgba(31,29,43,.12); }
+  .card { background: var(--paper); border-radius: 22px; padding: 22px; box-shadow: 0 10px 30px rgba(27,27,27,.12); }
   .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 13px; }
 
   .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
@@ -52,23 +52,23 @@
   .conv .actors { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; text-align: center; gap: 8px; }
   .actor { border-radius: 16px; padding: 14px 10px; color: #fff; font-weight: 800; transition: transform .3s, box-shadow .3s; }
   .actor small { display: block; font-weight: 600; opacity: .9; font-size: 12px; }
-  .actor.on { transform: scale(1.06); box-shadow: 0 8px 20px rgba(31,29,43,.25); }
+  .actor.on { transform: scale(1.06); box-shadow: 0 8px 20px rgba(27,27,27,.25); }
   .arrows { font-size: 22px; font-weight: 900; line-height: 1.2; opacity: .5; }
-  .pr { margin: 16px 0 0; border: 2px solid rgba(31,29,43,.12); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
+  .pr { margin: 16px 0 0; border: 2px solid rgba(27,27,27,.12); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
   .pr .head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 8px; gap: 8px; }
   .status { padding: 2px 10px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 800; background: var(--review); transition: background .3s; white-space: nowrap; }
   .findings { display: grid; gap: 5px; min-height: 140px; align-content: start; }
   .finding { font-size: 13px; padding: 5px 10px; border-radius: 8px; background: #fff0f0; border-left: 4px solid var(--bad); transition: opacity .4s, transform .4s; }
   .finding.fixed { opacity: .35; text-decoration: line-through; border-color: var(--ok); background: #effaf1; }
   .rounds { display: flex; gap: 6px; margin-top: 10px; font-size: 12px; font-weight: 800; color: var(--muted); align-items: center; }
-  .rounds i { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(31,29,43,.1); font-style: normal; color: var(--ink); }
+  .rounds i { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(27,27,27,.1); font-style: normal; color: var(--ink); }
   .rounds i.zero { background: var(--ok); color: #fff; }
 
   /* Not / Is */
   .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; text-align: left; }
   .twocol .card h3 { margin: 10px 0 8px; font-size: 21px; }
   .twocol .card p { font-size: 16px; }
-  .twocol .card.no { background: transparent; box-shadow: none; border: 2px dashed rgba(31,29,43,.3); }
+  .twocol .card.no { background: transparent; box-shadow: none; border: 2px dashed rgba(27,27,27,.3); }
   .twocol .card.no h3 { text-decoration: line-through; text-decoration-color: var(--bad); text-decoration-thickness: 3px; }
   .eyes3 { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
   .eyes3 li { display: flex; gap: 10px; align-items: center; font-size: 16px; font-weight: 700; }
@@ -87,7 +87,7 @@
   /* Whack-a-mole */
   .moles { background: var(--paper); border-radius: 22px; padding: 20px; }
   .holes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .hole { border-radius: 14px; background: rgba(31,29,43,.06); padding: 10px; text-align: center; font-size: 12px; font-weight: 700; position: relative; min-height: 116px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .hole { border-radius: 14px; background: rgba(27,27,27,.06); padding: 10px; text-align: center; font-size: 12px; font-weight: 700; position: relative; min-height: 116px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
   .hole code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
   .mole { position: absolute; left: 50%; bottom: 34px; transform: translate(-50%, 70px); transition: transform .35s cubic-bezier(.3,1.6,.6,1); font-size: 34px; line-height: 1; }
   .mole.up { transform: translate(-50%, 0); }
@@ -95,7 +95,7 @@
   .hole.fixed { background: #effaf1; }
   .reports { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
   .reports span { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: var(--bad); color: #fff; }
-  .reports span.closed { background: rgba(31,29,43,.25); }
+  .reports span.closed { background: rgba(27,27,27,.25); }
   .moles .cap { font-size: 14px; font-weight: 700; margin-top: 10px; min-height: 44px; }
 
   /* Levers: from obvious to structural */
@@ -134,6 +134,7 @@
     .chart path.line { stroke-dashoffset: 0; }
   }
 </style>
+<link rel="stylesheet" href="./brand/brand.css" />
 </head>
 <body>
 <header class="top">
@@ -150,8 +151,8 @@
     <p class="lead reveal d2">Pull requests that merge without a human reading the code.<br>That doesn't mean the humans have left. It means they're looking somewhere else.</p>
     <svg class="eye reveal d3" viewBox="0 0 180 110" aria-hidden="true">
       <g class="lid">
-        <path d="M10 55 Q90 -10 170 55 Q90 120 10 55Z" fill="#fbf8f0" stroke="#1f1d2b" stroke-width="5" />
-        <circle cx="90" cy="55" r="24" fill="#3c7ee8" /><circle cx="90" cy="55" r="11" fill="#1f1d2b" /><circle cx="97" cy="48" r="5" fill="#fff" />
+        <path d="M10 55 Q90 -10 170 55 Q90 120 10 55Z" fill="#f5f3ed" stroke="#1b1b1b" stroke-width="5" />
+        <circle cx="90" cy="55" r="24" fill="#8785ff" /><circle cx="90" cy="55" r="11" fill="#1b1b1b" /><circle cx="97" cy="48" r="5" fill="#fff" />
       </g>
     </svg>
     <div class="scroll-hint">Scroll &#x2193;</div>
@@ -221,11 +222,11 @@
     </div>
     <div class="chart reveal d2">
       <svg viewBox="0 0 520 300" role="img" aria-label="Human attention on the code starts high and steps down as the loop is tuned, with spikes when something escapes">
-        <line x1="40" y1="260" x2="500" y2="260" stroke="#1f1d2b" stroke-opacity=".3" stroke-width="2" />
-        <line x1="40" y1="20" x2="40" y2="260" stroke="#1f1d2b" stroke-opacity=".3" stroke-width="2" />
-        <text x="500" y="285" text-anchor="end" font-size="13" font-weight="700" fill="#1f1d2b" fill-opacity=".6">time &rarr;</text>
-        <text x="24" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#1f1d2b" fill-opacity=".6" transform="rotate(-90 24 140)">human eyes on the code &rarr;</text>
-        <path class="line" stroke="#ff8a1f" d="M40 40 L110 45 L130 90 L180 95 L190 60 L205 60 L220 130 L280 135 L290 105 L302 105 L320 175 L380 180 L388 160 L398 160 L415 215 L500 222" />
+        <line x1="40" y1="260" x2="500" y2="260" stroke="#1b1b1b" stroke-opacity=".3" stroke-width="2" />
+        <line x1="40" y1="20" x2="40" y2="260" stroke="#1b1b1b" stroke-opacity=".3" stroke-width="2" />
+        <text x="500" y="285" text-anchor="end" font-size="13" font-weight="700" fill="#1b1b1b" fill-opacity=".6">time &rarr;</text>
+        <text x="24" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1b1b" fill-opacity=".6" transform="rotate(-90 24 140)">human eyes on the code &rarr;</text>
+        <path class="line" stroke="#ff905c" d="M40 40 L110 45 L130 90 L180 95 L190 60 L205 60 L220 130 L280 135 L290 105 L302 105 L320 175 L380 180 L388 160 L398 160 L415 215 L500 222" />
         <g font-size="12" font-weight="800" fill="#e03131">
           <text x="190" y="50" text-anchor="middle">escape!</text>
           <text x="296" y="95" text-anchor="middle">escape!</text>

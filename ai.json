@@ -1,0 +1,12 @@
+{
+  "targets": [
+    "claude"
+  ],
+  "skills": {
+    "generate-deck": {
+      "git": "https://github.com/camunda/actora",
+      "branch": "main",
+      "path": "functions/marketing/skills/generate-deck/skills/generate-deck"
+    }
+  }
+}

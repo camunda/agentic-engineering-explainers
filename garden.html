@@ -5,48 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The organisation of agents — Agentic Engineering Basics</title>
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #bfe3d0; font-family: ui-rounded, system-ui, -apple-system, sans-serif; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #ffffff; font-family: ui-rounded, system-ui, -apple-system, sans-serif; }
   canvas { display: block; }
-  #hud { position: fixed; top: 18px; left: 22px; color: #1f1d2b; pointer-events: none; }
+  #hud { position: fixed; top: 18px; left: 22px; color: #1b1b1b; pointer-events: none; }
   #hud h1 { margin: 0; font-size: 26px; letter-spacing: .3px; }
   #hud .sub { font-size: 14px; opacity: .7; margin-top: 2px; }
-  #hud .navLink { pointer-events: auto; display: inline-block; margin: 8px 14px 0 0; font-size: 13px; font-weight: 700; color: #1f1d2b; text-decoration: none; border-bottom: 2px solid #ff8a1f; }
+  #hud .navLink.contents { padding: 6px 14px; background: #1b1b1b; color: #fff; border: 0; border-radius: 999px; }
+  #hud .navLink { pointer-events: auto; display: inline-block; margin: 8px 14px 0 0; font-size: 13px; font-weight: 700; color: #1b1b1b; text-decoration: none; border-bottom: 2px solid #ff905c; }
   #level { margin-top: 14px; display: flex; gap: 6px; }
   #level span { padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.55); font-size: 13px; font-weight: 600; transition: all .3s; }
-  #level span.on { background: #1f1d2b; color: #fff; }
-  #stats { position: fixed; top: 18px; right: 22px; text-align: right; color: #1f1d2b; pointer-events: none; font-size: 14px; line-height: 1.6; }
+  #level span.on { background: #1b1b1b; color: #fff; }
+  #stats { position: fixed; top: 18px; right: 22px; text-align: right; color: #1b1b1b; pointer-events: none; font-size: 14px; line-height: 1.6; }
   #stats b { font-size: 20px; }
-  #help { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(31,29,43,.72); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: 12.5px; pointer-events: none; white-space: nowrap; }
-  #caption { white-space: nowrap; position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1f1d2b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
+  #help { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(27,27,27,.72); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: 12.5px; pointer-events: none; white-space: nowrap; }
+  #caption { white-space: nowrap; position: fixed; bottom: 54px; left: 50%; transform: translateX(-50%); color: #1b1b1b; font-size: 19px; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none; transition: opacity .5s; text-align: center; }
   #mode { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); display: flex; gap: 0; background: rgba(255,255,255,.6); border-radius: 999px; padding: 4px; opacity: 0; pointer-events: none; transition: opacity .4s; }
   #mode.show { opacity: 1; pointer-events: auto; }
-  #mode button { white-space: nowrap; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1f1d2b; }
+  #mode button { white-space: nowrap; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: #1b1b1b; }
   #mode button.on[data-m=structured] { background: #2f7d3a; color: #fff; }
   #mode button.on[data-m=partial] { background: #b07a2a; color: #fff; }
   #mode button.on[data-m=wild] { background: #7a5a3a; color: #fff; }
-  #mode button.on[data-sp], #mode button.on[data-po] { background: #1f1d2b; color: #fff; }
+  #mode button.on[data-sp], #mode button.on[data-po] { background: #1b1b1b; color: #fff; }
   #mode button[data-adv] { opacity: .5; padding: 4px 10px; font-size: 16px; }
   #mode.advanced button[data-adv] { opacity: 1; }
-  #mode .sep { width: 1px; margin: 4px 8px; background: rgba(31,29,43,.25); }
-  #mode button.on[data-x] { background: #1f1d2b; color: #fff; }
+  #mode .sep { width: 1px; margin: 4px 8px; background: rgba(27,27,27,.25); }
+  #mode button.on[data-x] { background: #1b1b1b; color: #fff; }
   #mode:not(.kind-structured) .grp-s, #mode:not(.kind-partial) .grp-p, #mode:not(.advanced) .adv { display: none !important; }
-  #tour { position: fixed; top: 150px; left: 22px; width: 300px; background: rgba(255,255,255,.88); color: #1f1d2b; border-radius: 16px; padding: 16px 18px 14px; box-shadow: 0 6px 24px rgba(31,29,43,.15); transition: transform .35s, opacity .35s; }
+  #tour { position: fixed; top: 180px; left: 22px; width: 300px; background: rgba(255,255,255,.88); color: #1b1b1b; border-radius: 16px; padding: 16px 18px 14px; box-shadow: 0 6px 24px rgba(27,27,27,.15); transition: transform .35s, opacity .35s; }
   #tour .count { font-size: 12px; font-weight: 700; opacity: .55; letter-spacing: .5px; }
   #tour h2 { margin: 4px 0 8px; font-size: 19px; }
   #tour p { margin: 0 0 14px; font-size: 14.5px; line-height: 1.5; }
+  #tour p.try { margin: -6px 0 14px; padding: 8px 10px; font-size: 13.5px; font-weight: 600; background: rgba(252,93,13,.1); border-left: 3px solid #fc5d0d; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(252,93,13,.9); background-color: rgba(252,93,13,.28); } 70% { box-shadow: 0 0 0 12px rgba(252,93,13,0); background-color: rgba(252,93,13,.08); } 100% { box-shadow: 0 0 0 0 rgba(252,93,13,0); background-color: rgba(252,93,13,.28); } }
+  /* Each control group pulses until the user first clicks it */
+  #mode.hint-m button[data-m]:not(.on), #mode.kind-partial.hint-adv button[data-adv], #mode.advanced.hint-sp button[data-sp]:not(.on),
+  #mode.advanced.hint-po button[data-po]:not(.on), #mode.hint-x button[data-x]:not(.on) { animation: pulse 1.6s ease-out infinite; }
+  #mode.advanced.hint-adv button[data-adv] { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #mode button { animation: none !important; } }
   #tour .nav { display: flex; align-items: center; gap: 8px; }
-  #tour .nav button { border: 0; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: #1f1d2b; color: #fff; }
-  #tour .nav button[data-t=prev] { background: rgba(31,29,43,.1); color: #1f1d2b; }
+  #tour .nav button { white-space: nowrap; border: 0; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: #1b1b1b; color: #fff; }
+  #tour .nav button[data-t=prev] { background: rgba(27,27,27,.1); color: #1b1b1b; }
   #tour .nav button:disabled { opacity: .3; cursor: default; }
   #tour .dots { flex: 1; display: flex; gap: 5px; justify-content: center; }
-  #tour .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(31,29,43,.2); }
-  #tour .dots i.on { background: #1f1d2b; }
+  #tour .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(27,27,27,.2); }
+  #tour .dots i.on { background: #1b1b1b; }
   #tour .keys { margin-top: 10px; font-size: 11.5px; opacity: .5; }
-  #tour [data-t=toggle] { position: absolute; top: 10px; right: 10px; border: 0; background: none; font-size: 16px; cursor: pointer; color: #1f1d2b; opacity: .6; }
+  #tour [data-t=toggle] { position: absolute; top: 10px; right: 10px; border: 0; background: none; font-size: 16px; cursor: pointer; color: #1b1b1b; opacity: .6; }
   #tour.collapsed { transform: translateX(calc(-100% + 18px)); opacity: .9; }
   #tour.collapsed [data-t=toggle] { transform: rotate(180deg); right: -2px; }
   #tour.collapsed > :not([data-t=toggle]) { visibility: hidden; }
 </style>
+<link rel="stylesheet" href="./brand/fonts.css" />
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
 </script>
@@ -56,7 +65,7 @@
   <h1>Nano Workforce</h1>
   <div class="sub">Agent Graph Orchestration for the Agentic SDLC</div>
   <div id="level"><span data-l="0">Organisation</span><span data-l="1">Processes</span><span data-l="2">Codebase</span></div>
-  <a class="navLink" href="./index.html">&#x2190; Agentic Engineering Basics</a>
+  <a class="navLink contents" href="./index.html">&#x2190; Contents</a>
   <a class="navLink" href="./humans.html">The role of humans &#x2192;</a>
 </div>
 <div id="tour">
@@ -64,6 +73,7 @@
   <div class="count"></div>
   <h2></h2>
   <p></p>
+  <p class="try" hidden></p>
   <div class="nav"><button data-t="prev">&#x2190; Previous</button><span class="dots"></span><button data-t="next">Next &#x2192;</button></div>
   <div class="keys">&#x2190; / &#x2192; to navigate &middot; T to hide</div>
 </div>

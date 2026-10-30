@@ -13,7 +13,7 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const SKY = new THREE.Color('#bfe3d0');
+const SKY = new THREE.Color('#f5f3ed');
 scene.background = SKY.clone();
 scene.fog = new THREE.Fog(SKY.clone(), 500, 1100);
 
@@ -93,8 +93,11 @@ function toggleMutating(on = !gardenMode.mutating) {
   syncModeButtons();
   if (shownLevel === 2) caption.textContent = captionFor(2);
 }
+modeEl.classList.add('hint-m', 'hint-adv', 'hint-sp', 'hint-po', 'hint-x');
 modeEl.addEventListener('click', (e) => {
   const b = e.target.closest('button');
+  if (b) for (const k of ['m', 'sp', 'po', 'x']) if (b.dataset[k] !== undefined) modeEl.classList.remove(`hint-${k}`);
+  if (b?.dataset.adv !== undefined) modeEl.classList.remove('hint-adv');
   if (b?.dataset.m) setKind(b.dataset.m);
   if (b?.dataset.sp) setPartialSim({ speed: b.dataset.sp });
   if (b?.dataset.po) setPartialSim({ policy: b.dataset.po });
@@ -178,17 +181,17 @@ const TOUR = [
     go: () => { flyTo(HOME.target, HOME.pos.length(), Math.acos(HOME.pos.y / HOME.pos.length())); controls.autoRotate = true; } },
   { title: 'Every agent follows a process', text: 'Zoom in on a codebase and each ant turns out to be a token moving through a BPMN process: plan, implement, review, merge. Gateways send work back for rework.',
     go: () => flyTo(TOUR_CB.center, 120, 0.7) },
-  { title: 'Inside: a garden', text: 'Inside the codebase is a garden. Without structure, it\u2019s seeds thrown on cracked dirt: overgrowth, constant weeding, and a tiny harvest. More agents just means more seeds.',
+  { title: 'Inside: a garden', try: "Try it: use the switch at the bottom of the screen to flip between Unstructured, Partial and Structured gardens.", text: 'Inside the codebase is a garden. Without structure, it\u2019s seeds thrown on cracked dirt: overgrowth, constant weeding, and a tiny harvest. More agents just means more seeds.',
     go: () => { wildGarden(); toGarden(); } },
-  { title: 'Most gardens are partly structured', text: 'A couple of proper planter boxes, some dirt mounds that need watering by hand, a stick trellis, leaky pipes. At human speed it works: the human keeps up, but they are never not fixing something.',
+  { title: 'Most gardens are partly structured', try: "Try it: open ⚙ on the switch below for the speed and policy controls.", text: 'A couple of proper planter boxes, some dirt mounds that need watering by hand, a stick trellis, leaky pipes. At human speed it works: the human keeps up, but they are never not fixing something.',
     go: () => partialStep('human', 'wait') },
-  { title: 'Agentic speed: the human is the bottleneck', text: 'Now agents make changes 8\u00d7 faster. Most changes still need a human. If agents wait for the human, the queue grows, beds dry out waiting, and output is capped at the speed of one person.',
+  { title: 'Agentic speed: the human is the bottleneck', try: "Try it: with ⚙ open, switch between Human speed and Agentic speed.", text: 'Now agents make changes 8\u00d7 faster. Most changes still need a human. If agents wait for the human, the queue grows, beds dry out waiting, and output is capped at the speed of one person.',
     go: () => partialStep('agentic', 'wait') },
-  { title: '\u2026or it escapes containment', text: 'If agents don\u2019t wait, changes nobody handled pile up: vines escape the trellis, dry beds die, things get planted wherever. The garden slides back into an overgrown mess.',
+  { title: '\u2026or it escapes containment', try: "Try it: switch between Agents wait and Agents carry on.", text: 'If agents don\u2019t wait, changes nobody handled pile up: vines escape the trellis, dry beds die, things get planted wherever. The garden slides back into an overgrown mess.',
     go: () => partialStep('agentic', 'carry') },
   { title: 'Humans refactor the structure', text: 'Not a rewrite. The human stops planting and turns their attention to the structure: KEEP what works, TAKE OUT what doesn\u2019t, MOVE plants into better beds, ADD what is missing: planter boxes (modules), a greenhouse (quality gates), a trellis (CI), irrigation (architecture).',
     go: () => { setMutating(false); setGardenKind('partial'); setGardenMode(true); syncModeButtons(); toGarden(); } },
-  { title: 'Agents tend a structured garden', text: 'Now the agents have something to grow into. They tend the plants, and the structure keeps the growth healthy and the harvest coming.',
+  { title: 'Agents tend a structured garden', try: "Try it: Stable and Evolving on the switch below show the structure holding still or changing.", text: 'Now the agents have something to grow into. They tend the plants, and the structure keeps the growth healthy and the harvest coming.',
     go: () => { setGardenMode(true); finishBuild(); setMutating(false); syncModeButtons(); toGarden(); } },
   { title: 'The structure keeps evolving', text: 'Growth puts load on the structure. When the trellis bends, a human reinforces it. When agents add a planter box, a human routes new irrigation. With good structure, everyday change is absorbed by the garden itself; humans only step in to change the structure. That\u2019s what lets it run at agentic speed.',
     go: () => { setGardenMode(true); finishBuild(); toggleMutating(true); toGarden(); } },
@@ -203,8 +206,12 @@ function showStep(i) {
   tourEl.querySelector('.count').textContent = `${tourStep + 1} / ${TOUR.length}`;
   tourEl.querySelector('h2').textContent = st.title;
   tourEl.querySelector('p').textContent = st.text;
+  const tryEl = tourEl.querySelector('.try');
+  tryEl.textContent = st.try || '';
+  tryEl.hidden = !st.try;
   tourEl.querySelector('[data-t=prev]').disabled = tourStep === 0;
-  tourEl.querySelector('[data-t=next]').disabled = tourStep === TOUR.length - 1;
+  // On the last step, Next becomes the way back to the contents page.
+  tourEl.querySelector('[data-t=next]').innerHTML = tourStep === TOUR.length - 1 ? 'Back to Contents' : 'Next &#x2192;';
   tourEl.querySelector('.dots').innerHTML = TOUR.map((_, k) => `<i class="${k === tourStep ? 'on' : ''}"></i>`).join('');
   controls.autoRotate = false;
   st.go();
@@ -213,7 +220,7 @@ const toggleTour = () => tourEl.classList.toggle('collapsed');
 tourEl.addEventListener('click', (e) => {
   const b = e.target.closest('[data-t]');
   if (!b) return;
-  if (b.dataset.t === 'next') showStep(tourStep + 1);
+  if (b.dataset.t === 'next') { if (tourStep === TOUR.length - 1) location.href = './index.html'; else showStep(tourStep + 1); }
   if (b.dataset.t === 'prev') showStep(tourStep - 1);
   if (b.dataset.t === 'toggle') toggleTour();
 });

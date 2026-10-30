@@ -1,0 +1,59 @@
+/* Camunda brand layer for the explainers. Loaded after each page's own <style>.
+   Tokens from the Camunda brand library (generate-deck skill, references/tokens.md). */
+@import url(./fonts.css);
+
+:root {
+  /* Neutrals */
+  --ink: #1b1b1b; --muted: #6f6f6f; --caption: #a4a4a4; --line: #e8e8e8;
+  --bg: #ffffff; --paper: #f5f3ed; --sand-100: #dfddd8;
+  /* Brand tints (fills, black text) and 500s (small accents) */
+  --orange-500: #fc5d0d; --orange-400: #ff905c;
+  --purple-500: #6967ff; --purple-400: #8785ff;
+  --green-400: #d5f37b; --green-600: #a8c54d;
+  /* Roles used across the chapters */
+  --human: var(--orange-400); --agent: var(--purple-400); --accent: var(--orange-500);
+  --review: var(--green-400); --vision: var(--orange-400); --valid: var(--green-400); --struct: var(--sand-100);
+  --l1: var(--purple-400); --l2: var(--green-400); --l3: var(--orange-400); --l4: #e03131;
+  /* Functional status colours (kept distinct for meaning) */
+  --ok: #3f8a1e; --warn: var(--orange-500); --bad: #e03131;
+}
+
+body { background: var(--bg); color: var(--ink); font-weight: 400; }
+h1, h2, h3, .body h3 { font-family: var(--font-head); font-weight: 400; letter-spacing: -.2px; }
+h1 { letter-spacing: -.8px; }
+b, strong { font-weight: 600; }
+
+/* Eyebrow: Poppins Medium, uppercase, tracked, with the orange square marker */
+.kicker { font-weight: 500 !important; letter-spacing: 2px !important; opacity: 1 !important; color: var(--muted); }
+.kicker::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--orange-500); margin-right: 10px; vertical-align: 1px; }
+
+/* Square corners and no drop shadows, everywhere */
+*, *::before, *::after { border-radius: 0 !important; box-shadow: none !important; }
+
+/* Header and section dots */
+header.top { background: linear-gradient(var(--bg) 65%, transparent); }
+header.top .brand { font-family: var(--font-head); font-weight: 400; font-size: 21px; }
+header.top .brand span { font-family: var(--font-body); }
+nav.dots a.on { background: var(--orange-500); }
+.pill { font-weight: 500; background: var(--ink); }
+.pill.ghost { border-width: 1.5px; }
+
+/* Tiles and cards: Sand 50 on white, black text on every tint */
+.card, .chart, .conv, .moles, .heat, .lanes, .ratchet, .drift, .fan, .regen, .runs, .retry, .methods, .budget,
+.rung, .step, .shape, .out, .stream, .sp, .commit, .lv, .eyes3 li, ul.qs li { background-color: var(--paper); }
+.tag, .actor, .where, .rung .n, .stream .w, .fan .node, .stage.p, .stage.f, .stage.w, .lv .where, .status,
+.reports span, .rounds i.zero, .verdict { color: var(--ink) !important; }
+.card.no, .card.soon, .rung.weak, .commit.bad { background: transparent !important; }
+
+/* Chapter openers use the cover arc (no logo: the logo lives on the contents cover only) */
+body > section:first-of-type { background: url(./cover.jpg) center bottom / cover no-repeat; }
+body > section:first-of-type .scroll-hint { color: #fff; opacity: .9; }
+
+/* Text highlights need the darker shades: tints are for fills only */
+.hl-v { color: var(--orange-500) !important; }
+.hl-a { color: var(--purple-500) !important; }
+.hl-c { color: #5f8a17 !important; }
+.hl-s, ul.rules b { color: var(--ink) !important; text-decoration: underline 2px var(--orange-500); text-underline-offset: 3px; }
+.rung.ok, .stack .base, .stack .row > div, .band > div, .verbs span { color: var(--ink) !important; }
+
+.question { font-family: var(--font-head); font-weight: 400 !important; }
