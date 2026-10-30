@@ -57,3 +57,11 @@ body > section:first-of-type .scroll-hint { color: #fff; opacity: .9; }
 .rung.ok, .stack .base, .stack .row > div, .band > div, .verbs span { color: var(--ink) !important; }
 
 .question { font-family: var(--font-head); font-weight: 400 !important; }
+
+/* Interactivity hints: mark a control with data-hint="…" and load brand/hints.js.
+   It pulses and carries a "Try it" label until the reader first uses it. */
+@keyframes hint-pulse { 0% { outline-color: rgba(252,93,13,.95); outline-offset: 2px; } 70% { outline-color: rgba(252,93,13,0); outline-offset: 12px; } 100% { outline-color: rgba(252,93,13,0); outline-offset: 2px; } }
+.hint-pulse { outline: 3px solid rgba(252,93,13,.95); animation: hint-pulse 1.6s ease-out infinite; }
+.try-it { display: block; width: fit-content; margin: 14px 0 8px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; letter-spacing: .3px; color: var(--ink); background: rgba(252,93,13,.12); border-left: 3px solid var(--orange-500); transition: opacity .4s; }
+.try-it.done { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .hint-pulse { animation: none; } }

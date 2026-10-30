@@ -14,6 +14,8 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 
 To add a chapter: add the page, a card in `index.html` (thumbnail in `thumbs/`), and a link back to `./index.html`.
 
+Branding and interactivity hints: load `brand/brand.css` after the page styles and `brand/hints.js` before `</body>`. Mark every interactive control (button, slider, toggle) with `data-hint="…"`, e.g. `data-hint="drag the slider"`. It gets a "Try it: …" label and pulses until the reader first uses it, so interactive diagrams don't read as static pictures.
+
 ## The organisation of agents (`garden.html`)
 
     cd ~/workspace/agentic-engineering-explainers && python3 -m http.server 8931

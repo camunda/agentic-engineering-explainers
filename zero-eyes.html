@@ -308,7 +308,7 @@
       <div class="grid" id="grid"></div>
       <div class="legend"><span><i style="background:#69c27d"></i>loop is reliable</span><span><i style="background:#f5b84a"></i>some escapes</span><span><i style="background:#ee6b6b"></i>escapes often</span></div>
       <div class="fixlog" id="fixlog">&nbsp;</div>
-      <div class="controls"><button class="pill" id="fixBtn">Engineer a fix &#x2192;</button><button class="pill ghost" id="resetBtn">Reset</button></div>
+      <div class="controls"><button class="pill" id="fixBtn" data-hint="engineer fixes one class at a time and watch the map">Engineer a fix &#x2192;</button><button class="pill ghost" id="resetBtn">Reset</button></div>
       <p class="muted" style="font-size:12px;margin:8px 0 0">Illustrative map.</p>
     </div>
   </div>
@@ -444,5 +444,6 @@
   document.getElementById('resetBtn').addEventListener('click', resetHeat);
   resetHeat();
 </script>
+<script src="./brand/hints.js" defer></script>
 </body>
 </html>
