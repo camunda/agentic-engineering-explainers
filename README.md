@@ -10,6 +10,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `fails-somewhere.html`: All software fails somewhere: keep the defect rate falling as throughput rises (scroll-through with interactive demos)
 - `no-flaky.html`: There are no flaky tests (scroll-through)
 - `zero-eyes.html`: Zero-eyes PR approval (scroll-through with interactive demos)
+- `envelope.html`: Every model has an envelope (scroll-through)
 - `enforce.html`: Rules that enforce themselves (scroll-through)
 - `derive.html`: Derivation over duplication (scroll-through)
 - `agent-users.html`: Designing for agent users (scroll-through)
@@ -20,7 +21,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `conway.html`: Conway's Law still holds (scroll-through)
 - `start.html`: Start with one garden (scroll-through)
 
-Chapters are grouped on the contents page: Why (00–03), Quality (04–07), Structure (08–09), System (10–11) and Organisation (12–16).
+Chapters are grouped on the contents page: Why (00–03), Quality (04–07), Structure (08–10), System (11–12) and Organisation (13–17).
 
 To add a chapter: add the page, a card in the right group's `<ol class="toc">` in `index.html` (thumbnail in `thumbs/`), an entry in the chapter map in `dark-factory.html`, and next/previous links in the end-of-chapter `cta` blocks of the page and its neighbours.
 
