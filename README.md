@@ -13,8 +13,14 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `derive.html`: Derivation over duplication (scroll-through)
 - `agent-users.html`: Designing for agent users (scroll-through)
 - `merge-gate.html`: The merge button is part of the system (scroll-through with interactive demos)
+- `constraints.html`: The bottleneck moved (scroll-through)
+- `mindset.html`: The constraint is mindset, not the model (scroll-through)
+- `skill.html`: You are the skill (scroll-through)
+- `start.html`: Start with one garden (scroll-through)
 
-To add a chapter: add the page, a card in `index.html` (thumbnail in `thumbs/`), and a link back to `./index.html`.
+Chapters are grouped on the contents page: Why (00–02), Quality (03–06), Structure (07–08), System (09–10) and Organisation (11–14).
+
+To add a chapter: add the page, a card in the right group's `<ol class="toc">` in `index.html` (thumbnail in `thumbs/`), an entry in the chapter map in `dark-factory.html`, and next/previous links in the end-of-chapter `cta` blocks of the page and its neighbours.
 
 Branding and interactivity hints: load `brand/brand.css` after the page styles and `brand/hints.js` before `</body>`. Mark every interactive control (button, slider, toggle) with `data-hint="…"`, e.g. `data-hint="drag the slider"`. It gets a "Try it: …" label and pulses until the reader first uses it, so interactive diagrams don't read as static pictures.
 

@@ -24,7 +24,11 @@
   h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.05; margin: 10px 0 18px; letter-spacing: -.8px; }
   .lead { font-size: 21px; max-width: 720px; margin: 0 0 48px; }
   h2 { font-size: 15px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; margin: 0 0 16px; }
-  ol.toc { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; counter-reset: ch -1; }
+  ol.toc { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  main { counter-reset: ch -1; }
+  .group { margin: 44px 0 18px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .group h3 { margin: 0; font-size: 26px; }
+  .group p { margin: 0; color: var(--muted); font-size: 16px; }
   ol.toc li { counter-increment: ch; }
   .card { display: flex; flex-direction: column; height: 100%; background: var(--paper); border-radius: 22px; overflow: hidden; color: inherit; text-decoration: none;
     box-shadow: 0 10px 30px rgba(27,27,27,.12); transition: transform .2s, box-shadow .2s; }
@@ -60,6 +64,7 @@
 <main>
 
   <h2>Contents</h2>
+  <div class="group"><h3>Why</h3><p>The model, and where humans fit in it.</p></div>
   <ol class="toc">
     <li>
       <a class="card" href="./dark-factory.html">
@@ -91,6 +96,9 @@
         </div>
       </a>
     </li>
+  </ol>
+  <div class="group"><h3>Quality</h3><p>How you know it's any good, at agentic speed.</p></div>
+  <ol class="toc">
     <li>
       <a class="card" href="./loops.html">
         <div class="thumb" style="background-image:url(./thumbs/loops.jpg)"></div>
@@ -131,6 +139,9 @@
         </div>
       </a>
     </li>
+  </ol>
+  <div class="group"><h3>Structure</h3><p>Reasoning at compiler speed instead of human speed.</p></div>
+  <ol class="toc">
     <li>
       <a class="card" href="./enforce.html">
         <div class="thumb" style="background-image:url(./thumbs/enforce.jpg)"></div>
@@ -151,6 +162,9 @@
         </div>
       </a>
     </li>
+  </ol>
+  <div class="group"><h3>System</h3><p>The tools agents use, and the gates they pass through.</p></div>
+  <ol class="toc">
     <li>
       <a class="card" href="./agent-users.html">
         <div class="thumb" style="background-image:url(./thumbs/agent-users.jpg)"></div>
@@ -171,14 +185,48 @@
         </div>
       </a>
     </li>
+  </ol>
+  <div class="group"><h3>Organisation</h3><p>Rolling it out: people, tools and bottlenecks.</p></div>
+  <ol class="toc">
     <li>
-      <div class="card soon" aria-label="More chapters coming soon">
-        <div class="thumb">&#x2026;</div>
+      <a class="card" href="./constraints.html">
+        <div class="thumb" style="background-image:url(./thumbs/constraints.jpg)"></div>
         <div class="body">
-          <h3>More coming soon</h3>
-          <p>New chapters will be added here.</p>
+          <h3>The bottleneck moved</h3>
+          <p>The Theory of Constraints for agentic engineering: find where work waits, fix it, find the next one.</p>
+          <div class="meta"><span>Scroll-through &middot; interactive</span><span>~6 min</span></div>
         </div>
-      </div>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="./mindset.html">
+        <div class="thumb" style="background-image:url(./thumbs/mindset.jpg)"></div>
+        <div class="body">
+          <h3>The constraint is mindset, not the model</h3>
+          <p>Same model, opposite results. The beliefs, incentives and learning curve that decide which.</p>
+          <div class="meta"><span>Scroll-through &middot; interactive</span><span>~6 min</span></div>
+        </div>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="./skill.html">
+        <div class="thumb" style="background-image:url(./thumbs/skill.jpg)"></div>
+        <div class="body">
+          <h3>You are the skill</h3>
+          <p>Tools churn. Your judgement, encoded as skills, rules and checks, is what scales.</p>
+          <div class="meta"><span>Scroll-through &middot; interactive</span><span>~6 min</span></div>
+        </div>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="./start.html">
+        <div class="thumb" style="background-image:url(./thumbs/start.jpg)"></div>
+        <div class="body">
+          <h3>Start with one garden</h3>
+          <p>Choose one codebase, prepare it, prove it, and let it seed the next.</p>
+          <div class="meta"><span>Scroll-through &middot; interactive</span><span>~6 min</span></div>
+        </div>
+      </a>
     </li>
   </ol>
 

@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The constraint is mindset, not the model — Agentic Engineering Basics</title>
+<meta name="description" content="Agentic Engineering Basics: interactive explainers on how software gets built when agents do the implementation." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Agentic Engineering Basics" />
+<meta property="og:title" content="The constraint is mindset, not the model — Agentic Engineering Basics" />
+<meta property="og:description" content="Agentic Engineering Basics: interactive explainers on how software gets built when agents do the implementation." />
+<meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/mindset.html" />
+<meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/mindset.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="750" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/mindset.jpg" />
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card2 { background: var(--paper); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
+  .card2 b { display: block; font-size: 15px; }
+  .card2 span { color: var(--muted); }
+  .cap { font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 10px; }
+
+  /* Same model, two orgs */
+  .orgs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .org { background: var(--paper); border-radius: 16px; padding: 14px; text-align: center; font-size: 14px; }
+  .org .model { display: inline-block; padding: 4px 12px; border-radius: 999px; background: var(--agent); color: #fff; font-weight: 800; font-size: 12px; margin-bottom: 8px; }
+  .org b { display: block; font-size: 16px; margin: 6px 0 4px; }
+  .org ul { text-align: left; margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+  .org.stalled { border-top: 6px solid var(--bad); } .org.thriving { border-top: 6px solid var(--ok); }
+  .org .big { font-size: 34px; }
+
+  /* Beliefs flip cards */
+  .beliefs { display: grid; gap: 8px; }
+  .belief { background: var(--paper); border-radius: 14px; padding: 11px 14px; font-size: 14px; cursor: pointer; border: 0; text-align: left; font-family: inherit; color: inherit; width: 100%; }
+  .belief b { display: block; font-size: 15px; }
+  .belief .re { display: none; color: var(--ok); font-weight: 700; }
+  .belief.flip { background: #effaf1; }
+  .belief.flip .re { display: block; }
+  .belief.flip .old { text-decoration: line-through; opacity: .5; }
+  .beliefs .try-it { margin: 0 0 2px; }
+
+  /* Metrics swap */
+  table.m { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 14px; }
+  table.m th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; padding: 0 12px; }
+  table.m td { background: var(--paper); padding: 9px 12px; vertical-align: top; }
+  table.m td:first-child { border-radius: 12px 0 0 12px; color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(224,49,49,.5); }
+  table.m td:last-child { border-radius: 0 12px 12px 0; font-weight: 700; }
+
+  /* J-curve */
+  .jc svg { width: 100%; height: auto; display: block; }
+  .jc .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 14px; font-weight: 700; margin-top: 8px; }
+  .jc .row .try-it { flex-basis: 100%; margin: 0; }
+  .jc input[type=range] { flex: 1 1 160px; accent-color: var(--human); }
+  @media (max-width: 820px) {
+    .wrap, .two { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+<link rel="stylesheet" href="./brand/brand.css" />
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">Agentic Engineering Basics<span>The constraint is mindset, not the model</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Mindset, not the model">
+  <div class="wrap single">
+    <div class="kicker reveal">Agentic Engineering Basics &middot; Organisation</div>
+    <h1 class="reveal d1">The constraint is mindset, not the model</h1>
+    <p class="lead reveal d2">Look for the bottleneck in an organisation adopting agents, and the first one you find is rarely the model. It's what people believe the model can't do, what they think they must still do themselves, and what the organisation still rewards.</p>
+    <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x1F9E0;</div>
+    <div class="scroll-hint">Scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="same" data-title="Same model, different results">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The evidence</div>
+      <h2 class="reveal d1">Same model. Same month. Opposite results.</h2>
+      <p class="reveal d2">Our dark factory started in July 2025. So did others, with access to the same frontier models. Some of them stalled. Ours is still growing.</p>
+      <p class="reveal d3">If the model were the constraint, everyone with the same model would hit the same ceiling. They don't. The difference is in what the organisation did around the model: the structure, the loops, and the beliefs that decided which of those got built.</p>
+      <p class="reveal d4 muted">&ldquo;We'll wait for the next model&rdquo; is a decision to keep the current constraint.</p>
+    </div>
+    <div class="orgs">
+      <div class="org stalled reveal d1"><span class="model">Same model</span><div class="big">&#x1F3DA;&#xFE0F;</div><b>Stalled</b><ul><li>Agents poured into the existing codebase</li><li>Every PR still eyeballed</li><li>Failures blamed on the model</li></ul></div>
+      <div class="org thriving reveal d2"><span class="model">Same model</span><div class="big">&#x1F33B;</div><b>Growing</b><ul><li>Codebase refactored for agents first</li><li>Quality moved into loops and checks</li><li>Failures treated as engineering problems</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="beliefs" data-title="Beliefs that throttle">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The real constraints</div>
+      <h2 class="reveal d1">Most of the constraints are sentences people say.</h2>
+      <p class="reveal d2">Each of these sounds like caution. Each one, held as a fixed rule, caps throughput at human speed, and each one has an engineering answer that the rest of this book describes.</p>
+      <p class="reveal d3">None of them is foolish. They were true of the process we had. The work is to notice when a belief about the old process is being applied to the new one.</p>
+    </div>
+    <div class="beliefs reveal d2" id="beliefs">
+      <button class="belief" data-hint="click a belief to reframe it"><span class="old"><b>&ldquo;AI code is slop.&rdquo;</b></span><span class="re">Slop is what grows in a garden with no structure. Fix the structure. &rarr; 02</span></button>
+      <button class="belief"><span class="old"><b>&ldquo;A human has to read every line.&rdquo;</b></span><span class="re">Reading every line never made software defect-free, and it can't scale. &rarr; 04, 06</span></button>
+      <button class="belief"><span class="old"><b>&ldquo;It doesn't understand our domain.&rdquo;</b></span><span class="re">Then the domain knowledge isn't written down where an agent can use it. &rarr; 13</span></button>
+      <button class="belief"><span class="old"><b>&ldquo;It works for greenfield, not for our codebase.&rdquo;</b></span><span class="re">Your codebase isn't ready for agents yet. That's a refactoring job. &rarr; 14</span></button>
+      <button class="belief"><span class="old"><b>&ldquo;It'll replace us.&rdquo;</b></span><span class="re">It replaces typing. Structure, taste and validation need more engineering judgement, not less. &rarr; 00</span></button>
+      <button class="belief"><span class="old"><b>&ldquo;We'll wait for the tools to settle.&rdquo;</b></span><span class="re">They won't. The skill you build now carries over to the next tool. &rarr; 13</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="baseline" data-title="The wrong baseline">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Judging fairly</div>
+      <h2 class="reveal d1">Agents get judged against perfection. Humans got judged against each other.</h2>
+      <p class="reveal d2">One bad agent PR becomes the story that proves the whole approach doesn't work. The human PR that caused last quarter's outage is just a bug.</p>
+      <p class="reveal d3">Hold both to the same standard: <b>defects per change, and how fast the system learns from them</b>. That's the comparison <a href="./fails-somewhere.html">All software fails somewhere</a> sets up, and it's the only one that tells you whether you're getting better.</p>
+    </div>
+    <div class="two">
+      <div class="card2 reveal d1"><b>&#x274C; The anecdote</b><span>&ldquo;Look at this terrible thing the agent did.&rdquo; Memorable, emotional, a sample of one.</span></div>
+      <div class="card2 reveal d2"><b>&#x2705; The rate</b><span>Defects per 100 changes, before and after. Boring, and true.</span></div>
+      <div class="card2 reveal d3"><b>&#x274C; &ldquo;Did it fail?&rdquo;</b><span>Everything fails somewhere. The answer is always yes.</span></div>
+      <div class="card2 reveal d4"><b>&#x2705; &ldquo;Which loop should have caught it?&rdquo;</b><span>Turns every failure into an improvement to the system.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="incentives" data-title="What gets counted">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Incentives</div>
+      <h2 class="reveal d1">People do what the organisation counts.</h2>
+      <p class="reveal d2">If promotions still reward the heroic all-nighter, the clever hand-written module and the number of PRs reviewed, people will keep doing those things, however many agents they have.</p>
+      <p class="reveal d3">Change what's measured and recognised, and the mindset follows. Leadership has to go first: a manager who says &ldquo;try agents&rdquo; and then asks why the PR wasn't hand-reviewed has told the team which rule is real.</p>
+    </div>
+    <table class="m reveal d2">
+      <thead><tr><th>Stop counting</th><th>Start counting</th></tr></thead>
+      <tbody>
+        <tr><td>Lines of code, PRs opened</td><td>Changes in users' hands, lead time</td></tr>
+        <tr><td>PRs personally reviewed</td><td>Defect classes made impossible</td></tr>
+        <tr><td>Heroic fixes</td><td>Escapes turned into checks</td></tr>
+        <tr><td>Being the only one who knows</td><td>Knowledge encoded as skills and rules</td></tr>
+        <tr><td>Hours worked</td><td>Constraints removed</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="curve" data-title="The learning curve">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">It's a skill</div>
+      <h2 class="reveal d1">It gets worse before it gets better. Plan for the dip.</h2>
+      <p class="reveal d2">Orchestrating agents is a skill, and new skills follow a J-curve. The first weeks are slower than working the old way. That's where most people decide &ldquo;it doesn't work&rdquo;, and where a mindset of experiment instead of verdict matters most.</p>
+      <p class="reveal d3">It takes hundreds of hours to get good, and thousands to get fluent. Give people the time and the permission, on purpose: protected time, safe codebases to try things on, and a team where sharing a failure is normal.</p>
+    </div>
+    <div class="panel jc reveal d2">
+      <svg viewBox="0 0 440 240" id="jcSvg" role="img" aria-label="Productivity dips below the old baseline when learning to orchestrate agents, then rises well above it"></svg>
+      <div class="row"><span>Hours of practice</span><input type="range" id="hrs" min="0" max="100" value="0" data-hint="drag through the learning curve" aria-label="Hours of practice" /><span id="hrsV">0 h</span></div>
+      <div class="cap" id="jcCap">&nbsp;</div>
+      <p class="src">Illustrative shape, not measured data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">Don't wait for a better model. Change what the organisation believes, counts and allows.</h2>
+    <p class="lead reveal d2">Same model, different organisations, different results. Name the beliefs that cap throughput, judge agents by the same rate you judge humans, reward the work that removes constraints, and protect people through the dip in the learning curve.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./skill.html">Next: You are the skill &#x2192;</a>
+      <a class="pill ghost" href="./constraints.html">&#x2190; The bottleneck moved</a>
+      <a class="pill ghost" href="./index.html">Contents</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // Beliefs: click to reframe.
+  for (const b of document.querySelectorAll('.belief')) b.addEventListener('click', () => b.classList.toggle('flip'));
+
+  // J-curve: productivity vs. hours of practice (illustrative).
+  {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('jcSvg'), slider = document.getElementById('hrs'), cap = document.getElementById('jcCap'), hv = document.getElementById('hrsV');
+    const X0 = 40, X1 = 420, Y0 = 200, Y1 = 20;
+    // t in [0,1] maps to 0..3000 h on a square-root scale, so the early dip is visible.
+    const hours = (t) => Math.round(3000 * t * t);
+    const prod = (t) => 1 - 6.8 * t * Math.exp(-t / 0.12) + 2.6 * Math.pow(Math.max(0, t - 0.15) / 0.85, 2);
+    const px = (t) => X0 + (X1 - X0) * t, py = (v) => Y0 - (Y0 - Y1) * (v / 3.8);
+    const el = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); svg.append(e); return e; };
+    el('line', { x1: X0, y1: Y0, x2: X1, y2: Y0, stroke: '#1b1b1b', 'stroke-opacity': .3, 'stroke-width': 2 });
+    el('line', { x1: X0, y1: Y1, x2: X0, y2: Y0, stroke: '#1b1b1b', 'stroke-opacity': .3, 'stroke-width': 2 });
+    el('line', { x1: X0, y1: py(1), x2: X1, y2: py(1), stroke: '#1b1b1b', 'stroke-opacity': .35, 'stroke-dasharray': '5 5' });
+    el('text', { x: X1, y: py(1) - 6, 'text-anchor': 'end', 'font-size': 11, 'font-weight': 700, fill: '#1b1b1b', 'fill-opacity': .6 }).textContent = 'the old way';
+    el('text', { x: X1, y: 222, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 700, fill: '#1b1b1b', 'fill-opacity': .6 }).textContent = 'hours of practice \u2192';
+    el('text', { x: 22, y: 110, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: '#1b1b1b', 'fill-opacity': .6, transform: 'rotate(-90 22 110)' }).textContent = 'output \u2192';
+    let d = ''; for (let i = 0; i <= 100; i++) { const t = i / 100; d += `${i ? 'L' : 'M'}${px(t).toFixed(1)} ${py(prod(t)).toFixed(1)} `; }
+    el('path', { d, fill: 'none', stroke: '#ff905c', 'stroke-width': 4, 'stroke-linecap': 'round' });
+    const dot = el('circle', { r: 8, fill: '#1b1b1b' });
+    function draw() {
+      const t = +slider.value / 100, h = hours(t), v = prod(t);
+      dot.setAttribute('cx', px(t)); dot.setAttribute('cy', py(v));
+      hv.textContent = `${h.toLocaleString('en')} h`;
+      cap.innerHTML = t < 0.04 ? 'Day one. You know how to do this the old way.'
+        : v < 0.98 && t < 0.3 ? '<span style="color:var(--bad)">The dip.</span> Slower than before. This is where people conclude &ldquo;it doesn\u2019t work&rdquo;.'
+        : t < 0.42 ? 'Back to where you started, with a new skill. Most people who quit didn\u2019t get here.'
+        : t < 0.75 ? 'Fluency: you\u2019re orchestrating, not prompting. Output climbs well past the old way.'
+        : '<span style="color:var(--ok)">Thousands of hours in.</span> You\u2019ve stopped writing code, and you ship more than ever.';
+    }
+    slider.addEventListener('input', draw);
+    draw();
+  }
+</script>
+<script src="./brand/hints.js" defer></script>
+</body>
+</html>
