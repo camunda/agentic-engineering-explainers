@@ -16,9 +16,10 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `constraints.html`: The bottleneck moved (scroll-through)
 - `mindset.html`: The constraint is mindset, not the model (scroll-through)
 - `skill.html`: You are the skill (scroll-through)
+- `conway.html`: Conway's Law still holds (scroll-through)
 - `start.html`: Start with one garden (scroll-through)
 
-Chapters are grouped on the contents page: Why (00–02), Quality (03–06), Structure (07–08), System (09–10) and Organisation (11–14).
+Chapters are grouped on the contents page: Why (00–02), Quality (03–06), Structure (07–08), System (09–10) and Organisation (11–15).
 
 To add a chapter: add the page, a card in the right group's `<ol class="toc">` in `index.html` (thumbnail in `thumbs/`), an entry in the chapter map in `dark-factory.html`, and next/previous links in the end-of-chapter `cta` blocks of the page and its neighbours.
 

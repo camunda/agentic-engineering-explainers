@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conway's Law still holds — Agentic Engineering Basics</title>
+<meta name="description" content="Agentic Engineering Basics: interactive explainers on how software gets built when agents do the implementation." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Agentic Engineering Basics" />
+<meta property="og:title" content="Conway's Law still holds — Agentic Engineering Basics" />
+<meta property="og:description" content="Agentic Engineering Basics: interactive explainers on how software gets built when agents do the implementation." />
+<meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/conway.html" />
+<meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/conway.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="750" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/conway.jpg" />
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card2 { background: var(--paper); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
+  .card2 b { display: block; font-size: 15px; }
+  .card2 span { color: var(--muted); }
+  .card2.no { border-left: 6px solid var(--bad); } .card2.yes { border-left: 6px solid var(--ok); }
+  .cap { font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 10px; }
+
+  .file { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: #1b1b1b; color: #e9e6f5; border-radius: 14px; padding: 14px 16px; line-height: 1.6; white-space: pre-wrap; }
+  .file .c { color: #8f8aa8; } .file .h { color: #f5b84a; font-weight: 700; } .file .g { color: #8fe0a0; }
+
+  /* Placement demo */
+  .place svg { width: 100%; height: auto; display: block; }
+  .place .feat { font-size: 13px; font-weight: 800; background: #fff; border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
+  .caps { display: grid; gap: 5px; margin-top: 8px; }
+  .capr { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: 12.5px; background: #fff; border-radius: 10px; padding: 6px 10px; opacity: .45; transition: opacity .3s; }
+  .capr.on { opacity: 1; }
+  .capr span { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 8px; color: #fff; white-space: nowrap; }
+  .place .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .place .row .try-it { flex-basis: 100%; margin: 0; }
+
+  /* Gates */
+  .gates { display: grid; gap: 6px; }
+  .gate { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; background: var(--paper); border-radius: 12px; padding: 9px 14px; font-size: 14px; }
+  .gate .n { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--ink); color: #fff; font-weight: 800; font-size: 13px; }
+  .gate b { display: block; font-size: 15px; }
+  .gate span { color: var(--muted); }
+  .tiers { display: flex; gap: 6px; margin-top: 4px; }
+  .tiers div { flex: 1; border-radius: 10px; padding: 8px 10px; font-size: 13px; font-weight: 800; color: #fff; text-align: center; }
+
+  /* Flow */
+  .flow { display: grid; gap: 6px; }
+  .flow div { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; background: var(--paper); border-radius: 12px; padding: 9px 14px; font-size: 14px; }
+  .flow .w { font-size: 20px; }
+  .flow span { color: var(--muted); display: block; font-size: 13px; }
+
+  /* Evals */
+  table.m { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 14px; }
+  table.m th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; padding: 0 12px; }
+  table.m td { background: var(--paper); padding: 9px 12px; vertical-align: top; }
+  table.m td:first-child { border-radius: 12px 0 0 12px; font-weight: 800; }
+  table.m td:last-child { border-radius: 0 12px 12px 0; color: var(--muted); }
+  @media (max-width: 820px) {
+    .wrap, .two { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+<link rel="stylesheet" href="./brand/brand.css" />
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">Agentic Engineering Basics<span>Conway's Law still holds</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Conway's Law still holds">
+  <div class="wrap single">
+    <div class="kicker reveal">Agentic Engineering Basics &middot; Organisation</div>
+    <h1 class="reveal d1">Conway's Law still holds</h1>
+    <p class="lead reveal d1" style="font-weight:700;margin-top:-6px">Plan with the owner, not around them.</p>
+    <p class="lead reveal d2">Real enterprise features cross repositories, teams and vendors. Agents don't dissolve the org chart. At agent speed, they just hit its boundaries faster. So the plan has to know where the boundaries are, and who is on the other side.</p>
+    <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x1F5FA;&#xFE0F;</div>
+    <div class="scroll-hint">Scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="conway" data-title="The org chart ships">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The law</div>
+      <h2 class="reveal d1">Systems mirror the organisations that build them.</h2>
+      <p class="reveal d2">Melvin Conway observed it in 1968: an organisation designs systems that copy its own communication structure. Every team boundary becomes an interface, and every interface has an owner.</p>
+      <p class="reveal d3">That's not a technical problem to engineer away. It's how large software gets built at all. A feature someone asks for in one product usually needs a change in a service another team owns, a library a third team publishes, and something from a vendor nobody here controls.</p>
+      <p class="reveal d4">So planning a real feature isn't purely technical. It's working out <b>who owns each part</b>, and coordinating with them.</p>
+    </div>
+    <div class="two">
+      <div class="card2 reveal d1"><b>&#x1F3E0; Your repository</b><span>What your team owns and can change today.</span></div>
+      <div class="card2 reveal d2"><b>&#x1F3E2; Another team's repository</b><span>Same company, different owners, roadmap and review.</span></div>
+      <div class="card2 reveal d3"><b>&#x1F4E6; A shared library</b><span>Published by one team, used by many. A change ripples.</span></div>
+      <div class="card2 reveal d4"><b>&#x1F310; A third party</b><span>An outside project or vendor. You use what it offers.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="failure" data-title="The local shortcut">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The failure mode</div>
+      <h2 class="reveal d1">An agent optimises for the repository it's standing in.</h2>
+      <p class="reveal d2">Ask an agent for a feature and it will find a way to deliver it from where it is. If the data it needs belongs to another team, it reads their database. If the API doesn't offer a field, it scrapes one. If a capability is missing, it rebuilds it locally.</p>
+      <p class="reveal d3">Each shortcut works. Each one is the <a href="./garden.html">local optimisation</a> that grows a jungle, except now the jungle spans repositories, and the team that owns the real thing doesn't know your copy exists.</p>
+    </div>
+    <div class="two">
+      <div class="card2 no reveal d1"><b>&#x274C; Read their database</b><span>Couples you to internals they'll change without telling you.</span></div>
+      <div class="card2 no reveal d2"><b>&#x274C; Copy their logic</b><span>Two sources of truth, drifting apart.</span></div>
+      <div class="card2 no reveal d3"><b>&#x274C; Use an endpoint they never offered</b><span>Works until their next release.</span></div>
+      <div class="card2 yes reveal d4"><b>&#x2705; Ask the owner</b><span>Slower this week. Correct for every week after.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="declare" data-title="Declare your borders">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Metadata by convention</div>
+      <h2 class="reveal d1">Every repository declares what it owns, and what it doesn't.</h2>
+      <p class="reveal d2">At Camunda, each repository carries an <code>ARCHITECTURE.md</code> with a small, machine-readable front matter. It says what the component <b>owns</b>, what people commonly think it owns but <b>doesn't</b> (with the real owner), what it <b>depends on</b>, and how other teams should <b>ask</b> it for changes.</p>
+      <p class="reveal d3">Each dependency also says how far you may go to work around it. For most, the answer is <b>never</b>.</p>
+      <p class="reveal d4">It's written for humans first and structured enough for any agent to read. It's the same idea as <a href="./derive.html">derivation</a>: declare the facts once, where they live, and derive plans from them.</p>
+    </div>
+    <div class="file reveal d2"><span class="c"># ARCHITECTURE.md front matter (illustrative)</span>
+<span class="h">component:</span> acme/web-app
+<span class="h">intake:</span> { how: issue, labels: [cross-repo-request] }
+<span class="h">owns:</span>
+  - Process list and its UI
+<span class="h">does_not_own:</span>
+  - { concept: Deployment history,
+      owner: <span class="g">acme/orchestration</span> }
+<span class="h">depends_on:</span>
+  - id: orchestration
+    component: <span class="g">acme/orchestration</span>
+    kind: runtime-api
+    architecture: ARCHITECTURE.md
+    workaround_policy: <span class="g">never</span>
+  - id: identity
+    component: OIDC provider
+    kind: external
+    workaround_policy: <span class="g">adapter-boundary</span></div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="place" data-title="Place every capability">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The planning skill</div>
+      <h2 class="reveal d1">Find the owner of each capability, transitively.</h2>
+      <p class="reveal d2">Our planning skill starts by rewriting the feature as capabilities: &ldquo;The system must&hellip;&rdquo;, <b>without naming any repository</b>. Naming one too early decides the owner before anyone has looked.</p>
+      <p class="reveal d3">Then it follows <code>depends_on</code> to each dependency's own <code>ARCHITECTURE.md</code>, and onward, to find whoever is the source of truth. Owned here: plan it here. Owned by another team: write that team a <b>requirement brief</b>. Owned outside: use the extension points it offers, behind an adapter.</p>
+    </div>
+    <div class="panel place reveal d2">
+      <div class="feat">Feature: show users when each process was last deployed, and by whom.</div>
+      <svg viewBox="0 0 440 170" id="placeSvg" role="img" aria-label="Capabilities placed with their owners across repositories"></svg>
+      <div class="caps" id="caps"></div>
+      <div class="row"><button class="pill" id="placeNext" data-hint="place each capability">Place next &#x2192;</button><button class="pill ghost" id="placeShort">&#x23F0; Deadline!</button><button class="pill ghost" id="placeReset">Reset</button></div>
+      <div class="cap" id="placeCap">&nbsp;</div>
+      <p class="src">Illustrative repositories and feature.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="ownership" data-title="Ownership outranks speed">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The rules</div>
+      <h2 class="reveal d1">Speed never outranks ownership.</h2>
+      <p class="reveal d2">Before options are compared, five hard gates rule some out. An option that fails any one is gone, however fast it would be.</p>
+      <p class="reveal d3">The survivors are ranked in order: architectural integrity first, then constraints, then delivery. The tiers aren't added up, so a workaround here can never outscore asking the owner. A deadline is a reason to cut scope, or to agree a temporary contract <i>with</i> the owner, with its replacement already planned. It's never a reason to build their part in your repository.</p>
+    </div>
+    <div class="gates">
+      <div class="gate reveal d1"><span class="n">G1</span><p style="margin:0"><b>Ownership</b><span>Don't build what another component owns.</span></p></div>
+      <div class="gate reveal d1"><span class="n">G2</span><p style="margin:0"><b>Contract</b><span>Use only what the owner offers, for what it was offered for.</span></p></div>
+      <div class="gate reveal d2"><span class="n">G3</span><p style="margin:0"><b>Binding decisions</b><span>Don't contradict an accepted decision record without proposing a new one.</span></p></div>
+      <div class="gate reveal d2"><span class="n">G4</span><p style="margin:0"><b>Hard constraints</b><span>&ldquo;Must work air-gapped&rdquo; means must.</span></p></div>
+      <div class="gate reveal d3"><span class="n">G5</span><p style="margin:0"><b>Consumer promises</b><span>Don't break a compatibility promise without a deprecation path.</span></p></div>
+      <div class="tiers reveal d4"><div style="background:var(--ok)">1 &middot; Integrity</div><div style="background:var(--agent)">2 &middot; Constraints</div><div style="background:#adb5bd">3 &middot; Delivery</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="coordinate" data-title="Coordination is the plan">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Working across teams</div>
+      <h2 class="reveal d1">The coordination is part of the plan, not an afterthought.</h2>
+      <p class="reveal d2">The plan is a structured Markdown file, iterated in a pull request that's reviewed but never merged. Every part has an ID, so other plans can refer to it across repositories.</p>
+      <p class="reveal d3">A brief goes to the owner the way the owner asked: through the <code>intake</code> in their <code>ARCHITECTURE.md</code>. Increments that need it are marked blocked by it. The owner answers each need in <i>their</i> plan, so they decide how to build it, not you.</p>
+      <p class="reveal d4">Design and breakdown are separate phases. No issues are filed until the team and every owner it relies on have agreed the design.</p>
+    </div>
+    <div class="flow">
+      <div class="reveal d1"><span class="w">&#x1F4DD;</span><p style="margin:0"><b>Draft the plan</b><span>Capabilities, owners, design, open questions.</span></p></div>
+      <div class="reveal d1"><span class="w">&#x1F4E8;</span><p style="margin:0"><b>Send briefs</b><span>An issue in each owner's repository, need by need.</span></p></div>
+      <div class="reveal d2"><span class="w">&#x1F91D;</span><p style="margin:0"><b>Owners answer</b><span>Accepted, counter-proposal or declined, in their own plan.</span></p></div>
+      <div class="reveal d2"><span class="w">&#x2705;</span><p style="margin:0"><b>Design agreed</b><span>Only now does breakdown start.</span></p></div>
+      <div class="reveal d3"><span class="w">&#x1F9F1;</span><p style="margin:0"><b>Breakdown and file</b><span>Issues, with cross-repository &ldquo;blocked by&rdquo; links.</span></p></div>
+      <div class="reveal d4"><span class="w">&#x1F4DA;</span><p style="margin:0"><b>Archive</b><span>The final plan goes on the epic; lasting decisions become decision records.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------------------------------>
+<section id="trust" data-title="Trust it">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The same loops</div>
+      <h2 class="reveal d1">A planning skill is code. Test it like code.</h2>
+      <p class="reveal d2">A <b>validator</b> checks every plan mechanically: IDs resolve, a permanent workaround is never chosen, &ldquo;build it here&rdquo; is only used for capabilities this repository owns, increments have no cycles, the diagram matches the tables, and each brief matches the plan.</p>
+      <p class="reveal d3">And the skill itself was developed against <b>evals</b>: scripted scenarios run by agents and scored by separate grader agents against fixed rubrics. Each round's findings were fixed in the skill and checked in the next round.</p>
+    </div>
+    <div>
+    <table class="m reveal d2">
+      <thead><tr><th>Scenario</th><th>Latest round</th></tr></thead>
+      <tbody>
+        <tr><td>Main planning flow</td><td>30/31 and 27/29 criteria passed, none failed</td></tr>
+        <tr><td>Under delivery pressure</td><td>11/12 and 13/14 passed, none failed</td></tr>
+        <tr><td>Owner answering a brief</td><td>12&ndash;13 passed, 3 partial, none failed</td></tr>
+      </tbody>
+    </table>
+    <p class="src reveal d3">From 51 graded runs on one real feature. Some scenarios haven't been run yet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">Declare the borders. Plan with the owners.</h2>
+    <p class="lead reveal d2">Enterprise features cross teams, and agents will happily cut straight across them. Have every repository declare what it owns and depends on, and let a planning skill read that across the organisation, place each capability with its owner, and make the coordination part of the plan. Then validate the plans and test the skill like any other code.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./start.html">Next: Start with one garden &#x2192;</a>
+      <a class="pill ghost" href="./skill.html">&#x2190; You are the skill</a>
+      <a class="pill ghost" href="./index.html">Contents</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // Placement demo: each capability lands with its owner.
+  {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('placeSvg'), capsEl = document.getElementById('caps'), cap = document.getElementById('placeCap');
+    const C = { here: '#2f9e44', team: '#7048e8', ext: '#e8590c' };
+    const NODES = {
+      here: { x: 30, y: 60, w: 130, label: 'acme/web-app', sub: 'your team' },
+      team: { x: 290, y: 15, w: 140, label: 'acme/orchestration', sub: 'another team' },
+      ext: { x: 290, y: 110, w: 140, label: 'OIDC provider', sub: 'third party' },
+    };
+    const CAPS = [
+      { t: 'Record who deployed each process, and when', o: 'team', tag: 'Brief R1 \u00b7 need 1', msg: 'The orchestration repo\u2019s ARCHITECTURE.md owns deployment history; ours lists it in <code>does_not_own</code>. So: a requirement brief, not a workaround.' },
+      { t: 'Offer that history through a public API', o: 'team', tag: 'Brief R1 \u00b7 need 2', msg: 'Same owner, so it goes in the same brief as a second need. Their team decides how to build it.' },
+      { t: 'Show it in the process list', o: 'here', tag: 'Build here', msg: 'We own the process list, so this is planned here, and its increment is <b>blocked by</b> the brief\u2019s issue.' },
+      { t: 'Show the deployer\u2019s display name', o: 'ext', tag: 'Adapter', msg: 'A third party owns identity. Use the claims it already offers, behind an adapter in our code. Policy: <code>adapter-boundary</code>.' },
+    ];
+    let n = 0;
+    const el = (tag, a, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); parent.append(e); return e; };
+    function draw(shortcut) {
+      svg.innerHTML = '';
+      el('defs', {}).innerHTML = Object.entries(C).map(([k, c]) => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`).join('') + '<marker id="ah-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e03131"/></marker>';
+      const used = new Set(CAPS.slice(0, n).map((c) => c.o));
+      for (const k of ['team', 'ext']) if (used.has(k)) {
+        const a = NODES.here, b = NODES[k];
+        el('path', { d: `M${a.x + a.w} ${a.y + 25} C ${a.x + a.w + 60} ${a.y + 25}, ${b.x - 60} ${b.y + 22}, ${b.x - 4} ${b.y + 22}`, fill: 'none', stroke: C[k], 'stroke-width': 3, 'marker-end': `url(#ah-${k})` });
+      }
+      if (shortcut) {
+        const a = NODES.here, b = NODES.team;
+        el('path', { d: `M${a.x + 60} ${a.y} C ${a.x + 60} ${b.y - 10}, ${b.x - 40} ${b.y + 40}, ${b.x - 4} ${b.y + 36}`, fill: 'none', stroke: '#e03131', 'stroke-width': 3, 'stroke-dasharray': '6 5', 'marker-end': 'url(#ah-bad)' });
+        el('text', { x: 205, y: 22, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 800, fill: '#e03131' }).textContent = '\u2715 read their DB';
+      }
+      for (const [k, nd] of Object.entries(NODES)) {
+        const active = k === 'here' || used.has(k);
+        el('rect', { x: nd.x, y: nd.y, width: nd.w, height: 46, rx: 10, fill: '#fff', stroke: C[k], 'stroke-width': active ? 3 : 1.5, 'stroke-opacity': active ? 1 : .35 });
+        el('text', { x: nd.x + nd.w / 2, y: nd.y + 20, 'text-anchor': 'middle', 'font-size': 12.5, 'font-weight': 800, fill: '#1b1b1b' }).textContent = nd.label;
+        el('text', { x: nd.x + nd.w / 2, y: nd.y + 36, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: C[k] }).textContent = nd.sub;
+      }
+      capsEl.innerHTML = CAPS.map((c, i) => `<div class="capr${i < n ? ' on' : ''}">The system must: ${c.t[0].toLowerCase() + c.t.slice(1)}.${i < n ? `<span style="background:${C[c.o]}">${c.tag}</span>` : '<span style="background:#adb5bd">?</span>'}</div>`).join('');
+    }
+    document.getElementById('placeNext').addEventListener('click', () => {
+      if (n >= CAPS.length) { cap.innerHTML = 'Every capability has an owner. One brief to another team, one change here, one adapter. Now the coordination is in the plan.'; return; }
+      n++; draw(); cap.innerHTML = CAPS[n - 1].msg;
+    });
+    document.getElementById('placeShort').addEventListener('click', () => {
+      draw(true);
+      cap.innerHTML = '<span style="color:var(--bad)">Shortcut rejected:</span> reading their database fails ownership (G1) and contract (G2). Instead: cut scope, or agree an <b>interim contract</b> with the owner, with the migration already planned.';
+    });
+    document.getElementById('placeReset').addEventListener('click', () => { n = 0; draw(); cap.innerHTML = 'Four capabilities, worded without repositories. Who owns each one?'; });
+    draw(); cap.innerHTML = 'Four capabilities, worded without repositories. Who owns each one?';
+  }
+</script>
+<script src="./brand/hints.js" defer></script>
+</body>
+</html>
