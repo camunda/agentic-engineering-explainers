@@ -3,16 +3,16 @@
 Interactive explainers. `index.html` is the table of contents; each chapter is its own page:
 
 - `dark-factory.html`: chapter 0, From Dark Factory to Software Garden: introduces the garden metaphor (scroll-through with interactive demos)
-- `garden.html`: the organisation of agents (three.js semantic-zoom presentation, described below)
 - `humans.html`: the role of humans in the agentic SDLC (scroll-through)
+- `garden.html`: the organisation of agents (three.js semantic-zoom presentation, described below)
 - `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
+- `fails-somewhere.html`: All software fails somewhere: keep the defect rate falling as throughput rises (scroll-through with interactive demos)
+- `no-flaky.html`: There are no flaky tests (scroll-through)
 - `zero-eyes.html`: Zero-eyes PR approval (scroll-through with interactive demos)
 - `enforce.html`: Rules that enforce themselves (scroll-through)
 - `derive.html`: Derivation over duplication (scroll-through)
-- `no-flaky.html`: There are no flaky tests (scroll-through)
 - `agent-users.html`: Designing for agent users (scroll-through)
 - `merge-gate.html`: The merge button is part of the system (scroll-through with interactive demos)
-- `fails-somewhere.html`: All software fails somewhere: keep the defect rate falling as throughput rises (scroll-through with interactive demos)
 
 To add a chapter: add the page, a card in `index.html` (thumbnail in `thumbs/`), and a link back to `./index.html`.
 
