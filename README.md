@@ -12,6 +12,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `no-flaky.html`: There are no flaky tests (scroll-through)
 - `agent-users.html`: Designing for agent users (scroll-through)
 - `merge-gate.html`: The merge button is part of the system (scroll-through with interactive demos)
+- `tradeoffs.html`: Engineering trade-offs (scroll-through with interactive demos)
 
 To add a chapter: add the page, a card in `index.html` (thumbnail in `thumbs/`), and a link back to `./index.html`.
 
