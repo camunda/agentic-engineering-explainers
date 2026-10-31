@@ -2,6 +2,7 @@
 
 Interactive explainers. `index.html` is the table of contents; each chapter is its own page:
 
+- `dark-factory.html`: chapter 0, From Dark Factory to Software Garden: introduces the garden metaphor (scroll-through with interactive demos)
 - `garden.html`: the organisation of agents (three.js semantic-zoom presentation, described below)
 - `humans.html`: the role of humans in the agentic SDLC (scroll-through)
 - `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
