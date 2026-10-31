@@ -1,4 +1,6 @@
-# Agentic Engineering Basics
+# The Software Garden
+
+Agentic engineering, from the model to the organisation.
 
 Interactive explainers. `index.html` is the table of contents; each chapter is its own page:
 
