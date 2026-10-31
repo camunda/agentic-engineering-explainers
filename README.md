@@ -5,6 +5,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `dark-factory.html`: chapter 0, From Dark Factory to Software Garden: introduces the garden metaphor (scroll-through with interactive demos)
 - `humans.html`: the role of humans in the agentic SDLC (scroll-through)
 - `garden.html`: the organisation of agents (three.js semantic-zoom presentation, described below)
+- `risk.html`: Two ways to lose (scroll-through)
 - `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
 - `fails-somewhere.html`: All software fails somewhere: keep the defect rate falling as throughput rises (scroll-through with interactive demos)
 - `no-flaky.html`: There are no flaky tests (scroll-through)
@@ -19,7 +20,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `conway.html`: Conway's Law still holds (scroll-through)
 - `start.html`: Start with one garden (scroll-through)
 
-Chapters are grouped on the contents page: Why (00–02), Quality (03–06), Structure (07–08), System (09–10) and Organisation (11–15).
+Chapters are grouped on the contents page: Why (00–03), Quality (04–07), Structure (08–09), System (10–11) and Organisation (12–16).
 
 To add a chapter: add the page, a card in the right group's `<ol class="toc">` in `index.html` (thumbnail in `thumbs/`), an entry in the chapter map in `dark-factory.html`, and next/previous links in the end-of-chapter `cta` blocks of the page and its neighbours.
 
