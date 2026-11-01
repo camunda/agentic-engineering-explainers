@@ -10,6 +10,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `risk.html`: Two ways to lose (scroll-through)
 - `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
 - `fails-somewhere.html`: All software fails somewhere: keep the defect rate falling as throughput rises (scroll-through with interactive demos)
+- `telemetry.html`: Point them at a number: telemetry-driven agent loops, the Nano BPM ceiling hunt, SDK performance envelopes, agents starting the work (scroll-through with interactive demos)
 - `no-flaky.html`: There are no flaky tests (scroll-through)
 - `zero-eyes.html`: Zero-eyes PR approval (scroll-through with interactive demos)
 - `envelope.html`: Every model has an envelope (scroll-through)

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Point them at a number — The Software Garden</title>
+<meta name="description" content="Telemetry is a test: agents in a write-build-deploy-load-measure loop hunt their own bottlenecks. Real examples from the Nano BPM engine and the Camunda SDKs, and what changes when agents start the work." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="The Software Garden" />
+<meta property="og:title" content="Point them at a number — The Software Garden" />
+<meta property="og:description" content="Telemetry is a test: agents in a write-build-deploy-load-measure loop hunt their own bottlenecks. Real examples from the Nano BPM engine and the Camunda SDKs, and what changes when agents start the work." />
+<meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/telemetry.html" />
+<meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/telemetry.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="750" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/telemetry.jpg" />
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  /* Loop ring */
+  .ring { position: relative; width: min(420px, 86vw); aspect-ratio: 1; margin: 0 auto; }
+  .ring svg { width: 100%; height: 100%; }
+  .ring .node { position: absolute; transform: translate(-50%, -50%); background: var(--paper); padding: 6px 10px; font-size: 13px; font-weight: 600; white-space: nowrap; border: 1.5px solid var(--ink); transition: background .3s, color .3s; }
+  .ring .node.on { background: var(--ink); color: #fff; }
+  .ring .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 13px; color: var(--muted); pointer-events: none; }
+  .ring .mid b { font-family: var(--font-head, serif); font-weight: 400; font-size: 30px; color: var(--ink); }
+
+  /* Lab notebook */
+  .nb { background: var(--paper); padding: 18px; }
+  .nb .tally { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+  .nb .tally span { padding: 4px 10px; background: #fff; }
+  .nb .tally .r { border-left: 5px solid #e03131; } .nb .tally .f { border-left: 5px solid #5f8a17; } .nb .tally .c { border-left: 5px solid var(--purple-500, #6967ff); }
+  .nb .entry { text-align: left; background: #fff; padding: 14px 16px; min-height: 250px; border-left: 6px solid var(--ink); }
+  .nb .entry.refuted { border-left-color: #e03131; } .nb .entry.fixed { border-left-color: #5f8a17; } .nb .entry.corrected { border-left-color: var(--purple-500, #6967ff); }
+  .nb .entry time { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .nb .entry h3 { margin: 4px 0 10px; font-size: 18px; }
+  .nb .entry dl { display: grid; grid-template-columns: 100px 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
+  .nb .entry dt { font-weight: 600; }
+  .nb .entry dd { margin: 0; }
+  .nb .verdict { display: inline-block; margin-top: 12px; padding: 4px 10px; font-size: 13px; font-weight: 700; color: #fff !important; background: var(--ink); }
+  .nb .refuted .verdict { background: #e03131; } .nb .fixed .verdict { background: #5f8a17; } .nb .corrected .verdict { background: var(--purple-500, #6967ff); }
+  .nb .ctl { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .nb .ctl .pos { font-size: 13px; color: var(--muted); }
+  .in .nb .entry { animation: pop .35s both; }
+  @keyframes pop { from { opacity: .3; transform: translateY(6px); } }
+
+  /* Envelope chart */
+  .env { background: var(--paper); padding: 16px; }
+  .env svg { width: 100%; height: auto; display: block; }
+  .env .ctl { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+  .seg { padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+  .seg.on { background: var(--ink); color: #fff; }
+  .env .note { font-size: 13.5px; text-align: center; margin-top: 8px; min-height: 40px; }
+
+  /* Stat cards and two-column cards */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .stats div { background: var(--paper); padding: 12px; font-size: 13.5px; }
+  .stats b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: 28px; line-height: 1.1; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; text-align: left; }
+  .split > div { background: var(--paper); padding: 16px; }
+  .split h3 { margin: 0 0 8px; font-size: 18px; }
+  .split ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+  .split li { margin: 5px 0; }
+  .split .agent { border-top: 6px solid var(--purple-400, #8785ff); }
+  .split .human { border-top: 6px solid var(--orange-400, #ff905c); }
+  .finding { background: var(--paper); padding: 12px 14px; font-size: 14px; margin-top: 8px; border-left: 6px solid #5f8a17; }
+  .finding b { display: block; }
+  @media (max-width: 820px) {
+    .stats { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; }
+    .nb .entry dl { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 820px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+<link rel="stylesheet" href="./brand/brand.css" />
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">The Software Garden<span>Point them at a number</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Point them at a number">
+  <div class="wrap single">
+    <div class="kicker reveal">The Software Garden &middot; Quality</div>
+    <h1 class="reveal d1">Point them at a number</h1>
+    <p class="lead reveal d2">A test tells an agent pass or fail. A measurement tells it how far it has to go. Give an agent a target, a load generator and the system&rsquo;s telemetry, and it can find and remove its own bottlenecks.</p>
+    <div class="scroll-hint">scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="loop" data-title="Telemetry is a test">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Telemetry is a test</div>
+      <h2 class="reveal d1">The same loop, with a measurement as the check.</h2>
+      <p class="reveal d2">In <a href="./loops.html">Agentic Loop Engineering</a>, the agent climbs towards green tests. Here it climbs towards a number: throughput under load, tail latency, memory at peak.</p>
+      <p class="reveal d3">Each turn is longer than a unit test run: write, build, deploy, put it under load, read the telemetry. The agent then forms a hypothesis about the bottleneck and the next turn tests it.</p>
+      <p class="reveal d4">A pass/fail check can only say &ldquo;not yet&rdquo;. A number shows which way to go.</p>
+    </div>
+    <div class="ring reveal d2" id="ring">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" fill="none" stroke="#dfddd8" stroke-width="1.2"/><circle id="ringArc" cx="50" cy="50" r="38" fill="none" stroke="#fc5d0d" stroke-width="1.6" stroke-dasharray="0 239" transform="rotate(-90 50 50)"/></svg>
+      <div class="mid"><span>experiment</span><b id="ringN">1</b><span id="ringTxt">ceiling: measuring&hellip;</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="hunt" data-title="The ceiling hunt">
+  <div class="wrap single" style="max-width:900px">
+    <div class="kicker reveal">Worked example &middot; the Nano BPM engine</div>
+    <h2 class="reveal d1">Most hypotheses were wrong. That&rsquo;s what the loop is for.</h2>
+    <p class="reveal d2">In July 2026, agents hunted the throughput ceiling of a three-node Nano BPM cluster on Google Cloud. Every step below is from the commit history. Step through the notebook.</p>
+    <div class="nb reveal d3">
+      <div class="tally"><span class="r">Refuted <b id="tR">0</b></span><span class="f">Fixed <b id="tF">0</b></span><span class="c">Claims corrected <b id="tC">0</b></span></div>
+      <div class="entry" id="nbEntry"></div>
+      <div class="ctl">
+        <button class="seg" id="nbPrev">&#x2190; Back</button>
+        <span class="pos" id="nbPos"></span>
+        <button class="seg on" id="nbNext" data-hint="step through the experiments">Next experiment &#x2192;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="instruments" data-title="Measurements lie too">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Measurements lie too</div>
+      <h2 class="reveal d1">If the loop trusts a number, check the instrument.</h2>
+      <p class="reveal d2">Two of the turns in that notebook weren&rsquo;t about the engine at all. One &ldquo;pinned&rdquo; thread was an artifact of how <code>top</code> reports a parked thread. And every cluster benchmark had run with replication switched off, because a script set the replication factor but never enabled Raft.</p>
+      <p class="reveal d3">Both were caught the same way: a controlled A/B that disagreed with the story. A mis-wired measurement is a <a href="./no-flaky.html">flaky test</a> with better formatting. The loop is only as good as its instruments, so the instruments get tested too.</p>
+    </div>
+    <div class="reveal d2">
+      <div class="finding" style="border-left-color:var(--purple-500)"><b>&ldquo;Throughput numbers stand; replication attributions do not.&rdquo;</b>From the correction commit, which annotated every affected passage in the performance docs.</div>
+      <div class="finding" style="border-left-color:#e03131"><b>&ldquo;The earlier &lsquo;100%-pinned main thread&rsquo; was a top -H artifact.&rdquo;</b>From the A/B that found the new dispatcher made no difference.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="envelope" data-title="Map the envelope">
+  <div class="wrap single" style="max-width:980px">
+    <div class="kicker reveal">Worked example &middot; the SDKs</div>
+    <h2 class="reveal d1">Map the performance envelope, then build the guidance from it.</h2>
+    <p class="reveal d2">For the SDKs, a performance matrix runs workers in eight languages across worker counts, process topologies, transports, handler types and cluster sizes: 1,280 scenarios. It also sweeps individual settings, so defaults are measured, not guessed.</p>
+    <div class="env reveal d3">
+      <svg id="envSvg" viewBox="0 0 640 210" role="img" aria-label="End-to-end p99 latency as workers grow: REST long-polling against streaming"></svg>
+      <div class="ctl" id="envCtl" data-hint="compare the two transports">
+        <button class="seg on" data-t="rest">REST long-polling</button>
+        <button class="seg" data-t="stream">Streaming</button>
+      </div>
+      <div class="note" id="envNote"></div>
+    </div>
+    <div class="stats reveal d4">
+      <div><b>28k &#x2192; 30k</b>process instances per second on one node: 7% more load, half the throughput, p99 from about 191&nbsp;ms to about 14&nbsp;s. The knee is a cliff.</div>
+      <div><b>157 &#x2192; 7,458/s</b>instance creation with 1 against 64 producer connections. Creates queue behind each other on one connection, so connections are the lever.</div>
+      <div><b>146 vs 117/s</b>a C# worker polling every 25&nbsp;ms against the old default, measured on Google Cloud. The new default shipped in the harness, with the SDK&rsquo;s retry gaps written up.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="oracle" data-title="Other oracles">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The oracle doesn&rsquo;t have to be a test you wrote</div>
+      <h2 class="reveal d1">Seven SDKs can check each other.</h2>
+      <p class="reveal d2">A conformance harness generates a call for every operation in the API spec, sends it through all seven SDKs, and captures the HTTP request each one would send. Nobody writes the expected output: the SDKs are compared with each other.</p>
+      <p class="reveal d3">Where they disagree, at least one of them is wrong, and whoever owns it gets a precise defect to fix. The signal comes from the system, not from a person predicting it.</p>
+    </div>
+    <div class="reveal d2">
+      <div class="finding"><b>Telemetry under load</b>&ldquo;How fast, and where does it break?&rdquo;</div>
+      <div class="finding"><b>Cross-implementation comparison</b>&ldquo;Do they all mean the same thing?&rdquo;</div>
+      <div class="finding"><b>The spec</b>&ldquo;Is that what the API says?&rdquo; (<a href="./derive.html">derivation over duplication</a>)</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="production" data-title="Point it at production">
+  <div class="wrap single">
+    <div class="kicker reveal">The next step</div>
+    <h2 class="reveal d1">Point the same loop at production.</h2>
+    <p class="lead reveal d2">Everything above runs against a load generator. The next step is to use the telemetry of the deployed system itself: real traffic, real payloads, real failure modes that no stress test thought to try.</p>
+    <p class="reveal d3">It is the same signal from further out, and nothing about delivery has to change. The agent reads production, forms a hypothesis, tests it in the stress loop, and its change goes back through the <a href="./loops.html">usual loops</a> and the <a href="./merge-gate.html">merge gate</a> like any other.</p>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------------------------------>
+<section id="initiative" data-title="Agents start the work">
+  <div class="wrap single" style="max-width:980px">
+    <div class="kicker reveal">What changes</div>
+    <h2 class="reveal d1">Told what to optimise, agents start the work themselves.</h2>
+    <p class="reveal d2">That moves part of the <a href="./humans.html">vision edge</a>. No one predicted that the ceiling was a single exporter thread. A person set the goal; the loop found the work. The human part of the vision becomes choosing what to optimise, and what must not be traded for it.</p>
+    <div class="split reveal d3">
+      <div class="human"><h3>Humans set</h3><ul>
+        <li><b>The objective:</b> &ldquo;maximum throughput at p99 under 200&nbsp;ms&rdquo;, not a backlog of tasks.</li>
+        <li><b>The guardrails:</b> numbers that must not get worse. In the ceiling hunt, durability was one: async writes were measured, and stayed off.</li>
+        <li><b>The budget and the stop:</b> how much compute, and when gains are too small to matter.</li>
+        <li><b>The ranking:</b> which objective wins when two pull against each other.</li>
+      </ul></div>
+      <div class="agent"><h3>Agents do</h3><ul>
+        <li>Read the telemetry and pick the next bottleneck.</li>
+        <li>Form a hypothesis and design the experiment.</li>
+        <li>Make the change, run it under load, keep or discard it.</li>
+        <li>Write it down: what was tried, what was measured, what was wrong.</li>
+      </ul></div>
+    </div>
+    <p class="src reveal d4" style="text-align:left">Optimise a single number and an agent will find ways to move it that you didn&rsquo;t intend (Goodhart&rsquo;s law). The guardrails are what keep &ldquo;faster&rdquo; meaning faster.</p>
+  </div>
+</section>
+
+<!-- 9 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">A number is a test that points somewhere.</h2>
+    <p class="lead reveal d2">Put agents in a loop with load and telemetry and they will hunt bottlenecks, disprove their own theories and write down what they learned. Check the instruments as carefully as the code. Then give them an objective and guardrails, and let them find the work.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./no-flaky.html">Next: There are no flaky tests &#x2192;</a>
+      <a class="pill ghost" href="./fails-somewhere.html">&#x2190; All software fails somewhere</a>
+      <a class="pill ghost" href="./index.html">Contents</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // The loop ring: six steps around a circle, cycling. Illustrative.
+  {
+    const STEPS = ['Change', 'Build', 'Deploy', 'Load', 'Measure', 'Hypothesise'];
+    const ring = document.getElementById('ring');
+    const nodes = STEPS.map((t, i) => {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / STEPS.length;
+      const d = document.createElement('div'); d.className = 'node'; d.textContent = t;
+      d.style.left = `${50 + 38 * Math.cos(a)}%`; d.style.top = `${50 + 38 * Math.sin(a)}%`;
+      ring.append(d); return d;
+    });
+    const arc = document.getElementById('ringArc'), C = 2 * Math.PI * 38;
+    const TXT = ['ceiling: measuring&hellip;', 'hypothesis refuted', 'bottleneck found', 'ceiling 2.4&times; higher', 'diagnosis corrected', 'next bottleneck&hellip;'];
+    let started = false;
+    onEnter('loop', async () => {
+      if (started) return; started = true;
+      for (let it = 0; ; it++) {
+        document.getElementById('ringN').textContent = it + 1;
+        for (let i = 0; i < STEPS.length; i++) {
+          nodes.forEach((n, k) => n.classList.toggle('on', k === i));
+          arc.setAttribute('stroke-dasharray', `${C * (i + 1) / STEPS.length} ${C}`);
+          if (i === STEPS.length - 1) document.getElementById('ringTxt').innerHTML = TXT[it % TXT.length];
+          await sleep(700);
+        }
+      }
+    });
+  }
+
+  // Lab notebook: the July 2026 ceiling hunt on the Nano BPM engine, from the commit history.
+  {
+    const NB = [
+      { d: '1 July 2026', h: 'Resources are the limit', hyp: 'The cluster tops out at about 36k process instances a second (12k per node). More partitions, faster disks or less replication should lift it.', exp: 'Parameter sweep from a dedicated load machine: replication factor 1 and 3, 3 and 9 partitions, SSD and RAM disk, more client load.', res: 'The ceiling didn\u2019t move for any of them. The nodes sat at about 50% idle CPU, with no I/O wait.', v: 'refuted', vt: 'Refuted. Not a resource limit.' },
+      { d: '1 July 2026', h: 'Then it\u2019s coordination-bound', hyp: 'With spare CPU and idle disks, the ceiling must be coordination between threads.', exp: 'A/B of three disk-sync modes on Google Cloud, with profiling.', res: 'Throughput was flat across all three. One exporter thread per node, writing the read model to SQLite, was pinned at 100%, spending 99.6% of its time in the export, while 15 cores sat idle.', v: 'refuted', vt: 'Refuted. The real bottleneck is one thread.' },
+      { d: '1 July 2026', h: 'Shard the exporter', hyp: 'Give each partition its own exporter and read store, so the single thread is no longer the wall.', exp: 'The same ceiling test on Google Cloud with the sharded build.', res: 'About 13k to 30\u201332k per node, roughly 95k across the cluster. The pinned thread is gone; the next wall is the engine\u2019s serialised command path, at about 65% CPU.', v: 'fixed', vt: 'Fixed. 2.4\u00d7 per node.' },
+      { d: '2 July 2026', h: 'The main thread is pinned', hyp: 'Profiling shows the main thread at 100%. Parallelise job dispatch across workers.', exp: 'Controlled A/B from a fresh state: old dispatcher against new.', res: 'No difference in throughput or latency. The \u201cpinned\u201d thread was a parked async driver that top reports as busy; other tools read it at 0%.', v: 'refuted', vt: 'Refuted. The measurement was wrong.' },
+      { d: '6 July 2026', h: 'Audit: what did we actually test?', hyp: 'The cluster benchmarks measured a replicated cluster.', exp: 'Read the deploy scripts against the engine\u2019s configuration.', res: 'They set the replication factor to 3 but never switched Raft on. Every cluster number so far was without replication.', v: 'corrected', vt: 'Claims corrected. Throughput numbers stand; replication claims withdrawn.' },
+      { d: '7 July 2026', h: 'The journal writer is the wall', hyp: 'Disk syncs in the journal writer cap the replicated cluster. Async durability should raise the ceiling.', exp: 'Stepped load probe with three arms on the live replicated cluster: sync, async, sync with a short linger.', res: 'The writer was never more than 46% busy. Async durability lowered the ceiling, from about 27k to about 15k.', v: 'refuted', vt: 'Refuted. Keep synchronous durability.' },
+      { d: '8 July 2026', h: 'The engine freezes under sustained load', hyp: 'Completions stall after a while because the engine actor gets stuck.', exp: 'Instrument the engine actor on the live cluster and reproduce the freeze.', res: 'The actor was idle and fast; a manual round trip took 2\u20136 ms during the freeze. Raft replication was timing out, because one socket reader handled all 12 partitions\u2019 replication messages one at a time.', v: 'fixed', vt: 'Fixed. Dispatch replication messages concurrently.' },
+    ];
+    let i = 0;
+    const entry = document.getElementById('nbEntry');
+    function show() {
+      const e = NB[i];
+      entry.className = `entry ${e.v}`;
+      entry.innerHTML = `<time>${e.d}</time><h3>${e.h}</h3><dl><dt>Hypothesis</dt><dd>${e.hyp}</dd><dt>Experiment</dt><dd>${e.exp}</dd><dt>Result</dt><dd>${e.res}</dd></dl><span class="verdict">${e.vt}</span>`;
+      entry.style.animation = 'none'; void entry.offsetWidth; entry.style.animation = '';
+      const upTo = NB.slice(0, i + 1);
+      document.getElementById('tR').textContent = upTo.filter((x) => x.v === 'refuted').length;
+      document.getElementById('tF').textContent = upTo.filter((x) => x.v === 'fixed').length;
+      document.getElementById('tC').textContent = upTo.filter((x) => x.v === 'corrected').length;
+      document.getElementById('nbPos').textContent = `${i + 1} of ${NB.length}`;
+      document.getElementById('nbPrev').disabled = i === 0;
+      document.getElementById('nbNext').textContent = i === NB.length - 1 ? 'Start again \u21ba' : 'Next experiment \u2192';
+    }
+    document.getElementById('nbNext').addEventListener('click', () => { i = (i + 1) % NB.length; show(); });
+    document.getElementById('nbPrev').addEventListener('click', () => { if (i > 0) { i--; show(); } });
+    show();
+  }
+
+  // Envelope chart: e2e p99 vs workers, offered 2,000/s. From the Nano BPM client scaling guide.
+  {
+    const svg = document.getElementById('envSvg'), NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.append(e); return e; };
+    const W = 640, H = 210, L = 64, R = 20, T = 16, B = 38, MAX = 700;
+    const X = [1024, 4096, 8192], REST = [107, 435, 625];
+    const y = (v) => H - B - v / MAX * (H - T - B);
+    const xs = (i) => L + (i + 0.5) * (W - L - R) / X.length;
+    const NOTE = {
+      rest: 'Every new job wakes every waiting worker. p99 climbs from 107 to 625&nbsp;ms, the server needs 2&ndash;3&times; the memory of streaming, and at 8,192 workers polls start timing out.',
+      stream: 'Jobs go to one subscribed worker in turn. p99 stays flat at about 105&ndash;137&nbsp;ms from 64 to 8,192 workers, on about 0.15&ndash;0.2&nbsp;MB of server memory per idle connection.',
+    };
+    function draw(t) {
+      svg.innerHTML = '';
+      for (const g of [0, 200, 400, 600]) { el('line', { x1: L, x2: W - R, y1: y(g), y2: y(g), stroke: '#e8e8e8' }); el('text', { x: L - 8, y: y(g) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#6f6f6f' }, `${g} ms`); }
+      X.forEach((w, i) => el('text', { x: xs(i), y: H - B + 18, 'text-anchor': 'middle', 'font-size': 12, fill: '#6f6f6f' }, `${w.toLocaleString('en')} workers`));
+      el('text', { x: L, y: H - 4, 'font-size': 11, fill: '#6f6f6f' }, 'End-to-end p99 latency at 2,000 instances/s offered, single node');
+      if (t === 'rest') {
+        X.forEach((_, i) => {
+          el('rect', { x: xs(i) - 40, width: 80, y: y(REST[i]), height: H - B - y(REST[i]), fill: '#ff905c' });
+          el('text', { x: xs(i), y: y(REST[i]) - 6, 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 600, fill: '#1b1b1b' }, `${REST[i]} ms`);
+        });
+      } else {
+        el('rect', { x: L, width: W - L - R, y: y(137), height: y(105) - y(137), fill: '#8785ff' });
+        el('text', { x: (L + W - R) / 2, y: y(137) - 8, 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 600, fill: '#1b1b1b' }, 'flat: 105\u2013137 ms at every worker count');
+      }
+      document.getElementById('envNote').innerHTML = NOTE[t];
+    }
+    document.getElementById('envCtl').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      document.querySelectorAll('#envCtl button').forEach((x) => x.classList.toggle('on', x === b));
+      draw(b.dataset.t);
+    });
+    draw('rest');
+  }
+</script>
+<script src="./brand/hints.js" defer></script>
+</body>
+</html>

@@ -211,12 +211,12 @@
     <div>
       <div class="kicker reveal">Loops inside loops</div>
       <h2 class="reveal d1">The tight loop sits inside bigger, slower ones.</h2>
-      <p class="reveal d2">Putting the correctness conditions in the <b>local loop</b> means the agent can iterate on its own machine, fast and cheap. Once they pass, the work moves out to <b>CI</b>, a longer loop with further guards. After it merges, <b>integration and acceptance testing</b> run. Users are the last loop of all.</p>
+      <p class="reveal d2">Putting the correctness conditions in the <b>local loop</b> means the agent can iterate on its own machine, fast and cheap. Once they pass, the work moves out to <b>CI</b>, a longer loop with further guards. After it merges, <b>integration and acceptance testing</b> run. Users are the last loop of all, and the telemetry they generate can feed agents directly (<a href="./telemetry.html">Point them at a number</a>).</p>
       <div class="legend-rows reveal d3">
         <div class="lrow"><i style="background:var(--l1)"></i><div><b>Local loop</b><span>Types &amp; compiler, unit tests, linters</span></div><em>seconds</em></div>
         <div class="lrow"><i style="background:var(--l2)"></i><div><b>CI loop</b><span>Full suite, module boundary enforcement, builds</span></div><em>minutes</em></div>
         <div class="lrow"><i style="background:var(--l3)"></i><div><b>Integration &amp; acceptance</b><span>After merge: with other systems, against real scenarios</span></div><em>hours</em></div>
-        <div class="lrow"><i style="background:var(--l4)"></i><div><b>Production</b><span>Users, monitoring, bug reports</span></div><em>days+</em></div>
+        <div class="lrow"><i style="background:var(--l4)"></i><div><b>Production</b><span>Users, monitoring, bug reports, telemetry</span></div><em>days+</em></div>
       </div>
     </div>
     <svg class="rings reveal d2" viewBox="0 0 480 480" id="rings" aria-label="Four nested loops; the inner one turns fastest">
