@@ -4,11 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Case study: the Cambrian explosion — The Software Garden</title>
-<meta name="description" content="How one engineer and one SDK became 22 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
+<meta name="description" content="Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where the bottleneck moved to review." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="The Software Garden" />
 <meta property="og:title" content="Case study: the Cambrian explosion — The Software Garden" />
-<meta property="og:description" content="How one engineer and one SDK became 22 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
+<meta property="og:description" content="Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where the bottleneck moved to review." />
 <meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/case-study.html" />
 <meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/case-study.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -126,6 +126,13 @@
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .reveal { opacity: 1; transform: none; }
   }
+  /* Three engineers */
+  .cmp { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14.5px; text-align: left; }
+  .cmp th, .cmp td { padding: 9px 10px; border-bottom: 1px solid rgba(27,27,27,.12); vertical-align: top; }
+  .cmp thead th { font-size: 13px; text-transform: uppercase; letter-spacing: .8px; opacity: .7; }
+  .cmp tbody th { font-weight: 700; width: 26%; }
+  .cmp td b { font-weight: 800; }
+  .cmp-scroll { overflow-x: auto; }
 </style>
 <link rel="stylesheet" href="./brand/brand.css" />
 </head>
@@ -141,7 +148,7 @@
   <div class="wrap single">
     <div class="kicker reveal">The Software Garden &middot; Case study</div>
     <h1 class="reveal d1">The Cambrian explosion</h1>
-    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. That engineer scaled up, and then the approach scaled out to the people around him. Here is what happened, measured from the git history of the 22 repositories it grew into, comparing the 12 months before with the last 12.</p>
+    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. That engineer scaled up, and then the approach scaled out to the people around him. Here is what happened, measured from the git history of the 22 repositories it grew into, comparing the 12 months before with the last 12. Then two more Camunda engineers, who took the same tools down different paths.</p>
     <div class="nums reveal d3">
       <div><b>20&times;</b><span>commits per month, same engineer</span></div>
       <div><b>98&times;</b><span>authored lines, generated code excluded</span></div>
@@ -156,7 +163,7 @@
 <section id="before" data-title="Before">
   <div class="wrap">
     <div>
-      <div class="kicker reveal">Before</div>
+      <div class="kicker reveal">Case study 1 &middot; Engineer A &middot; Before</div>
       <h2 class="reveal d1">One repository, tended by hand.</h2>
       <p class="reveal d2">From late 2023 to May 2025, the Camunda 8 JavaScript SDK (<code>camunda-8-js-sdk</code>) was maintained manually. It was a healthy, well-used project, and it moved at the speed of one person with a day job.</p>
       <p class="reveal d3">Every feature, test and release went through the same pair of hands.</p>
@@ -314,11 +321,76 @@
 </section>
 
 <!-- 9 ------------------------------------------------------------------------------------------>
+<section id="engineer-b" data-title="Engineer B">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Case study 2 &middot; Engineer B</div>
+      <h2 class="reveal d1">A product in five weeks, inside a fence.</h2>
+      <p class="reveal d2">Engineer B works on the SaaS console and its operations tooling. Before agents, B already shipped in small, fast steps: about 34 pull requests a month, a median of 33 changed lines, nearly all approved by a colleague.</p>
+      <p class="reveal d2">From late 2025 the rate tripled, to about 100 a month, and the pull requests grew to a median of 76 lines. Colleagues still approved 94% of them.</p>
+      <p class="reveal d3">Then B ran an experiment: build a whole product from a written plan, in one go, in a private sandbox repository. One of the first pull requests added the CI gates. After that, every pull request carries a task ID from the plan, and each one merged through those gates.</p>
+      <p class="reveal d3">The fence mattered. No person reviewed the sandbox, but in the same months B&rsquo;s work in shared repositories was still 75% approved by a colleague. Zero eyes where the blast radius is contained; human review where it is not.</p>
+    </div>
+    <div class="tl reveal d2">
+      <div class="ev" style="--c:var(--human)"><time>2024&ndash;25</time><div><b>34 PRs a month</b><span>Median 33 lines. 86% approved by a colleague, merged in about 20 minutes.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Q4 2025</time><div><b>3&times; the rate</b><span>About 100 PRs a month, median 76 lines, 94% approved by a colleague.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Spring 2026</time><div><b>New repositories</b><span>Agents for business processes, and internal tools. AI reviewers take on first-pass review: 500+ reviews in six months.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>30 Sep 2026</time><div><b>The one-shot experiment</b><span>CI gates first, then the plan. 1,912 PRs in five weeks, 97% merged, median 356 lines, median 42 minutes from open to merge. No human review, by design.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>Oct 2026</time><div><b>Back to shared work</b><span>A chat-ops bot for cluster status, built the same way.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ----------------------------------------------------------------------------------------->
+<section id="engineer-c" data-title="Engineer C">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Case study 3 &middot; Engineer C</div>
+      <h2 class="reveal d1">In a shared repository, the bottleneck moved to review.</h2>
+      <p class="reveal d2">Engineer C maintains a deployment repository that many teams depend on. Every change there is reviewed by another maintainer, and nobody wanted to change that.</p>
+      <p class="reveal d2">From April 2026 C went agentic. C&rsquo;s pull requests in that repository went from 10 a month to 47, and they got bigger. The review rule held: colleagues approved 98% of them.</p>
+      <p class="reveal d3">So the wait grew. The median time from open to merge went from 11 hours to six days. More pull requests were closed without merging, as approaches were tried and dropped.</p>
+      <p class="reveal d3">C&rsquo;s answer was to work on the gate, not around it. C reviews as much as C writes, and built tools for the queue: a multi-agent PR reviewer with domain checks, a test bed for merge-queue races, and a CLI for running agents across many repositories.</p>
+    </div>
+    <div class="before reveal d2">
+      <div><b>10 &#x2192; 47</b><span>PRs a month in the shared repository</span></div>
+      <div><b>73 &#x2192; 185</b><span>median changed lines per PR</span></div>
+      <div><b>11 h &#x2192; 6 d</b><span>median time from open to merge</span></div>
+      <div><b>98%</b><span>still approved by a colleague</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ----------------------------------------------------------------------------------------->
+<section id="three" data-title="Three shapes">
+  <div class="wrap single" style="max-width:1000px">
+    <div class="kicker reveal">Three engineers</div>
+    <h2 class="reveal d1">Same tools. Three different shapes.</h2>
+    <p class="reveal d2">Each engineer went agentic in a different setting, and the setting decided where the speed went.</p>
+    <div class="cmp-scroll reveal d2">
+      <table class="cmp">
+        <thead><tr><th></th><th>A &middot; Derive</th><th>B &middot; Fence</th><th>C &middot; Gate</th></tr></thead>
+        <tbody>
+          <tr><th>Setting</th><td>Solo-owned SDKs and tools</td><td>Product team; a private sandbox</td><td>A repository many teams depend on</td></tr>
+          <tr><th>PRs a month, before &#x2192; after</th><td><b>11 &#x2192; 95</b></td><td><b>34 &#x2192; 100</b>, and 1,900 in five weeks in the sandbox</td><td><b>18 &#x2192; 75</b></td></tr>
+          <tr><th>Median PR size</th><td>114 &#x2192; 285 lines</td><td>33 &#x2192; 317 lines</td><td>57 &#x2192; 126 lines</td></tr>
+          <tr><th>Approved by a colleague</th><td>Rarely, before and after: one owner, so the tests are the gate</td><td>Mostly in shared repos; never in the sandbox</td><td>Always, before and after</td></tr>
+          <tr><th>Median time to merge</th><td>Under an hour</td><td>Under an hour; up to 2 hours in shared repos</td><td>11 hours &#x2192; 3&ndash;6 days</td></tr>
+          <tr><th>Where the speed went</th><td>Into new repositories, languages and people</td><td>Into a whole product, fenced off</td><td>Into the review queue, and into tools to drain it</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src reveal d3">Source for this section: pull requests in Camunda&rsquo;s GitHub organisation by each engineer. &ldquo;Before&rdquo; is May 2024 &ndash; April 2025 for A and B, and May 2025 &ndash; March 2026 for C, who went agentic later. &ldquo;After&rdquo; is May &ndash; October 2026 for A and B (B without the sandbox), and April &ndash; September 2026 for C. Line counts here include generated files. AI reviewers and bots do not count as a colleague. Direct commits without a pull request, and work outside the organisation, are not included. Snapshot taken November 2026.</p>
+  </div>
+</section>
+
+<!-- 12 ----------------------------------------------------------------------------------------->
 <section id="summary" data-title="Summary">
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">The explosion came from the structure, not from the agents alone.</h2>
-    <p class="lead reveal d2">Harden the spec first. Derive the SDKs and the tests from it. Get one language right, then repeat the pattern. Then teach it: the approach scaled out to an intern and a QA team. Every principle in this series showed up here, in that order, before the curve went vertical.</p>
+    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code, watched the queue become the bottleneck, and started building for the gate.</p>
+    <p class="reveal d2">All three got faster. What they built around the agents decided where that speed went.</p>
     <div class="cta reveal d3">
       <a class="pill" href="./index.html">Back to contents</a>
       <a class="pill ghost" href="./start.html">&#x2190; Start with one garden</a>
