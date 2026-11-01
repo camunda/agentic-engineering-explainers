@@ -1,6 +1,5 @@
 ---
-title: The bottleneck moved
-description: The Software Garden: agentic engineering, from the model to the organisation. Interactive explainers on how software gets built when agents do the implementation.
+layout: chapter
 ---
 <style>
   :root {
@@ -102,7 +101,7 @@ description: The Software Garden: agentic engineering, from the model to the org
 <!-- 1 ------------------------------------------------------------------------------------------>
 <section id="intro" data-title="The bottleneck moved">
   <div class="wrap single">
-    <div class="kicker reveal">The Software Garden &middot; Organisation</div>
+    <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">The bottleneck moved</h1>
     <p class="lead reveal d1" style="font-weight:700;margin-top:-6px">The Theory of Constraints for agentic engineering.</p>
     <p class="lead reveal d2">Agents made implementation cheap. That didn't make software delivery fast: it moved the slowest step somewhere else. Rolling out agentic engineering is the work of finding that step, fixing it, and finding the next one.</p>
@@ -149,13 +148,13 @@ description: The Software Garden: agentic engineering, from the model to the org
       <p class="reveal d4">An organisation that adds agents but keeps the old process just builds a bigger queue in front of the reviewers.</p>
     </div>
     <div class="path">
-      <a class="reveal d1" href="./zero-eyes.html"><span class="n">1</span>Human review of every PR<span>07 Zero-eyes</span></a>
-      <a class="reveal d1" href="./no-flaky.html"><span class="n">2</span>Untrustworthy CI signal<span>06 No flaky tests</span></a>
-      <a class="reveal d2" href="./loops.html"><span class="n">3</span>Slow, expensive loops<span>04 Loops</span></a>
-      <a class="reveal d2" href="./enforce.html"><span class="n">4</span>Entropy in the codebase<span>08&ndash;10 Structure</span></a>
-      <a class="reveal d3" href="./merge-gate.html"><span class="n">5</span>Merging and releasing<span>12 Merge button</span></a>
-      <a class="reveal d3" href="./fails-somewhere.html"><span class="n">6</span>Validating the product<span>05 Fails somewhere</span></a>
-      <a class="reveal d4" href="./humans.html"><span class="n">7</span>Deciding what to build<span>01 Role of humans</span></a>
+      <a class="reveal d1" href="./zero-eyes.html"><span class="n">1</span>Human review of every PR<span>{{num:zero-eyes}} Zero-eyes</span></a>
+      <a class="reveal d1" href="./no-flaky.html"><span class="n">2</span>Untrustworthy CI signal<span>{{num:no-flaky}} No flaky tests</span></a>
+      <a class="reveal d2" href="./loops.html"><span class="n">3</span>Slow, expensive loops<span>{{num:loops}} Loops</span></a>
+      <a class="reveal d2" href="./enforce.html"><span class="n">4</span>Entropy in the codebase<span>{{range:Structure}} Structure</span></a>
+      <a class="reveal d3" href="./merge-gate.html"><span class="n">5</span>Merging and releasing<span>{{num:merge-gate}} Merge button</span></a>
+      <a class="reveal d3" href="./fails-somewhere.html"><span class="n">6</span>Validating the product<span>{{num:fails-somewhere}} Fails somewhere</span></a>
+      <a class="reveal d4" href="./humans.html"><span class="n">7</span>Deciding what to build<span>{{num:humans}} Role of humans</span></a>
       <p class="src reveal d4">A common order, not a law. Most chapters in this book are about elevating one of these.</p>
     </div>
   </div>
@@ -229,9 +228,7 @@ description: The Software Garden: agentic engineering, from the model to the org
     <h2 class="reveal d1">Find the constraint. Fix it. Find the next one.</h2>
     <p class="lead reveal d2">Agents removed the oldest constraint in software, so every step that used to wait on implementation is now the thing being waited on. Measure where work queues, get the most out of that step, pace the rest to it, then remove it. And very often, the first constraint you find isn't technical at all.</p>
     <div class="cta reveal d3">
-      <a class="pill" href="./mindset.html">Next: The constraint is mindset, not the model &#x2192;</a>
-      <a class="pill ghost" href="./merge-gate.html">&#x2190; The merge button is part of the system</a>
-      <a class="pill ghost" href="./index.html">Contents</a>
+      {{nav}}
     </div>
   </div>
 </section>

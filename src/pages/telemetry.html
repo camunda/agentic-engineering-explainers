@@ -1,6 +1,5 @@
 ---
-title: Point them at a number
-description: Telemetry is a test: agents in a write-build-deploy-load-measure loop hunt their own bottlenecks. Real examples from the Nano BPM engine and the Camunda SDKs, and what changes when agents start the work.
+layout: chapter
 ---
 <style>
   :root {
@@ -114,7 +113,7 @@ description: Telemetry is a test: agents in a write-build-deploy-load-measure lo
 <!-- 1 ------------------------------------------------------------------------------------------>
 <section id="intro" data-title="Point them at a number">
   <div class="wrap single">
-    <div class="kicker reveal">The Software Garden &middot; Quality</div>
+    <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">Point them at a number</h1>
     <p class="lead reveal d2">A test tells an agent pass or fail. A measurement tells it how far it has to go. Give an agent a target, a load generator and the system&rsquo;s telemetry, and it can find and remove its own bottlenecks.</p>
     <div class="scroll-hint">scroll &#x2193;</div>
@@ -252,9 +251,7 @@ description: Telemetry is a test: agents in a write-build-deploy-load-measure lo
     <h2 class="reveal d1">A number is a test that points somewhere.</h2>
     <p class="lead reveal d2">Put agents in a loop with load and telemetry and they will hunt bottlenecks, disprove their own theories and write down what they learned. Check the instruments as carefully as the code. Then give them an objective and guardrails, and let them find the work.</p>
     <div class="cta reveal d3">
-      <a class="pill" href="./no-flaky.html">Next: There are no flaky tests &#x2192;</a>
-      <a class="pill ghost" href="./fails-somewhere.html">&#x2190; All software fails somewhere</a>
-      <a class="pill ghost" href="./index.html">Contents</a>
+      {{nav}}
     </div>
   </div>
 </section>

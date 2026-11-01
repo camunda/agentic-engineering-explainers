@@ -1,6 +1,5 @@
 ---
-title: Case study: the Cambrian explosion
-description: Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged.
+layout: chapter
 ---
 <style>
   :root {
@@ -132,7 +131,7 @@ description: Three Camunda engineers after going agentic: one SDK became 22 repo
 <!-- 1 ------------------------------------------------------------------------------------------>
 <section id="intro" data-title="The Cambrian explosion">
   <div class="wrap single">
-    <div class="kicker reveal">The Software Garden &middot; Case study</div>
+    <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">The Cambrian explosion</h1>
     <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. That engineer scaled up, and then the approach scaled out to the people around him. Here is what happened, measured from the git history of the 22 repositories it grew into, comparing the 12 months before with the last 12. Then two more Camunda engineers, who took the same tools down different paths.</p>
     <div class="nums reveal d3">
@@ -419,8 +418,7 @@ description: Three Camunda engineers after going agentic: one SDK became 22 repo
     <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, used the new capacity to measure what nobody could measure before, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
     <p class="reveal d2">All three got faster. What they built around the agents decided where that speed went.</p>
     <div class="cta reveal d3">
-      <a class="pill" href="./index.html">Back to contents</a>
-      <a class="pill ghost" href="./start.html">&#x2190; Start with one garden</a>
+      {{nav}}
     </div>
   </div>
 </section>

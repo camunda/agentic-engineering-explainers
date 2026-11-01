@@ -46,26 +46,82 @@ function loadChapters() {
 
 // ---------------------------------------------------------------- rendering
 
-const esc = (s) => s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 const num = (n) => String(n).padStart(2, '0');
+const short = (c) => c.short || c.title;
+/** Text for a meta description: the chapter's own, else its card summary without markup. */
+const describe = (c) => c.description || c.summary.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;');
 
-/** Fill {{name}} placeholders; unknown names are an error so typos don't ship. */
+/**
+ * Fill {{name}} and {{name:arg}} placeholders. `vars` values are strings or functions of arg.
+ * Unknown names are an error, so a typo fails the build instead of shipping.
+ */
 function fill(template, vars, where) {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, k) => {
+  return template.replace(/\{\{([\w-]+)(?::([\w-]+))?\}\}/g, (_, k, arg) => {
     if (!(k in vars)) throw new Error(`${where}: unknown placeholder {{${k}}}`);
-    return vars[k];
+    const v = vars[k];
+    return typeof v === 'function' ? v(arg) : v;
   });
 }
 
-function headMeta(id, meta) {
-  const title = `${meta.title} — The Software Garden`;
+// ---- generated fragments (all derived from chapters.json)
+
+/** Contents page: one group heading and card list per group. */
+function toc(ch) {
+  return ch.groups.map((g) => [
+    `  <div class="group"><h3>${g.group}</h3><p>${g.blurb}</p></div>`,
+    '  <ol class="toc">',
+    ...g.chapters.map((c) => [
+      '    <li>',
+      `      <a class="card" href="./${c.id}.html">`,
+      `        <div class="thumb" style="background-image:url(./thumbs/${c.id}.jpg)"></div>`,
+      '        <div class="body">',
+      `          <h3>${short(c)}</h3>`,
+      `          <p>${c.summary}</p>`,
+      `          <div class="meta"><span>${c.kind}</span><span>${c.length}</span></div>`,
+      '        </div>',
+      '      </a>',
+      '    </li>',
+    ].join('\n')),
+    '  </ol>',
+  ].join('\n')).join('\n');
+}
+
+/** "The rest of the book" map: every chapter after the given one. */
+function chapterMap(ch, after) {
+  return ch.list.filter((c) => c.n > after.n)
+    .map((c) => `      <a href="./${c.id}.html"><b>${num(c.n)} &middot; ${short(c)}</b><span>${c.tagline}</span></a>`)
+    .join('\n');
+}
+
+/** End-of-chapter links: next (primary), previous, contents. */
+function nav(ch, c) {
+  const prev = ch.list[c.n - 1], next = ch.list[c.n + 1];
+  return [
+    next ? `<a class="pill" href="./${next.id}.html">Next: ${short(next)} &#x2192;</a>` : '<a class="pill" href="./index.html">Back to contents</a>',
+    prev && `<a class="pill ghost" href="./${prev.id}.html">&#x2190; ${short(prev)}</a>`,
+    next && '<a class="pill ghost" href="./index.html">Contents</a>',
+  ].filter(Boolean).join('\n      ');
+}
+
+/** README chapter list. */
+function readmeList(ch) {
+  return ch.groups.map((g) => {
+    const first = g.chapters[0], last = g.chapters.at(-1);
+    const range = first === last ? num(ch.byId[first.id].n) : `${num(ch.byId[first.id].n)}–${num(ch.byId[last.id].n)}`;
+    return [`**${g.group}** (${range}): ${g.blurb}`, '', ...g.chapters.map((c) => `- ${num(ch.byId[c.id].n)} [${short(c)}](https://camunda.github.io/agentic-engineering-explainers/${c.id}.html) (\`src/pages/${c.id}.html\`)`)].join('\n');
+  }).join('\n\n');
+}
+
+function headMeta(id, c) {
+  const title = `${c.title} — The Software Garden`;
+  const description = describe(c);
   return [
     `<title>${title}</title>`,
-    `<meta name="description" content="${meta.description}" />`,
+    `<meta name="description" content="${description}" />`,
     `<meta property="og:type" content="website" />`,
     `<meta property="og:site_name" content="The Software Garden" />`,
     `<meta property="og:title" content="${title}" />`,
-    `<meta property="og:description" content="${meta.description}" />`,
+    `<meta property="og:description" content="${description}" />`,
     `<meta property="og:url" content="${SITE}${id}.html" />`,
     `<meta property="og:image" content="${SITE}thumbs/${id}.jpg" />`,
     `<meta property="og:image:width" content="1200" />`,
@@ -79,14 +135,51 @@ function render(id, page, layouts, ch) {
   const { meta, content } = page;
   const layout = meta.layout || 'chapter';
   if (!(layout in layouts)) throw new Error(`${id}: unknown layout ${layout}`);
-  const cut = content.indexOf("</style>\n");
+  const c = ch.byId[id];
+  const needChapter = (name) => () => { throw new Error(`${id}: {{${name}}} only works on pages listed in chapters.json`); };
   const vars = {
-    content,
-    style: cut < 0 ? "" : content.slice(0, cut + 9),
-    body: cut < 0 ? content : content.slice(cut + 9),
-    head: meta.title ? headMeta(id, meta) : "",
+    // Usable anywhere in a page
+    num: (ref) => {
+      if (!ch.byId[ref]) throw new Error(`${id}: {{num:${ref}}}: no chapter "${ref}" in chapters.json`);
+      return num(ch.byId[ref].n);
+    },
+    range: (group) => {
+      const g = ch.groups.find((x) => x.group === group);
+      if (!g) throw new Error(`${id}: {{range:${group}}}: no group "${group}" in chapters.json`);
+      const first = ch.byId[g.chapters[0].id].n, last = ch.byId[g.chapters.at(-1).id].n;
+      return first === last ? num(first) : `${num(first)}&ndash;${num(last)}`;
+    },
+    toc: toc(ch),
+    kicker: c ? `The Software Garden &middot; ${c.group} &middot; ${num(c.n)}` : needChapter('kicker'),
+    nav: c ? nav(ch, c) : needChapter('nav'),
+    chapter_map: c ? chapterMap(ch, c) : needChapter('chapter_map'),
+    prev_href: c && ch.list[c.n - 1] ? `./${ch.list[c.n - 1].id}.html` : './index.html',
+    prev_title: c && ch.list[c.n - 1] ? short(ch.list[c.n - 1]) : 'Contents',
+    next_href: c && ch.list[c.n + 1] ? `./${ch.list[c.n + 1].id}.html` : './index.html',
+    next_title: c && ch.list[c.n + 1] ? short(ch.list[c.n + 1]) : 'Contents',
   };
-  return fill(layouts[layout], vars, `${id} (layout ${layout})`);
+  const body = fill(content, vars, id);
+  const cut = body.indexOf('</style>\n');
+  const shell = {
+    content: body,
+    style: cut < 0 ? '' : body.slice(0, cut + 9),
+    body: cut < 0 ? body : body.slice(cut + 9),
+    head: () => {
+      if (!c) throw new Error(`${id}: layout ${layout} needs a chapters.json entry for its <head>`);
+      return headMeta(id, c);
+    },
+  };
+  return fill(layouts[layout], shell, `${id} (layout ${layout})`);
+}
+
+/** Replace the generated block between the README markers. */
+function readme(ch) {
+  const file = join(ROOT, 'README.md');
+  const text = readFileSync(file, 'utf8');
+  const START = '<!-- chapters:start (generated from chapters.json by scripts/build.mjs; do not edit) -->', END = '<!-- chapters:end -->';
+  const a = text.indexOf(START), b = text.indexOf(END);
+  if (a < 0 || b < 0) throw new Error('README.md: missing chapters markers');
+  return { file, current: text, next: `${text.slice(0, a + START.length)}\n${readmeList(ch)}\n${text.slice(b)}` };
 }
 
 // ---------------------------------------------------------------- build
@@ -103,7 +196,8 @@ function build() {
     const html = render(id, parsePage(join(SRC, 'pages', `${id}.html`)), layouts, ch);
     writeFileSync(join(OUT, `${id}.html`), html);
   }
-  return { ch, ids };
+  const rd = readme(ch);
+  return { ch, ids, rd };
 }
 
 // ---------------------------------------------------------------- checks
@@ -143,8 +237,13 @@ function serve(port = Number(process.env.PORT) || 8931) {
 
 const args = new Set(process.argv.slice(2));
 try {
-  const { ids } = build();
+  const { ids, rd } = build();
   console.log(`built ${ids.length} pages into _site/`);
+  if (rd.current !== rd.next) {
+    if (args.has('--check')) { console.error('README.md chapter list is out of date: run node scripts/build.mjs and commit README.md'); process.exit(1); }
+    writeFileSync(rd.file, rd.next);
+    console.log('updated README.md chapter list');
+  }
   if (args.has('--check')) {
     const bad = checkLinks();
     if (bad.length) { console.error(`broken links:\n  ${bad.join('\n  ')}`); process.exit(1); }

@@ -1,1 +1,202 @@
-[]
+[
+  {
+    "group": "Why",
+    "blurb": "The model, where humans fit in it, and the risks it balances.",
+    "chapters": [
+      {
+        "id": "dark-factory",
+        "title": "From Dark Factory to Software Garden",
+        "summary": "Why we stopped calling it a dark factory. The metaphor that set the ambition, why it leaves people in the dark, and the garden that fits better: agents grow the code, humans tend the structure as growth wears it down.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~4 min",
+        "tagline": "Why we stopped calling it a dark factory."
+      },
+      {
+        "id": "humans",
+        "title": "The role of humans in the agentic SDLC",
+        "short": "The role of humans",
+        "summary": "Humans move to the edges: vision and validation, with agents implementing in the middle. And the answer to &ldquo;how will I know the code is any good?&rdquo;",
+        "tagline": "Vision, validation and structure.",
+        "kind": "Scroll-through",
+        "length": "~5 min"
+      },
+      {
+        "id": "garden",
+        "title": "The organisation of agents",
+        "summary": "Zoom from a colony of agents, through the processes they follow, into a codebase garden. Watch it run wild, then partly structured, then refactored into a structure that holds up at agentic speed.",
+        "tagline": "The garden in 3D: jungle, partial structure, and structure under growth.",
+        "kind": "3D &middot; guided tour",
+        "length": "Best on desktop"
+      },
+      {
+        "id": "risk",
+        "title": "Two ways to lose",
+        "summary": "Too careful loses the market; too careless loses trust. It's not the agentic part, it's the engineering part.",
+        "tagline": "Weeds and drought: too careless, or too careful. It's the engineering part.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      }
+    ]
+  },
+  {
+    "group": "Quality",
+    "blurb": "How you know it's any good, at agentic speed.",
+    "chapters": [
+      {
+        "id": "loops",
+        "title": "Agentic Loop Engineering",
+        "summary": "TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, and why it's engineering all the way down.",
+        "tagline": "Irrigation: loops that climb to correctness.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
+        "id": "fails-somewhere",
+        "title": "All software fails somewhere",
+        "summary": "All software fails somewhere. Keep the signal non-negotiable, reason at compiler speed instead of human speed, stack integration and scenario tests to find the failure conditions, and feed them back so the defect rate falls as throughput rises.",
+        "tagline": "Every garden has pests: find them early, and learn from each one.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
+        "id": "telemetry",
+        "title": "Point them at a number",
+        "description": "Telemetry is a test: agents in a write-build-deploy-load-measure loop hunt their own bottlenecks. Real examples from the Nano BPM engine and the Camunda SDKs, and what changes when agents start the work.",
+        "summary": "Telemetry is a test. Agents in a change, build, deploy, load and measure loop hunt their own bottlenecks and disprove their own theories. Check the instruments, then give agents an objective and guardrails and let them find the work.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min",
+        "tagline": "Rain gauges: measure the garden, and let the growers chase the number."
+      },
+      {
+        "id": "no-flaky",
+        "title": "There are no flaky tests",
+        "summary": "An intermittent failure is a real defect, in the test or in the product. Why noisy signals break agent loops, how to control time, and why every fix should cover the whole class of defect.",
+        "tagline": "Clean signals for the loops.",
+        "kind": "Scroll-through &middot; animated",
+        "length": "~5 min"
+      },
+      {
+        "id": "zero-eyes",
+        "title": "Zero-eyes PR approval",
+        "summary": "Agents review and fix each other's pull requests until the review is clean. Humans stop reading every PR and start engineering the loop: what escapes it, and how to make it stronger.",
+        "tagline": "Engineering the review loop instead of reading every PR.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~5 min"
+      }
+    ]
+  },
+  {
+    "group": "Structure",
+    "blurb": "Know where the model is reliable, and harden the edges at compiler speed.",
+    "chapters": [
+      {
+        "id": "envelope",
+        "title": "Every model has an envelope",
+        "summary": "Models aren't good or bad, or interchangeable. Map where yours is reliable, and harden the edges with structure.",
+        "tagline": "Know where it's reliable; put the trellises where it's thin.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~7 min"
+      },
+      {
+        "id": "enforce",
+        "title": "Rules that enforce themselves",
+        "summary": "A rule in a document is advice; a rule in the build is a fact. The enforcement ladder, ratchets, narrow exceptions, an always-green baseline, and turning review comments into checks.",
+        "tagline": "Trellises that agents can't lean past.",
+        "kind": "Scroll-through &middot; animated",
+        "length": "~5 min"
+      },
+      {
+        "id": "derive",
+        "title": "Derivation over duplication",
+        "summary": "Write each fact once and generate the rest: seven SDKs from one spec, docs and help from compiled sources, a generator you fix instead of its output, and CI that proves nothing drifted.",
+        "tagline": "One fact, one place: no twin plants to drift apart.",
+        "kind": "Scroll-through &middot; animated",
+        "length": "~5 min"
+      }
+    ]
+  },
+  {
+    "group": "System",
+    "blurb": "The tools agents use, and the gates they pass through.",
+    "chapters": [
+      {
+        "id": "agent-users",
+        "title": "Designing for agent users",
+        "summary": "Agents use our tools too. Data rather than prose, one job per output channel, respecting the context budget, dry runs, self-describing help, and SDKs whose types and errors tell the truth.",
+        "tagline": "Tools shaped for the ones doing the growing.",
+        "kind": "Scroll-through &middot; animated",
+        "length": "~5 min"
+      },
+      {
+        "id": "merge-gate",
+        "title": "The merge button is part of the system",
+        "summary": "Auto-merge is only as safe as what the branch refuses. Required checks that can actually fail, stable branches, settings drift across a fleet, a vulnerability-to-release loop with no human in it, and handing admin changes to humans.",
+        "tagline": "The garden gate.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~5 min"
+      }
+    ]
+  },
+  {
+    "group": "Organisation",
+    "blurb": "Rolling it out: people, teams, tools and bottlenecks.",
+    "chapters": [
+      {
+        "id": "constraints",
+        "title": "The bottleneck moved",
+        "summary": "The Theory of Constraints for agentic engineering: find where work waits, fix it, find the next one.",
+        "tagline": "Find the constraint, fix it, repeat.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
+        "id": "mindset",
+        "title": "The constraint is mindset, not the model",
+        "summary": "Same model, opposite results. The beliefs, incentives and learning curve that decide which.",
+        "tagline": "Beliefs, incentives, the learning curve.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
+        "id": "skill",
+        "title": "You are the skill",
+        "summary": "Tools churn. Your judgement, encoded as skills, rules and checks, is what scales.",
+        "tagline": "Encode your judgement so it scales.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
+        "id": "conway",
+        "title": "Conway's Law still holds",
+        "summary": "Features cross teams. Every repository declares what it owns, and a planning skill places each capability with its owner.",
+        "tagline": "Plan with the owner, not around them.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~7 min"
+      },
+      {
+        "id": "start",
+        "title": "Start with one garden",
+        "summary": "Choose one codebase, prepare it, prove it, and let it seed the next.",
+        "tagline": "Prepare, prove, then spread.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      }
+    ]
+  },
+  {
+    "group": "Case study",
+    "blurb": "What happened when we did it: the numbers, from the git history.",
+    "chapters": [
+      {
+        "id": "case-study",
+        "title": "Case study: the Cambrian explosion",
+        "short": "The Cambrian explosion",
+        "description": "Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged.",
+        "summary": "Three Camunda engineers, measured. One SDK became 22 repositories and seven languages; a product was built in five weeks behind a fence; and in a shared repository, each change waited longer while four times as many merged.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~11 min",
+        "tagline": "A real garden: what grew, from the git history."
+      }
+    ]
+  }
+]

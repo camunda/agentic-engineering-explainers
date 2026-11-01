@@ -2,38 +2,80 @@
 
 Agentic engineering, from the model to the organisation.
 
-Interactive explainers. `index.html` is the table of contents; each chapter is its own page:
+Interactive explainers, published at https://camunda.github.io/agentic-engineering-explainers/. Chapters, in reading order:
 
-- `dark-factory.html`: chapter 0, From Dark Factory to Software Garden: introduces the garden metaphor (scroll-through with interactive demos)
-- `humans.html`: the role of humans in the agentic SDLC (scroll-through)
-- `garden.html`: the organisation of agents (three.js semantic-zoom presentation, described below)
-- `risk.html`: Two ways to lose (scroll-through)
-- `loops.html`: Agentic Loop Engineering (scroll-through with interactive demos)
-- `fails-somewhere.html`: All software fails somewhere: keep the defect rate falling as throughput rises (scroll-through with interactive demos)
-- `telemetry.html`: Point them at a number: telemetry-driven agent loops, the Nano BPM ceiling hunt, SDK performance envelopes, agents starting the work (scroll-through with interactive demos)
-- `no-flaky.html`: There are no flaky tests (scroll-through)
-- `zero-eyes.html`: Zero-eyes PR approval (scroll-through with interactive demos)
-- `envelope.html`: Every model has an envelope (scroll-through)
-- `enforce.html`: Rules that enforce themselves (scroll-through)
-- `derive.html`: Derivation over duplication (scroll-through)
-- `agent-users.html`: Designing for agent users (scroll-through)
-- `merge-gate.html`: The merge button is part of the system (scroll-through with interactive demos)
-- `constraints.html`: The bottleneck moved (scroll-through)
-- `mindset.html`: The constraint is mindset, not the model (scroll-through)
-- `skill.html`: You are the skill (scroll-through)
-- `conway.html`: Conway's Law still holds (scroll-through)
-- `start.html`: Start with one garden (scroll-through)
-- `case-study.html`: Case study: the Cambrian explosion, the narrative arc and productivity numbers from the git history of the 22 repos (scroll-through with an interactive chart), followed by two shorter anonymised case studies (Engineers B and C, from their pull requests in the Camunda GitHub org) and a three-way comparison. Data scripts are not in the repo; numbers are snapshots from October and November 2026
+<!-- chapters:start (generated from chapters.json by scripts/build.mjs; do not edit) -->
+**Why** (00–03): The model, where humans fit in it, and the risks it balances.
 
-Chapters are grouped on the contents page: Why (00–03), Quality (04–07), Structure (08–10), System (11–12) and Organisation (13–17).
+- 00 [From Dark Factory to Software Garden](https://camunda.github.io/agentic-engineering-explainers/dark-factory.html) (`src/pages/dark-factory.html`)
+- 01 [The role of humans](https://camunda.github.io/agentic-engineering-explainers/humans.html) (`src/pages/humans.html`)
+- 02 [The organisation of agents](https://camunda.github.io/agentic-engineering-explainers/garden.html) (`src/pages/garden.html`)
+- 03 [Two ways to lose](https://camunda.github.io/agentic-engineering-explainers/risk.html) (`src/pages/risk.html`)
 
-To add a chapter: add the page, a card in the right group's `<ol class="toc">` in `index.html` (thumbnail in `thumbs/`), an entry in the chapter map in `dark-factory.html`, and next/previous links in the end-of-chapter `cta` blocks of the page and its neighbours.
+**Quality** (04–08): How you know it's any good, at agentic speed.
 
-Branding and interactivity hints: load `brand/brand.css` after the page styles and `brand/hints.js` before `</body>`. Mark every interactive control (button, slider, toggle) with `data-hint="…"`, e.g. `data-hint="drag the slider"`. It gets a "Try it: …" label and pulses until the reader first uses it, so interactive diagrams don't read as static pictures.
+- 04 [Agentic Loop Engineering](https://camunda.github.io/agentic-engineering-explainers/loops.html) (`src/pages/loops.html`)
+- 05 [All software fails somewhere](https://camunda.github.io/agentic-engineering-explainers/fails-somewhere.html) (`src/pages/fails-somewhere.html`)
+- 06 [Point them at a number](https://camunda.github.io/agentic-engineering-explainers/telemetry.html) (`src/pages/telemetry.html`)
+- 07 [There are no flaky tests](https://camunda.github.io/agentic-engineering-explainers/no-flaky.html) (`src/pages/no-flaky.html`)
+- 08 [Zero-eyes PR approval](https://camunda.github.io/agentic-engineering-explainers/zero-eyes.html) (`src/pages/zero-eyes.html`)
+
+**Structure** (09–11): Know where the model is reliable, and harden the edges at compiler speed.
+
+- 09 [Every model has an envelope](https://camunda.github.io/agentic-engineering-explainers/envelope.html) (`src/pages/envelope.html`)
+- 10 [Rules that enforce themselves](https://camunda.github.io/agentic-engineering-explainers/enforce.html) (`src/pages/enforce.html`)
+- 11 [Derivation over duplication](https://camunda.github.io/agentic-engineering-explainers/derive.html) (`src/pages/derive.html`)
+
+**System** (12–13): The tools agents use, and the gates they pass through.
+
+- 12 [Designing for agent users](https://camunda.github.io/agentic-engineering-explainers/agent-users.html) (`src/pages/agent-users.html`)
+- 13 [The merge button is part of the system](https://camunda.github.io/agentic-engineering-explainers/merge-gate.html) (`src/pages/merge-gate.html`)
+
+**Organisation** (14–18): Rolling it out: people, teams, tools and bottlenecks.
+
+- 14 [The bottleneck moved](https://camunda.github.io/agentic-engineering-explainers/constraints.html) (`src/pages/constraints.html`)
+- 15 [The constraint is mindset, not the model](https://camunda.github.io/agentic-engineering-explainers/mindset.html) (`src/pages/mindset.html`)
+- 16 [You are the skill](https://camunda.github.io/agentic-engineering-explainers/skill.html) (`src/pages/skill.html`)
+- 17 [Conway's Law still holds](https://camunda.github.io/agentic-engineering-explainers/conway.html) (`src/pages/conway.html`)
+- 18 [Start with one garden](https://camunda.github.io/agentic-engineering-explainers/start.html) (`src/pages/start.html`)
+
+**Case study** (19): What happened when we did it: the numbers, from the git history.
+
+- 19 [The Cambrian explosion](https://camunda.github.io/agentic-engineering-explainers/case-study.html) (`src/pages/case-study.html`)
+<!-- chapters:end -->
+
+The case study's numbers are snapshots from October and November 2026; the data scripts that produced them are not in this repo.
+
+## How it's built
+
+The site is generated. Don't edit HTML in `_site/`: it's build output and isn't committed.
+
+| What | Where |
+|---|---|
+| Chapter order, groups, titles, card text, descriptions | `chapters.json` (the single source of truth) |
+| A page's styles and body | `src/pages/<id>.html`, after a front-matter block (`---`, `layout: chapter`, `---`) |
+| The shared page shell (head, sharing tags, brand.css, hints.js) | `src/layouts/chapter.html` |
+| Images, scripts, fonts, brand files | `src/assets/`, copied to the site root unchanged |
+
+    node scripts/build.mjs            # build into _site/ (also refreshes the chapter list above)
+    node scripts/build.mjs --serve    # build, serve http://localhost:8931, rebuild on save
+    node scripts/build.mjs --check    # what CI runs: build, check links, check this README is current
+
+Pages get chapter metadata through placeholders, so nothing about order or numbering is hand-written:
+
+- `{{kicker}}`: "The Software Garden · Group · NN", for the intro
+- `{{nav}}`: the end-of-chapter Next / Previous / Contents links
+- `{{num:<id>}}`: a chapter's number, e.g. `{{num:zero-eyes}}`; `{{range:<Group>}}`: a group's span, e.g. `{{range:Structure}}`
+- `{{chapter_map}}`, `{{toc}}`: the chapter map (dark-factory) and the contents cards (index)
+- `{{prev_href}}`, `{{prev_title}}`, `{{next_href}}`, `{{next_title}}`: for pages with their own navigation (garden)
+
+To add or move a chapter: add `src/pages/<id>.html` and `src/assets/thumbs/<id>.jpg` (1200×750), add or move its entry in `chapters.json`, and run the build. Numbers, cards, maps, links and this README follow. An unknown placeholder, a chapter without a page, or a broken link fails the build.
+
+Branding and interactivity hints: `src/layouts/chapter.html` loads `brand/brand.css` after the page styles and `brand/hints.js` before `</body>`. Mark every interactive control (button, slider, toggle) with `data-hint="…"`, e.g. `data-hint="drag the slider"`. It gets a "Try it: …" label and pulses until the reader first uses it, so interactive diagrams don't read as static pictures.
 
 ## The organisation of agents (`garden.html`)
 
-    cd ~/workspace/agentic-engineering-explainers && python3 -m http.server 8931
+    cd ~/workspace/agentic-engineering-explainers && node scripts/build.mjs --serve
     open http://localhost:8931            # contents
     open http://localhost:8931/garden.html
 

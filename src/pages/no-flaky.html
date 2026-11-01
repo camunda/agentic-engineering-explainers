@@ -1,6 +1,5 @@
 ---
-title: There are no flaky tests
-description: The Software Garden: agentic engineering, from the model to the organisation. Interactive explainers on how software gets built when agents do the implementation.
+layout: chapter
 ---
 <style>
   :root {
@@ -122,7 +121,7 @@ description: The Software Garden: agentic engineering, from the model to the org
 <!-- 1 ------------------------------------------------------------------------------------------>
 <section id="intro" data-title="There are no flaky tests">
   <div class="wrap single">
-    <div class="kicker reveal">The Software Garden</div>
+    <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">There are no flaky tests</h1>
     <p class="lead reveal d2">A test that sometimes passes and sometimes fails is telling you something true.<br>When agents are listening to every signal, you can't afford to stop listening to that one.</p>
     <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x1F3B2; &#x2192; &#x1F52C;</div>
@@ -268,9 +267,7 @@ not a correctness signal. Do not tighten it.
     <h2 class="reveal d1">Every red means something. Keep it that way.</h2>
     <p class="lead reveal d2">An intermittent failure is a real defect, in the test or in the product. Diagnose it, control time, scope each fix to the class of defect, and write down which signal the test now trusts. That's what lets loops climb, and lets zero-eyes approval trust green.</p>
     <div class="cta reveal d3">
-      <a class="pill" href="./zero-eyes.html">Next: Zero-eyes PR approval &#x2192;</a>
-      <a class="pill ghost" href="./telemetry.html">&#x2190; Point them at a number</a>
-      <a class="pill ghost" href="./index.html">Contents</a>
+      {{nav}}
     </div>
   </div>
 </section>
