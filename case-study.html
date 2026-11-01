@@ -266,7 +266,7 @@
       <p class="reveal d2">Customers ask how to deploy their workers: how many processes, how many workers in each, REST or gRPC streaming, which SDK. Before, the honest answer was &ldquo;profile your workload&rdquo;. Nobody had the time to measure every combination for even one SDK.</p>
       <p class="reveal d2">At agentic speed, the measurement is the cheap part. A performance matrix runs every valid combination of worker topology, SDK language, SDK mode, handler type and cluster size, locally or on Google Cloud, and publishes the results to a dashboard.</p>
       <p class="reveal d3">The answers are now specific. Prefer streaming when you run many workers: its tail latency stays flat while REST long-polling climbs. Spread workers across processes, about one event loop per core, instead of adding workers to one process. Set the C# poll interval to 25&nbsp;ms: in the Google Cloud runs, that alone took throughput from 117 to 146 jobs a second.</p>
-      <p class="reveal d3">The matrix also feeds the SDKs: it produced the proposal for threaded workers in the JavaScript SDK.</p>
+      <p class="reveal d3">The matrix also feeds the SDKs: it produced the proposal for threaded workers in the JavaScript SDK. For the method behind it, and how the conformance harness works as an oracle, see <a href="./telemetry.html">Point them at a number</a>.</p>
     </div>
     <div class="before reveal d2">
       <div><b>1,280</b><span>scenarios in the full matrix</span></div>
