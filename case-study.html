@@ -4,11 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Case study: the Cambrian explosion — The Software Garden</title>
-<meta name="description" content="Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where the bottleneck moved to review." />
+<meta name="description" content="Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="The Software Garden" />
 <meta property="og:title" content="Case study: the Cambrian explosion — The Software Garden" />
-<meta property="og:description" content="Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where the bottleneck moved to review." />
+<meta property="og:description" content="Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged." />
 <meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/case-study.html" />
 <meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/case-study.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -346,17 +346,20 @@
   <div class="wrap">
     <div>
       <div class="kicker reveal">Case study 3 &middot; Engineer C</div>
-      <h2 class="reveal d1">In a shared repository, the bottleneck moved to review.</h2>
+      <h2 class="reveal d1">Each PR waits longer. More of them get through.</h2>
       <p class="reveal d2">Engineer C maintains a deployment repository that many teams depend on. Every change there is reviewed by another maintainer, and nobody wanted to change that.</p>
       <p class="reveal d2">From April 2026 C went agentic. C&rsquo;s pull requests in that repository went from 10 a month to 47, and they got bigger. The review rule held: colleagues approved 98% of them.</p>
-      <p class="reveal d3">So the wait grew. The median time from open to merge went from 11 hours to six days. More pull requests were closed without merging, as approaches were tried and dropped.</p>
-      <p class="reveal d3">C&rsquo;s answer was to work on the gate, not around it. C reviews as much as C writes, and built tools for the queue: a multi-agent PR reviewer with domain checks, a test bed for merge-queue races, and a CLI for running agents across many repositories.</p>
+      <p class="reveal d3">The median time from open to merge went from 11 hours to six days. That looks like a slowdown. It isn&rsquo;t: merged pull requests went from 9 a month to 34. Time to merge measures how long one change waits. Throughput measures how much gets done.</p>
+      <p class="reveal d3">The reviewers scaled too. Human reviews of C&rsquo;s pull requests went from 14 a month to 69, five times as many. The queue of open pull requests grew from a handful to between 10 and 30, and it drains: it does not grow month on month. That is a longer queue, not a backlog.</p>
+      <p class="reveal d3">The wait has three parts. A first review now comes after about a day instead of a few hours, because reviewers batch their work. Most changes now get a round of comments. And after approval, a change waits about 19 hours instead of 2 for CI and the merge queue. More pull requests were also closed without merging, as approaches were tried and dropped.</p>
+      <p class="reveal d3">The risk is concentration: two reviewers do most of the reviews. C&rsquo;s answer was to work on the gate, not around it. C reviews as much as C writes, and built tools for the queue: a multi-agent PR reviewer with domain checks, a test bed for merge-queue races, and a CLI for running agents across many repositories.</p>
     </div>
     <div class="before reveal d2">
       <div><b>10 &#x2192; 47</b><span>PRs a month in the shared repository</span></div>
       <div><b>73 &#x2192; 185</b><span>median changed lines per PR</span></div>
       <div><b>11 h &#x2192; 6 d</b><span>median time from open to merge</span></div>
-      <div><b>98%</b><span>still approved by a colleague</span></div>
+      <div><b>9 &#x2192; 34</b><span>merged PRs a month</span></div>
+      <div><b>14 &#x2192; 69</b><span>human reviews a month; 98% still approved by a colleague</span></div>
     </div>
   </div>
 </section>
@@ -375,8 +378,8 @@
           <tr><th>PRs a month, before &#x2192; after</th><td><b>11 &#x2192; 95</b></td><td><b>34 &#x2192; 100</b>, and 1,900 in five weeks in the sandbox</td><td><b>18 &#x2192; 75</b></td></tr>
           <tr><th>Median PR size</th><td>114 &#x2192; 285 lines</td><td>33 &#x2192; 317 lines</td><td>57 &#x2192; 126 lines</td></tr>
           <tr><th>Approved by a colleague</th><td>Rarely, before and after: one owner, so the tests are the gate</td><td>Mostly in shared repos; never in the sandbox</td><td>Always, before and after</td></tr>
-          <tr><th>Median time to merge</th><td>Under an hour</td><td>Under an hour; up to 2 hours in shared repos</td><td>11 hours &#x2192; 3&ndash;6 days</td></tr>
-          <tr><th>Where the speed went</th><td>Into new repositories, languages and people</td><td>Into a whole product, fenced off</td><td>Into the review queue, and into tools to drain it</td></tr>
+          <tr><th>Median time to merge</th><td>Under an hour</td><td>Under an hour; up to 2 hours in shared repos</td><td>11 hours &#x2192; 3&ndash;6 days, while merged PRs a month went up almost 4&times;</td></tr>
+          <tr><th>Where the speed went</th><td>Into new repositories, languages and people</td><td>Into a whole product, fenced off</td><td>Into throughput, paid for with a longer wait per change, and into tools for the review queue</td></tr>
         </tbody>
       </table>
     </div>
@@ -389,7 +392,7 @@
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">The explosion came from the structure, not from the agents alone.</h2>
-    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code, watched the queue become the bottleneck, and started building for the gate.</p>
+    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
     <p class="reveal d2">All three got faster. What they built around the agents decided where that speed went.</p>
     <div class="cta reveal d3">
       <a class="pill" href="./index.html">Back to contents</a>
