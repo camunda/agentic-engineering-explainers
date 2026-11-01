@@ -22,7 +22,7 @@ Interactive explainers. `index.html` is the table of contents; each chapter is i
 - `skill.html`: You are the skill (scroll-through)
 - `conway.html`: Conway's Law still holds (scroll-through)
 - `start.html`: Start with one garden (scroll-through)
-- `case-study.html`: Case study: the Cambrian explosion, the narrative arc and productivity numbers from the git history of the 21 repos (scroll-through with an interactive chart). Data scripts are not in the repo; numbers are a snapshot from October 2026
+- `case-study.html`: Case study: the Cambrian explosion, the narrative arc and productivity numbers from the git history of the 22 repos (scroll-through with an interactive chart). Data scripts are not in the repo; numbers are a snapshot from October 2026
 
 Chapters are grouped on the contents page: Why (00–03), Quality (04–07), Structure (08–10), System (11–12) and Organisation (13–17).
 

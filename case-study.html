@@ -4,11 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Case study: the Cambrian explosion — The Software Garden</title>
-<meta name="description" content="How one engineer and one SDK became 21 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
+<meta name="description" content="How one engineer and one SDK became 22 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="The Software Garden" />
 <meta property="og:title" content="Case study: the Cambrian explosion — The Software Garden" />
-<meta property="og:description" content="How one engineer and one SDK became 21 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
+<meta property="og:description" content="How one engineer and one SDK became 22 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
 <meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/case-study.html" />
 <meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/case-study.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -129,11 +129,11 @@
   <div class="wrap single">
     <div class="kicker reveal">The Software Garden &middot; Case study</div>
     <h1 class="reveal d1">The Cambrian explosion</h1>
-    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. Here is what happened next, measured from the git history of the 21 repositories it grew into, comparing the 12 months before with the last 12.</p>
+    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. Here is what happened next, measured from the git history of the 22 repositories it grew into, comparing the 12 months before with the last 12.</p>
     <div class="nums reveal d3">
       <div><b>20&times;</b><span>commits per month, same engineer</span></div>
       <div><b>98&times;</b><span>authored lines, generated code excluded</span></div>
-      <div><b>1 &#x2192; 20</b><span>active repositories</span></div>
+      <div><b>1 &#x2192; 21</b><span>active repositories</span></div>
       <div><b>7</b><span>language SDKs from one spec</span></div>
     </div>
     <div class="scroll-hint">scroll &#x2193;</div>
@@ -191,7 +191,8 @@
     </div>
     <div class="tl">
       <div class="ev" style="--c:#ff905c"><time>Aug 2025</time><div><b>typed-api-workflow</b><span>Domain-typed REST API proof of concept, with a consistency analyser that checks the spec against the gateway&rsquo;s controllers. 124 commits in four weeks.</span></div></div>
-      <div class="ev" style="--c:#ff905c"><time>Feb 2026</time><div><b>camunda-schema-bundler</b><span>Bundles the multi-part spec into the single file every SDK generator consumes. 26 releases.</span></div></div>
+      <div class="ev" style="--c:#ff905c"><time>Aug 2025</time><div><b>camunda-orchestration-cluster-api</b><span>The hardened spec, extracted from the workflow repo and finished on its own, then merged upstream into <code>camunda/camunda</code>.</span></div></div>
+      <div class="ev" style="--c:#ff905c"><time>Feb 2026</time><div><b>camunda-schema-bundler</b><span>Bundles the multi-part spec, now living upstream, into the single file every SDK generator consumes. 26 releases.</span></div></div>
       <div class="ev" style="--c:#ff905c"><time>Apr 2026</time><div><b>return-of-api-added-in-analysis</b><span>Version analysis across spec releases: which endpoint arrived in which version.</span></div></div>
     </div>
   </div>
@@ -262,7 +263,7 @@
       <div><b>&ldquo;The team got bigger.&rdquo;</b>It did, from early 2026. The same engineer alone went from 182 commits a year to 3,649. Use the &ldquo;One engineer&rdquo; switch on the chart.</div>
       <div><b>&ldquo;Lines of code are a bad measure.&rdquo;</b>Agreed, so look at what shipped: releases of the published packages went from 59 a year to 438, across seven languages instead of one.</div>
     </div>
-    <p class="src reveal d3">Source: the full git history of the 21 public repositories named in this chapter, merges excluded. Bot authors (Renovate, release automation) are excluded from commit and line counts. &ldquo;Authored&rdquo; means written by a person or by an agent working for them. Snapshot taken October 2026.</p>
+    <p class="src reveal d3">Source: the full git history of the 22 public repositories named in this chapter, merges excluded. Bot authors (Renovate, release automation) are excluded from commit and line counts. &ldquo;Authored&rdquo; means written by a person or by an agent working for them. Snapshot taken October 2026.</p>
   </div>
 </section>
 
@@ -298,8 +299,8 @@
   for (const s of sections) { seen.observe(s); current.observe(s); }
   const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
 
-  // Monthly data from the git history of the 21 repositories (see "Reading the numbers").
-  const DATA = {"months":["2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10"],"series":{"commits":{"legacy":[20,8,5,28,7,1,3,16,25,17,25,40,26,70,2,35,16,21,4,0,16,38,20,8,2,10,2,0,23],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,124,0,0,0,0,0,17,2,34,30,3,0,6,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,40,57,51,85,108,148,185,149,143,249,139,111,104],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,2,0,22,4,2,11,192,318,44,50,27,107,103],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,414,611,884,245,149]},"josh":{"legacy":[18,6,5,26,7,0,3,16,25,16,24,36,26,68,2,34,16,21,4,0,12,27,17,6,0,7,1,0,23],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,124,0,0,0,0,0,17,2,7,11,1,0,0,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,40,57,37,73,108,116,115,30,21,9,14,26,31],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,2,0,22,4,2,11,187,309,26,0,0,0,0],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,414,610,881,241,149]},"add":{"legacy":[2746,82,673,3112,410,81,69,1275,2459,1007,1430,2531,2252,28074,177,6905,2028,1934,11,0,933,2776,1869,119,4,520,252,0,3847],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,70211,0,0,0,0,0,3315,223,2389,3607,415,0,690,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18630,39913,4387,18926,15469,32710,40896,30272,29371,19976,37027,33192,62786,26607],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10015,14,0,2535,4169,87,1957,31345,53142,7879,9269,5275,12547,24690],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,184925,213092,460811,210374,211314]},"joshAdd":{"legacy":[2744,61,673,3095,410,0,69,1275,2459,1006,1430,2527,2252,16409,177,6905,2028,1934,11,0,377,2678,1472,79,0,472,178,0,3847],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,70211,0,0,0,0,0,3315,223,102,1734,294,0,0,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18630,39913,4387,9444,10703,32710,25592,11469,9544,6498,2419,7117,19528,17581],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10015,14,0,2535,4169,87,1957,30239,48710,2497,0,0,0,0],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,184925,213084,459831,209298,211314]}},"repos":{"legacy":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,2,2,1,0,1,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,3,3,3,3,4,5,5,7,7],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,2,2,1,1,1,1,1],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,6,7,5]}};
+  // Monthly data from the git history of the 22 repositories (see "Reading the numbers").
+  const DATA = {"months":["2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10"],"series":{"commits":{"legacy":[20,8,5,28,7,1,3,16,25,17,25,40,26,70,2,35,16,21,4,0,16,38,20,8,2,10,2,0,23],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,129,29,3,7,1,0,17,2,34,30,3,0,6,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,40,57,51,85,108,148,185,149,143,249,139,111,104],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,2,0,22,4,2,11,192,318,44,50,27,107,103],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,414,611,884,245,149]},"josh":{"legacy":[18,6,5,26,7,0,3,16,25,16,24,36,26,68,2,34,16,21,4,0,12,27,17,6,0,7,1,0,23],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,129,29,2,7,0,0,17,2,7,11,1,0,0,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,40,57,37,73,108,116,115,30,21,9,14,26,31],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,2,0,22,4,2,11,187,309,26,0,0,0,0],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,414,610,881,241,149]},"add":{"legacy":[2746,82,673,3112,410,81,69,1275,2459,1007,1430,2531,2252,28074,177,6905,2028,1934,11,0,933,2776,1869,119,4,520,252,0,3847],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,82618,6708,16,24,6,0,3315,223,2389,3607,415,0,690,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18630,39913,4387,18926,15469,32710,40896,30272,29371,19976,37027,33192,62786,26607],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10015,14,0,2535,4169,87,1957,31345,53142,7879,9269,5275,12547,24690],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,184925,213092,460811,210374,211314]},"joshAdd":{"legacy":[2744,61,673,3095,410,0,69,1275,2459,1006,1430,2527,2252,16409,177,6905,2028,1934,11,0,377,2678,1472,79,0,472,178,0,3847],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,82618,6708,16,24,0,0,3315,223,102,1734,294,0,0,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18630,39913,4387,9444,10703,32710,25592,11469,9544,6498,2419,7117,19528,17581],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10015,14,0,2535,4169,87,1957,30239,48710,2497,0,0,0,0],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,184925,213084,459831,209298,211314]}},"repos":{"legacy":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,0,1,1,2,2,1,0,1,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,3,3,3,3,4,5,5,7,7],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,2,2,1,1,1,1,1],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,6,7,5]}};
   const FAMS = [
     { k: 'legacy', name: 'JS SDK (before)', c: '#a4a4a4' },
     { k: 'spec', name: 'Spec & analysis', c: '#ff905c' },
