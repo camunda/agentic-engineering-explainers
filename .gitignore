@@ -1,2 +1,3 @@
 # spm-managed Claude marketplace — materialized locally by `spm`, not committed.
 .spm/
+_site/
