@@ -168,6 +168,10 @@ function render(id, page, layouts, ch) {
       if (!c) throw new Error(`${id}: layout ${layout} needs a chapters.json entry for its <head>`);
       return headMeta(id, c);
     },
+    short_title: () => {
+      if (!c) throw new Error(`${id}: layout ${layout} needs a chapters.json entry for its header`);
+      return short(c);
+    },
   };
   return fill(layouts[layout], shell, `${id} (layout ${layout})`);
 }

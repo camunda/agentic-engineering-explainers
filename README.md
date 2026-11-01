@@ -54,7 +54,7 @@ The site is generated. Don't edit HTML in `_site/`: it's build output and isn't 
 |---|---|
 | Chapter order, groups, titles, card text, descriptions | `chapters.json` (the single source of truth) |
 | A page's styles and body | `src/pages/<id>.html`, after a front-matter block (`---`, `layout: chapter`, `---`) |
-| The shared page shell (head, sharing tags, brand.css, hints.js) | `src/layouts/chapter.html` |
+| The shared page shell (head, sharing tags, header bar, section dots, brand.css, hints.js) | `src/layouts/chapter.html` |
 | Images, scripts, fonts, brand files | `src/assets/`, copied to the site root unchanged |
 
     node scripts/build.mjs            # build into _site/ (also refreshes the chapter list above)
