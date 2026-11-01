@@ -140,6 +140,7 @@ layout: chapter
   <a href="#engineer-b" data-cs="2">Case study 2<small>Engineer B &middot; Fence</small></a>
   <a href="#engineer-c" data-cs="3">Case study 3<small>Engineer C &middot; Gate</small></a>
   <a href="#three" data-cs="cmp">Compare<small>Three shapes</small></a>
+  <a href="#c8ctl" data-cs="4">Case study 4<small>c8ctl &middot; Shared garden</small></a>
 </nav>
 
 <!-- 1 ------------------------------------------------------------------------------------------>
@@ -147,7 +148,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">The Cambrian explosion</h1>
-    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. That engineer scaled up, and then the approach scaled out to the people around him. Here is what happened, measured from the git history of the 22 repositories it grew into, comparing the 12 months before with the last 12. Then two more Camunda engineers, who got there on their own. Nobody taught them this approach: we found them when we started looking at how to expand it across the organisation, and each had taken a different path.</p>
+    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. That engineer scaled up, and then the approach scaled out to the people around him. Here is what happened, measured from the git history of the 22 repositories it grew into, comparing the 12 months before with the last 12. Then two more Camunda engineers, who got there on their own. Nobody taught them this approach: we found them when we started looking at how to expand it across the organisation, and each had taken a different path. Last, a shared tool where the method left the SDKs and many people grew a product inside it.</p>
     <div class="nums reveal d3">
       <div><b>20&times;</b><span>commits per month, same engineer</span></div>
       <div><b>98&times;</b><span>authored lines, generated code excluded</span></div>
@@ -430,12 +431,104 @@ layout: chapter
   </div>
 </section>
 
+<!-- 13 ----------------------------------------------------------------------------------------->
+<section id="c8ctl" data-title="c8ctl">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Case study 4 &middot; c8ctl &middot; A shared garden</div>
+      <h2 class="reveal d1">The method leaves the SDKs.</h2>
+      <p class="reveal d2"><a href="https://github.com/camunda/c8ctl"><code>c8ctl</code></a> is the Camunda 8 command-line tool. It is not an SDK, and it was not started by Engineer A. That makes it the test of whether the method is general: here it left its original domain, and other people grew a product inside it.</p>
+      <p class="reveal d2">Its originator started with a clear vision, down to the user experience: every command is a verb and a resource, like <code>c8 list pi</code>. He committed that vision first, as a plan, agent instructions and the API spec. Then he set up CI on a matrix of versions and let a coding agent run at full speed. The first day ended with every command implemented, tests, docs and a 1.0.0 release.</p>
+      <p class="reveal d3">Integration testing was done by users, with the originator as user zero. Today every merge publishes to an <code>alpha</code> channel straight away. When nobody reports a problem against an alpha, it is promoted to stable.</p>
+    </div>
+    <div class="before reveal d2">
+      <div><b>1 day</b><span>from first commit to 1.0.0, January 2026</span></div>
+      <div><b>26</b><span>people have committed; 18 of them joined after the hardening</span></div>
+      <div><b>148 &#x2192; 23</b><span>alpha releases, and the ones promoted to stable</span></div>
+      <div><b>40,600</b><span>npm downloads, 4,000&ndash;6,000 a month</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ----------------------------------------------------------------------------------------->
+<section id="c8ctl-phases" data-title="c8ctl, phase by phase">
+  <div class="wrap single" style="max-width:960px">
+    <div class="kicker reveal">Case study 4 &middot; Phase by phase</div>
+    <h2 class="reveal d1">Each phase is a chapter of this explainer.</h2>
+    <div class="tl reveal d2" style="text-align:left">
+      <div class="ev" style="--c:var(--human)"><time>Jan 2026</time><div><b>Vision at the edge, agents in the middle</b><span>The plan and the verb&ndash;resource grammar came first; a coding agent implemented every command on day one. The originator&rsquo;s issues are one-line specs, and his bug reports are integration tests: &ldquo;investigate thoroughly and fix. also look into why no tests have caught this?!&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/111">#111</a>). <a href="./humans.html">The role of humans</a>, <a href="./eleventh.html">Get to the eleventh</a>.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Feb&ndash;Mar</time><div><b>Agents as users</b><span>An issue to &ldquo;make c8ctl ready for consumption by agents&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/127">#127</a>) led to JSON help, <code>--fields</code>, <code>--dry-run</code> and a <code>CONTEXT.md</code> for agents. <a href="./agent-users.html">Designing for agent users</a>.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Apr&ndash;May</time><div><b>Make incomplete implementations impossible</b><span>Engineer A arrives: 257 commits in April. Command facts were spread over five files, repeated up to three times, and missing for most verbs (<a href="https://github.com/camunda/c8ctl/issues/223">#223</a>). One declarative command registry now drives validation, help, completion, dispatch and the README. Structural tests and lint guards keep it that way, and an allow-list of unmigrated code was ratcheted to zero (<a href="https://github.com/camunda/c8ctl/issues/300">#300</a>). <a href="./derive.html">Derivation over duplication</a>, <a href="./enforce.html">Rules that enforce themselves</a>.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>Apr &rarr;</time><div><b>No flaky tests, no stable-only testing</b><span>Intermittent failures are fixed at the cause (<a href="https://github.com/camunda/c8ctl/issues/312">#312</a>, <a href="https://github.com/camunda/c8ctl/issues/316">#316</a>, <a href="https://github.com/camunda/c8ctl/issues/344">#344</a>). In one, an agent re-ran a failing job and called it a flake; the diagnosis found a product defect, and the rule now loads for every agent (<a href="https://github.com/camunda/c8ctl/issues/656">#656</a>). Users on the alpha channel report against exact versions (<a href="https://github.com/camunda/c8ctl/issues/523">#523</a>, <a href="https://github.com/camunda/c8ctl/issues/526">#526</a>, <a href="https://github.com/camunda/c8ctl/issues/630">#630</a>). <a href="./no-flaky.html">There are no flaky tests</a>, <a href="./fails-somewhere.html">All software fails somewhere</a>.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>Jun&ndash;Oct</time><div><b>Others grow in the structure</b><span>Contributors from other teams add the commands their work needs, and run the method themselves. <a href="./start.html">Start with one garden</a>, <a href="./conway.html">Conway&rsquo;s Law still holds</a>.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ----------------------------------------------------------------------------------------->
+<section id="c8ctl-defects" data-title="A defect class, closed">
+  <div class="wrap single" style="max-width:1000px">
+    <div class="kicker reveal">Case study 4 &middot; What the registry changed</div>
+    <h2 class="reveal d1">The bugs moved from missing parts to the edges.</h2>
+    <p class="reveal d2">Before the registry, users found commands with parts missing: a <code>get</code> that did not exist, a flag rejected by every search command, a flag accepted and then ignored. When one was patched, the next one was still possible to write. <a href="https://github.com/camunda/c8ctl/issues/256">#256</a> says so: the instance was fixed, &ldquo;but the pattern is still expressible&rdquo;.</p>
+    <div class="chart reveal d2">
+      <svg viewBox="0 0 760 210" role="img" aria-label="Issues reporting an incomplete command, February to October 2026">
+<line x1="60" y1="170" x2="730" y2="170" stroke="currentColor" stroke-opacity=".3"/>
+<text x="60" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Feb</text>
+<text x="129" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Mar</text>
+<text x="205" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Apr</text>
+<text x="278" y="190" font-size="12" fill="currentColor" fill-opacity=".6">May</text>
+<text x="355" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Jun</text>
+<text x="428" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Jul</text>
+<text x="504" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Aug</text>
+<text x="580" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Sep</text>
+<text x="654" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Oct</text>
+<line x1="237" y1="32" x2="237" y2="170" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="3 3"/><text x="241" y="28" font-size="11" fill="currentColor">registry</text>
+<line x1="251" y1="48" x2="251" y2="170" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="3 3"/><text x="255" y="44" font-size="11" fill="currentColor">guards</text>
+<line x1="305" y1="64" x2="305" y2="170" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="3 3"/><text x="309" y="60" font-size="11" fill="currentColor">plugin contract</text>
+<text x="4" y="104" font-size="11" fill="currentColor" fill-opacity=".7">built-in</text><text x="4" y="144" font-size="11" fill="currentColor" fill-opacity=".7">edges</text>
+<a href="https://github.com/camunda/c8ctl/issues/41"><circle cx="72" cy="100" r="6" fill="var(--human)"><title>#41 2026-02-06: get incidents missing</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/43"><circle cx="72" cy="86" r="6" fill="var(--human)"><title>#43 2026-02-06: get form missing</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/111"><circle cx="124" cy="100" r="6" fill="var(--human)"><title>#111 2026-02-27: --between rejected by every search</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/246"><circle cx="239" cy="100" r="6" fill="var(--human)"><title>#246 2026-04-15: help empty for plugin verbs</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/256"><circle cx="239" cy="86" r="6" fill="var(--human)"><title>#256 2026-04-15: verb flag silently ignored</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/441"><circle cx="394" cy="100" r="6" fill="var(--human)"><title>#441 2026-06-17: empty resource list for run</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/358"><circle cx="286" cy="140" r="6" fill="var(--agent)"><title>#358 2026-05-04: plugins cannot declare flags</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/363"><circle cx="301" cy="140" r="6" fill="var(--agent)"><title>#363 2026-05-10: plugin name collisions</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/364"><circle cx="301" cy="126" r="6" fill="var(--agent)"><title>#364 2026-05-10: unsatisfiable plugin flag</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/407"><circle cx="335" cy="140" r="6" fill="var(--agent)"><title>#407 2026-05-24: verb aliases do not dispatch</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/593"><circle cx="649" cy="140" r="6" fill="var(--agent)"><title>#593 2026-09-29: plugin re-reads argv</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/597"><circle cx="651" cy="140" r="6" fill="var(--agent)"><title>#597 2026-09-30: global flag swallows next flag</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/638"><circle cx="683" cy="140" r="6" fill="var(--agent)"><title>#638 2026-10-13: completion after global flags</title></circle></a>
+</svg>
+    </div>
+    <p class="reveal d3">After April, one built-in report of this kind remains (<a href="https://github.com/camunda/c8ctl/issues/441">#441</a>). The rest are at the edges the registry did not cover yet: plugins, verb aliases, flag parsing and shell completion. Each got a structural fix rather than a patch: a plugin contract, and two-stage flag parsing that scopes every flag to its verb (<a href="https://github.com/camunda/c8ctl/issues/373">#373</a>).</p>
+    <p class="src reveal d3">Source: issues in <code>camunda/c8ctl</code>, open and closed, to October 2026, classified by hand. Built-in: a command, flag or help entry that was declared but missing or not wired (<a href="https://github.com/camunda/c8ctl/issues/41">#41</a>, <a href="https://github.com/camunda/c8ctl/issues/43">#43</a>, <a href="https://github.com/camunda/c8ctl/issues/111">#111</a>, <a href="https://github.com/camunda/c8ctl/issues/246">#246</a>, <a href="https://github.com/camunda/c8ctl/issues/256">#256</a>, <a href="https://github.com/camunda/c8ctl/issues/441">#441</a>). Edges: the same kind of gap in plugins, aliases, parsing or completion (<a href="https://github.com/camunda/c8ctl/issues/358">#358</a>, <a href="https://github.com/camunda/c8ctl/issues/363">#363</a>, <a href="https://github.com/camunda/c8ctl/issues/364">#364</a>, <a href="https://github.com/camunda/c8ctl/issues/407">#407</a>, <a href="https://github.com/camunda/c8ctl/issues/593">#593</a>, <a href="https://github.com/camunda/c8ctl/issues/597">#597</a>, <a href="https://github.com/camunda/c8ctl/issues/638">#638</a>). The numbers are small; the chart shows where the bugs are, not a rate.</p>
+  </div>
+</section>
+
+<!-- 16 ----------------------------------------------------------------------------------------->
+<section id="c8ctl-garden" data-title="Growing in the garden">
+  <div class="wrap single" style="max-width:1080px">
+    <div class="kicker reveal">Case study 4 &middot; Many gardeners</div>
+    <h2 class="reveal d1">The structure tells new contributors where things go.</h2>
+    <p class="reveal d2">28 people have filed issues and 26 have committed. Most arrived after the hardening, and they arrive with features, not with questions about where to put them.</p>
+    <div class="caveats three reveal d2">
+      <div><b>They add what they need</b>Teams added the commands their own work needed: wait states (<a href="https://github.com/camunda/c8ctl/issues/437">#437</a>), Business IDs (<a href="https://github.com/camunda/c8ctl/issues/438">#438</a>), job custom headers (<a href="https://github.com/camunda/c8ctl/issues/447">#447</a>), physical tenants, suspend and resume, and process-instance migration and modification (<a href="https://github.com/camunda/c8ctl/issues/628">#628</a>, <a href="https://github.com/camunda/c8ctl/issues/674">#674</a>).</div>
+      <div><b>They build to the structure</b>One contributor asked for the cluster plugin to &ldquo;declare flags instead of re-reading <code>process.argv</code>&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/593">#593</a>). Another made plugins declare the c8ctl version they need (<a href="https://github.com/camunda/c8ctl/issues/523">#523</a>). A third built an element-template migration engine in about ten small, typed, tested slices, and wrote its bugs up as defect classes (<a href="https://github.com/camunda/c8ctl/issues/643">#643</a>&ndash;<a href="https://github.com/camunda/c8ctl/issues/660">#660</a>).</div>
+      <div><b>They run the method themselves</b>The originator designed an agentic pipeline with an implementer, two independent reviewers and a deterministic merge coordinator (<a href="https://github.com/camunda/c8ctl/issues/577">#577</a>). Another engineer turned an audit into tickets for red/green checks on fixes, coverage ratchets and reports of runs that pass only on re-run (<a href="https://github.com/camunda/c8ctl/issues/664">#664</a>&ndash;<a href="https://github.com/camunda/c8ctl/issues/670">#670</a>).</div>
+    </div>
+    <p class="reveal d3">An automated repository audit in July, run by an agent skill, called c8ctl &ldquo;a near-exemplar of LLM-velocity engineering discipline&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/474">#474</a>). The same audit found the gap. The philosophy is &ldquo;if it is green, it merges&rdquo;, but <code>main</code> has no active branch protection: the ruleset exists and has never been enabled, so whoever merges checks by eye that about 84 checks are green, and agent pull requests wait for a manual click before CI runs. The October follow-up turned that into tickets (<a href="https://github.com/camunda/c8ctl/issues/664">#664</a>, <a href="https://github.com/camunda/c8ctl/issues/670">#670</a>). Until they land, the merge gate is a habit, not a fact. <a href="./merge-gate.html">The merge button is part of the system</a>.</p>
+    <p class="src reveal d3">Source: git history, issues and releases of <code>camunda/c8ctl</code>, and npm download counts for <code>@camunda8/cli</code>, to October 2026. Branch protection checked on the repository in November 2026.</p>
+  </div>
+</section>
+
 <!-- 12 ----------------------------------------------------------------------------------------->
 <section id="summary" data-title="Summary">
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">The explosion came from the structure, not from the agents alone.</h2>
-    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, used the new capacity to measure what nobody could measure before, then taught the approach to an intern and a QA team. One owner became a pod of three. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
+    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, used the new capacity to measure what nobody could measure before, then taught the approach to an intern and a QA team. One owner became a pod of three. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate. In c8ctl, a one-shot became a structure that 26 people now build in, and the next step is to make its merge gate a fact.</p>
     <p class="reveal d2">All three got faster. What they built around the agents decided where that speed went.</p>
     <div class="cta reveal d3">
       {{nav}}
@@ -463,7 +556,7 @@ layout: chapter
 
   // Case-study contents: highlight the case study in view.
   {
-    const CS = { before: '1', explosion: '1', spec: '1', sdks: '1', tests: '1', profile: '1', out: '1', research: '1', honest: '1', 'engineer-b': '2', 'engineer-c': '3', three: 'cmp', 'who-decides': 'cmp' };
+    const CS = { before: '1', explosion: '1', spec: '1', sdks: '1', tests: '1', profile: '1', out: '1', research: '1', honest: '1', 'engineer-b': '2', 'engineer-c': '3', three: 'cmp', 'who-decides': 'cmp', c8ctl: '4', 'c8ctl-phases': '4', 'c8ctl-defects': '4', 'c8ctl-garden': '4' };
     const links = [...document.querySelectorAll('nav.cases a')];
     const csObs = new IntersectionObserver((es) => {
       for (const e of es) if (e.isIntersecting) links.forEach((l) => l.classList.toggle('on', l.dataset.cs === CS[e.target.id]));

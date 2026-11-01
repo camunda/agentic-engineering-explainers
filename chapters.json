@@ -199,10 +199,10 @@
         "id": "case-study",
         "title": "Case study: the Cambrian explosion",
         "short": "The Cambrian explosion",
-        "description": "Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged.",
-        "summary": "Three Camunda engineers, measured. One SDK became 22 repositories and seven languages; a product was built in five weeks behind a fence; and in a shared repository, each change waited longer while four times as many merged.",
+        "description": "Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged. Then c8ctl, where the method left the SDKs and 26 people grew a product inside it.",
+        "summary": "Three Camunda engineers, measured. One SDK became 22 repositories and seven languages; a product was built in five weeks behind a fence; and in a shared repository, each change waited longer while four times as many merged. Then c8ctl: a one-shot that became a shared garden.",
         "kind": "Scroll-through &middot; interactive",
-        "length": "~11 min",
+        "length": "~14 min",
         "tagline": "A real garden: what grew, from the git history."
       }
     ]
