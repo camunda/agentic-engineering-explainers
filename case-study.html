@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Case study: the Cambrian explosion — The Software Garden</title>
+<meta name="description" content="How one engineer and one SDK became 21 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="The Software Garden" />
+<meta property="og:title" content="Case study: the Cambrian explosion — The Software Garden" />
+<meta property="og:description" content="How one engineer and one SDK became 21 repositories and seven language SDKs after going agentic: the narrative arc and the numbers, from the git history." />
+<meta property="og:url" content="https://camunda.github.io/agentic-engineering-explainers/case-study.html" />
+<meta property="og:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/case-study.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="750" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://camunda.github.io/agentic-engineering-explainers/thumbs/case-study.jpg" />
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  /* Headline numbers */
+  .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 26px; }
+  .nums div { background: var(--paper); padding: 16px 10px; text-align: center; }
+  .nums b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.05; }
+  .nums span { font-size: 13px; color: var(--muted); }
+
+  /* Before strip */
+  .before { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .before div { background: var(--paper); padding: 14px; font-size: 14px; }
+  .before b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: 34px; line-height: 1.1; }
+  .before span { color: var(--muted); }
+
+  /* Explosion chart */
+  .chart { background: var(--paper); padding: 16px 16px 12px; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart .ctl { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 8px; }
+  .chart .ctl .sep { width: 1px; height: 22px; background: rgba(27,27,27,.25); margin: 0 6px; }
+  .seg { padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+  .seg.on { background: var(--ink); color: #fff; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; font-size: 12.5px; margin-top: 10px; }
+  .legend i { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; }
+  .tip { min-height: 22px; font-size: 13.5px; font-weight: 600; text-align: center; margin-top: 6px; }
+
+  /* Stage timelines */
+  .tl { display: grid; gap: 8px; }
+  .tl .ev { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: start; background: var(--paper); padding: 10px 14px; font-size: 14px; border-left: 6px solid var(--c, var(--ink)); }
+  .tl .ev time { font-weight: 600; font-size: 13px; color: var(--muted); padding-top: 1px; }
+  .tl .ev b { display: block; font-size: 15px; }
+  .tl .ev span { color: var(--muted); }
+  .tl .ev code { font-size: 12.5px; }
+  .in .tl .ev { animation: slide .6s both; }
+  .in .tl .ev:nth-child(2) { animation-delay: .15s; } .in .tl .ev:nth-child(3) { animation-delay: .3s; } .in .tl .ev:nth-child(4) { animation-delay: .45s; }
+  .in .tl .ev:nth-child(5) { animation-delay: .6s; } .in .tl .ev:nth-child(6) { animation-delay: .75s; } .in .tl .ev:nth-child(7) { animation-delay: .9s; } .in .tl .ev:nth-child(8) { animation-delay: 1.05s; }
+  @keyframes slide { from { opacity: 0; transform: translateX(-16px); } }
+
+  /* SDK fan-out */
+  .langs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+  .langs div { background: var(--paper); padding: 10px 4px; text-align: center; font-size: 12px; opacity: .25; transition: opacity .5s, background .5s; }
+  .langs div b { display: block; font-size: 15px; }
+  .langs div.on { opacity: 1; background: var(--purple-400, #8785ff); }
+
+  /* Honest reading */
+  .caveats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-top: 18px; }
+  .caveats div { background: var(--paper); padding: 14px; font-size: 14.5px; }
+  .caveats b { display: block; font-size: 15.5px; margin-bottom: 4px; }
+  @media (max-width: 820px) {
+    .nums { grid-template-columns: 1fr 1fr; }
+    .caveats, .before { grid-template-columns: 1fr; }
+    .langs { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 820px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+<link rel="stylesheet" href="./brand/brand.css" />
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./index.html">The Software Garden<span>Case study: the Cambrian explosion</span></a>
+  <a class="pill" href="./index.html">&#x2190; Contents</a>
+</header>
+<nav class="dots" aria-label="Sections"></nav>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="The Cambrian explosion">
+  <div class="wrap single">
+    <div class="kicker reveal">The Software Garden &middot; Case study</div>
+    <h1 class="reveal d1">The Cambrian explosion</h1>
+    <p class="lead reveal d2">Until June 2025, one engineer maintained one SDK by hand. Then we went agentic. Here is what happened next, measured from the git history of the 21 repositories it grew into, comparing the 12 months before with the last 12.</p>
+    <div class="nums reveal d3">
+      <div><b>20&times;</b><span>commits per month, same engineer</span></div>
+      <div><b>98&times;</b><span>authored lines, generated code excluded</span></div>
+      <div><b>1 &#x2192; 20</b><span>active repositories</span></div>
+      <div><b>7</b><span>language SDKs from one spec</span></div>
+    </div>
+    <div class="scroll-hint">scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="before" data-title="Before">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Before</div>
+      <h2 class="reveal d1">One repository, tended by hand.</h2>
+      <p class="reveal d2">From late 2023 to May 2025, the Camunda 8 JavaScript SDK (<code>camunda-8-js-sdk</code>) was maintained manually. It was a healthy, well-used project, and it moved at the speed of one person with a day job.</p>
+      <p class="reveal d3">Every feature, test and release went through the same pair of hands.</p>
+    </div>
+    <div class="before reveal d2">
+      <div><b>15</b><span>commits a month</span></div>
+      <div><b>1,300</b><span>authored lines a month</span></div>
+      <div><b>5</b><span>releases a month</span></div>
+      <div><b>1</b><span>repository, 1 language</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="explosion" data-title="The explosion">
+  <div class="wrap single" style="max-width:1000px">
+    <div class="kicker reveal">The explosion</div>
+    <h2 class="reveal d1">Then the curve leaves the page.</h2>
+    <p class="reveal d2">Monthly activity across every repository in this story, coloured by what it was for. The dashed line is June 2025, when the work went agentic.</p>
+    <div class="chart reveal d2">
+      <svg id="chartSvg" viewBox="0 0 760 270" role="img" aria-label="Monthly commits by repository family, June 2024 to October 2026"></svg>
+      <div class="tip" id="chartTip">&nbsp;</div>
+      <div class="ctl" id="chartCtl" data-hint="switch between commits, lines and repositories, then hover a month">
+        <button class="seg on" data-metric="commits">Commits</button>
+        <button class="seg" data-metric="add">Authored lines</button>
+        <button class="seg" data-metric="repos">Active repos</button>
+        <span class="sep"></span>
+        <button class="seg on" data-who="all">Everyone</button>
+        <button class="seg" data-who="josh">One engineer</button>
+      </div>
+      <div class="legend" id="chartLegend"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="spec" data-title="Harden the foundation">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Stage 1 &middot; Harden the foundation</div>
+      <h2 class="reveal d1">The first thing we built wasn't an SDK. It was a better spec.</h2>
+      <p class="reveal d2">Agents generate from what you give them. So before generating clients, we made the OpenAPI specification say what the API means: domain types for keys, eventual consistency marked on every endpoint that has it, and lint rules to keep it that way.</p>
+      <p class="reveal d3">That is <a href="./derive.html">derivation over duplication</a> applied to a whole product line: one source of truth, everything else generated from it.</p>
+    </div>
+    <div class="tl">
+      <div class="ev" style="--c:#ff905c"><time>Aug 2025</time><div><b>typed-api-workflow</b><span>Domain-typed REST API proof of concept, with a consistency analyser that checks the spec against the gateway&rsquo;s controllers. 124 commits in four weeks.</span></div></div>
+      <div class="ev" style="--c:#ff905c"><time>Feb 2026</time><div><b>camunda-schema-bundler</b><span>Bundles the multi-part spec into the single file every SDK generator consumes. 26 releases.</span></div></div>
+      <div class="ev" style="--c:#ff905c"><time>Apr 2026</time><div><b>return-of-api-added-in-analysis</b><span>Version analysis across spec releases: which endpoint arrived in which version.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="sdks" data-title="One SDK, then seven">
+  <div class="wrap single" style="max-width:960px">
+    <div class="kicker reveal">Stage 2 &middot; One SDK, then seven</div>
+    <h2 class="reveal d1">Get one right. Then the next one is a copy of the pattern, not of the work.</h2>
+    <p class="reveal d2">The Orchestration Cluster API SDKs started with JavaScript. Once the spec, the generator pipeline and the test harness were proven there, each new language reused them. The gaps between languages shrank from months to weeks.</p>
+    <div class="langs reveal d3" id="langs">
+      <div data-i="0"><b>JS</b>Sep 2025</div>
+      <div data-i="1"><b>Python</b>Nov 2025</div>
+      <div data-i="2"><b>C#</b>Feb 2026</div>
+      <div data-i="3"><b>Rust</b>Jun 2026</div>
+      <div data-i="4"><b>Go</b>Jul 2026</div>
+      <div data-i="5"><b>Java</b>Sep 2026</div>
+      <div data-i="6"><b>PHP</b>Sep 2026</div>
+    </div>
+    <p class="src reveal d4">Month of first commit in each <code>orchestration-cluster-api-*</code> repository. The three oldest SDKs have shipped more than 100 releases each.</p>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="tests" data-title="Harden the tests">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Stage 3 &middot; Harden the tests</div>
+      <h2 class="reveal d1">Speed needs a signal you can trust.</h2>
+      <p class="reveal d2">Seven SDKs at agentic speed only work if &ldquo;green&rdquo; means something. So the tests were derived from the spec too: response bodies asserted against the schema, then whole test suites generated from a semantic graph of the API.</p>
+      <p class="reveal d3">The test generator became the most collaborative repository in the story: ten people have committed to it.</p>
+    </div>
+    <div class="tl">
+      <div class="ev" style="--c:#5f8a17"><time>Sep 2025</time><div><b>assert-json-body</b><span>Extracts response bodies from the OpenAPI spec and asserts them in Playwright tests. 24 releases.</span></div></div>
+      <div class="ev" style="--c:#5f8a17"><time>Apr 2026</time><div><b>api-test-generator</b><span>Semantic graph extraction and test generation from the spec. 838 commits from ten contributors.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="research" data-title="The research garden">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Stage 4 &middot; The research garden</div>
+      <h2 class="reveal d1">Then we pointed the same discipline at the process itself.</h2>
+      <p class="reveal d2">The <code>nanobpm</code> organisation started as research spikes. It became a Rust BPMN engine compatible with Camunda 8, compiled to WebAssembly to drive interactive examples in the docs and on the website, plus the orchestration we now use internally for the agentic SDLC.</p>
+      <p class="reveal d3">The biggest spike on the chart, August 2026, is mostly this garden.</p>
+    </div>
+    <div class="tl">
+      <div class="ev" style="--c:#d5f37b"><time>Jun 2026</time><div><b>nano-bpm</b><span>Rust BPM engine, with a WebAssembly build. 1,319 commits.</span></div></div>
+      <div class="ev" style="--c:#d5f37b"><time>Jun 2026</time><div><b>nano-ide</b><span>IDE extensions for Nano BPM.</span></div></div>
+      <div class="ev" style="--c:#d5f37b"><time>Jul 2026</time><div><b>nano-workforce</b><span>Opinionated agentic SDLC orchestration, built on Nano BPM.</span></div></div>
+      <div class="ev" style="--c:#d5f37b"><time>Aug 2026</time><div><b>bojtos</b><span>In-browser BPMN demo framework on the WASM engine.</span></div></div>
+      <div class="ev" style="--c:#d5f37b"><time>Sep 2026</time><div><b>nano-coder, nano-supervisor</b><span>A 6&nbsp;MB coding agent, and the supervisor and job workers that run a fleet of them.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------------------------------>
+<section id="honest" data-title="Reading the numbers">
+  <div class="wrap single" style="max-width:1000px">
+    <div class="kicker reveal">Reading the numbers honestly</div>
+    <h2 class="reveal d1">Volume isn&rsquo;t value. But these numbers survive the obvious objections.</h2>
+    <div class="caveats reveal d2">
+      <div><b>&ldquo;It&rsquo;s generated code.&rdquo;</b>Excluded. Generator output, vendored specs and lockfiles are not counted: another 3.2 million generated lines sit on top of these numbers.</div>
+      <div><b>&ldquo;Agents just make smaller commits.&rdquo;</b>The opposite. The median commit grew from 29 changed lines to 157. The commit ratio understates the change.</div>
+      <div><b>&ldquo;The team got bigger.&rdquo;</b>It did, from early 2026. The same engineer alone went from 182 commits a year to 3,649. Use the &ldquo;One engineer&rdquo; switch on the chart.</div>
+      <div><b>&ldquo;Lines of code are a bad measure.&rdquo;</b>Agreed, so look at what shipped: releases of the published packages went from 59 a year to 438, across seven languages instead of one.</div>
+    </div>
+    <p class="src reveal d3">Source: the full git history of the 21 public repositories named in this chapter, merges excluded. Bot authors (Renovate, release automation) are excluded from commit and line counts. &ldquo;Authored&rdquo; means written by a person or by an agent working for them. Snapshot taken October 2026.</p>
+  </div>
+</section>
+
+<!-- 9 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">The explosion came from the structure, not from the agents alone.</h2>
+    <p class="lead reveal d2">Harden the spec first. Derive the SDKs and the tests from it. Get one language right, then repeat the pattern. Every principle in this series showed up here, in that order, before the curve went vertical.</p>
+    <div class="cta reveal d3">
+      <a class="pill" href="./index.html">Back to contents</a>
+      <a class="pill ghost" href="./start.html">&#x2190; Start with one garden</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+  const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // Monthly data from the git history of the 21 repositories (see "Reading the numbers").
+  const DATA = {"months":["2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10"],"series":{"commits":{"legacy":[20,8,5,28,7,1,3,16,25,17,25,40,26,70,2,35,16,21,4,0,16,38,20,8,2,10,2,0,23],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,124,0,0,0,0,0,17,2,34,30,3,0,6,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,40,57,51,85,108,148,185,149,143,249,139,111,104],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,2,0,22,4,2,11,192,318,44,50,27,107,103],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,414,611,884,245,149]},"josh":{"legacy":[18,6,5,26,7,0,3,16,25,16,24,36,26,68,2,34,16,21,4,0,12,27,17,6,0,7,1,0,23],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,124,0,0,0,0,0,17,2,7,11,1,0,0,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,40,57,37,73,108,116,115,30,21,9,14,26,31],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,2,0,22,4,2,11,187,309,26,0,0,0,0],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,414,610,881,241,149]},"add":{"legacy":[2746,82,673,3112,410,81,69,1275,2459,1007,1430,2531,2252,28074,177,6905,2028,1934,11,0,933,2776,1869,119,4,520,252,0,3847],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,70211,0,0,0,0,0,3315,223,2389,3607,415,0,690,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18630,39913,4387,18926,15469,32710,40896,30272,29371,19976,37027,33192,62786,26607],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10015,14,0,2535,4169,87,1957,31345,53142,7879,9269,5275,12547,24690],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,184925,213092,460811,210374,211314]},"joshAdd":{"legacy":[2744,61,673,3095,410,0,69,1275,2459,1006,1430,2527,2252,16409,177,6905,2028,1934,11,0,377,2678,1472,79,0,472,178,0,3847],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,70211,0,0,0,0,0,3315,223,102,1734,294,0,0,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18630,39913,4387,9444,10703,32710,25592,11469,9544,6498,2419,7117,19528,17581],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10015,14,0,2535,4169,87,1957,30239,48710,2497,0,0,0,0],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,184925,213084,459831,209298,211314]}},"repos":{"legacy":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],"spec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,2,2,1,0,1,0,0],"sdks":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,3,3,3,3,4,5,5,7,7],"tests":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,2,2,1,1,1,1,1],"nano":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,6,7,5]}};
+  const FAMS = [
+    { k: 'legacy', name: 'JS SDK (before)', c: '#a4a4a4' },
+    { k: 'spec', name: 'Spec & analysis', c: '#ff905c' },
+    { k: 'sdks', name: 'Language SDKs', c: '#8785ff' },
+    { k: 'tests', name: 'Test generation', c: '#5f8a17' },
+    { k: 'nano', name: 'nanobpm research', c: '#d5f37b' },
+  ];
+  {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('chartSvg'), tip = document.getElementById('chartTip');
+    const W = 760, H = 270, L = 58, R = 10, T = 14, B = 34;
+    let metric = 'commits', who = 'all', shown = 0;
+    const el = (tag, a, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); parent.append(e); return e; };
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const label = (m) => `${MON[+m.slice(5) - 1]} ${m.slice(0, 4)}`;
+    const trim = (x) => String(+x.toFixed(1));
+    const fmt = (n) => n >= 1e6 ? `${trim(n / 1e6)}M` : n >= 1e4 ? `${Math.round(n / 1e3)}k` : n >= 1e3 ? `${trim(n / 1e3)}k` : String(n);
+    const values = () => {
+      if (metric === 'repos') return DATA.repos;
+      const key = metric === 'commits' ? (who === 'josh' ? 'josh' : 'commits') : (who === 'josh' ? 'joshAdd' : 'add');
+      return DATA.series[key];
+    };
+    const UNIT = { commits: 'commits', add: 'authored lines', repos: 'active repositories' };
+    function draw(grow = 1) {
+      svg.innerHTML = '';
+      const v = values(), n = DATA.months.length;
+      const totals = DATA.months.map((_, i) => FAMS.reduce((s, f) => s + v[f.k][i], 0));
+      // Nice tick step: the smallest of 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 7.5, 8 x 10^k that fits four gridlines.
+      const raw = Math.max(...totals, 1), q = raw / 4, mag = Math.pow(10, Math.floor(Math.log10(q)));
+      const step = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 7.5, 8, 10].map((k) => k * mag).find((st) => st >= q);
+      const max = step * 4;
+      const bw = (W - L - R) / n, y = (x) => H - B - (x / max) * (H - T - B) * grow;
+      for (let g = 0; g <= 4; g++) {
+        const val = step * g, yy = H - B - (val / max) * (H - T - B);
+        el('line', { x1: L, x2: W - R, y1: yy, y2: yy, stroke: '#e8e8e8' });
+        el('text', { x: L - 8, y: yy + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#6f6f6f' }).textContent = fmt(Math.round(val));
+      }
+      DATA.months.forEach((m, i) => {
+        let acc = 0; const x = L + i * bw;
+        for (const f of FAMS) {
+          const val = v[f.k][i]; if (!val) continue;
+          el('rect', { x: x + 1.5, width: bw - 3, y: y(acc + val), height: Math.max(0, y(acc) - y(acc + val)), fill: f.c });
+          acc += val;
+        }
+        if (m.endsWith('-01') || m === DATA.months[0]) el('text', { x: x + bw / 2, y: H - B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: '#6f6f6f' }).textContent = m.endsWith('-01') ? m.slice(0, 4) : label(m);
+        const hit = el('rect', { x, y: T, width: bw, height: H - T - B, fill: 'transparent', style: 'cursor:crosshair' });
+        const show = () => {
+          const parts = FAMS.filter((f) => v[f.k][i]).map((f) => `${f.name} ${fmt(v[f.k][i])}`);
+          tip.textContent = `${label(m)}: ${fmt(totals[i])} ${UNIT[metric]}${parts.length > 1 ? ` (${parts.join(', ')})` : ''}`;
+        };
+        hit.addEventListener('mouseenter', show); hit.addEventListener('click', show);
+      });
+      const gx = L + DATA.months.indexOf('2025-06') * bw;
+      el('line', { x1: gx, x2: gx, y1: T, y2: H - B, stroke: '#fc5d0d', 'stroke-width': 2, 'stroke-dasharray': '5 4' });
+      el('text', { x: gx + 6, y: T + 12, 'font-size': 12, 'font-weight': 600, fill: '#fc5d0d' }).textContent = 'June 2025: agentic';
+      el('line', { x1: L, x2: W - R, y1: H - B, y2: H - B, stroke: '#a4a4a4' });
+    }
+    document.getElementById('chartLegend').innerHTML = FAMS.map((f) => `<span><i style="background:${f.c}"></i>${f.name}</span>`).join('');
+    document.getElementById('chartCtl').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.metric) metric = b.dataset.metric;
+      if (b.dataset.who) who = b.dataset.who;
+      document.querySelectorAll('#chartCtl [data-metric]').forEach((x) => x.classList.toggle('on', x.dataset.metric === metric));
+      document.querySelectorAll('#chartCtl [data-who]').forEach((x) => { x.classList.toggle('on', x.dataset.who === who); x.disabled = metric === 'repos'; x.style.opacity = metric === 'repos' ? .35 : 1; });
+      tip.innerHTML = '&nbsp;';
+      draw();
+    });
+    draw(0);
+    onEnter('explosion', async () => { for (let k = 1; k <= 30; k++) { draw(1 - Math.pow(1 - k / 30, 3)); await sleep(30); } });
+  }
+
+  // SDK fan-out: languages light up in order.
+  onEnter('sdks', async () => { await sleep(500); for (const d of document.querySelectorAll('#langs div')) { d.classList.add('on'); await sleep(320); } });
+</script>
+<script src="./brand/hints.js" defer></script>
+</body>
+</html>
