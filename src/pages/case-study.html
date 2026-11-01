@@ -263,7 +263,7 @@ layout: chapter
     <p class="reveal d2">An approach that only works for the person who invented it is a trick. This one transferred: to a student who learned it from scratch, and to a team that took a whole repository over.</p>
     <div class="out reveal d3">
       <div>
-        <h3>From work experience to SDK owner</h3>
+        <h3>From work experience to SDK co-owner</h3>
         <p>She joined as a student intern on work experience and learned agentic engineering from scratch. She is now an engineer on staff.</p>
         <svg id="internSvg" viewBox="0 0 460 190" role="img" aria-label="Former intern: commits per month and number of repositories, March to October 2026"></svg>
         <ol>
@@ -272,7 +272,7 @@ layout: chapter
           <li><b>Jul 2026:</b> leads the Go SDK. 123 of its 137 human commits are hers.</li>
           <li><b>Sep 2026:</b> leads the Java SDK. 64 of 72.</li>
         </ol>
-        <p class="src" style="margin-top:8px">870 commits and 167k authored lines across 9 repositories in eight months.</p>
+        <p class="src" style="margin-top:8px">870 commits and 167k authored lines across 9 repositories in eight months. She is now a co-owner of the SDKs and the principal driver of several of them.</p>
       </div>
       <div>
         <h3>The QA team took over the test generator</h3>
@@ -283,6 +283,12 @@ layout: chapter
           <li>The QA team runs its own automation on it, pinning the spec and opening PRs.</li>
           <li>Four student interns contribute too. Their open pull requests extend it to generate SDK test suites for JS, Python and C#.</li>
         </ol>
+      </div>
+    </div>
+    <div class="out reveal d3" style="grid-template-columns:1fr;margin-top:12px">
+      <div>
+        <h3>From one owner to a pod of three</h3>
+        <p>Before going agentic, one engineer owned the SDK. Now the SDKs have an SDK pod of three people. The former intern co-owns them and drives several. A third engineer brings the human bus factor down, and supports the SDKs in production with an agent that picks up production issues, so a report from the field becomes a fix without pulling the others off their work.</p>
       </div>
     </div>
   </div>
@@ -376,10 +382,10 @@ layout: chapter
       <table class="cmp">
         <thead><tr><th></th><th>A &middot; Derive</th><th>B &middot; Fence</th><th>C &middot; Gate</th></tr></thead>
         <tbody>
-          <tr><th>Setting</th><td>Solo-owned SDKs and tools</td><td>Product team; a private sandbox</td><td>A repository many teams depend on</td></tr>
+          <tr><th>Setting</th><td>SDKs and tools: one owner before, a pod of three after</td><td>Product team; a private sandbox</td><td>A repository many teams depend on</td></tr>
           <tr><th>PRs a month, before &#x2192; after</th><td><b>11 &#x2192; 95</b></td><td><b>34 &#x2192; 100</b>, and 1,900 in five weeks in the sandbox</td><td><b>18 &#x2192; 75</b></td></tr>
           <tr><th>Median PR size</th><td>114 &#x2192; 285 lines</td><td>33 &#x2192; 317 lines</td><td>57 &#x2192; 126 lines</td></tr>
-          <tr><th>Approved by a colleague</th><td>Rarely, before and after: one owner, so the tests are the gate</td><td>Mostly in shared repos; never in the sandbox</td><td>Always, before and after</td></tr>
+          <tr><th>Approved by a colleague</th><td>Rarely, before and after. Before: one owner. After: the tests and the agent loop are the gate</td><td>Mostly in shared repos; never in the sandbox</td><td>Always, before and after</td></tr>
           <tr><th>Median time to merge</th><td>Under an hour</td><td>Under an hour; up to 2 hours in shared repos</td><td>11 hours &#x2192; 3&ndash;6 days, while merged PRs a month went up almost 4&times;</td></tr>
           <tr><th>Where the speed went</th><td>Into new repositories, languages and people</td><td>Into a whole product, fenced off</td><td>Into throughput, paid for with a longer wait per change, and into tools for the review queue</td></tr>
         </tbody>
@@ -410,7 +416,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">The explosion came from the structure, not from the agents alone.</h2>
-    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, used the new capacity to measure what nobody could measure before, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
+    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, used the new capacity to measure what nobody could measure before, then taught the approach to an intern and a QA team. One owner became a pod of three. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
     <p class="reveal d2">All three got faster. What they built around the agents decided where that speed went.</p>
     <div class="cta reveal d3">
       {{nav}}
