@@ -82,6 +82,11 @@ layout: chapter
   .sp b { display: block; font-size: 15.5px; }
   .sp span { font-size: 13.5px; color: var(--muted); }
 
+  /* Two levels */
+  .levels .sw { display: flex; gap: 8px; margin-bottom: 12px; }
+  .levels .sp b small { display: block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .levels .sp { transition: background .3s; }
+  .levels.dx .sp { background: #ecebff; }
   @media (max-width: 820px) {
     .wrap, .twocol { grid-template-columns: 1fr; }
     nav.dots { display: none; }
@@ -210,12 +215,39 @@ layout: chapter
   </div>
 </section>
 
+<!-- 7b ----------------------------------------------------------------------------------------->
+<section id="two-levels" data-title="Two users, two levels">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The plants and the structure</div>
+      <h2 class="reveal d1">We design the product for its users, and the codebase for its contributors. Most contributors are agents.</h2>
+      <p class="reveal d2">The best interfaces make documentation a fallback, not a prerequisite. Nobody reads a manual before using a phone or an email app. The interface shows what is possible, and the obvious move is the right one.</p>
+      <p class="reveal d2">A codebase is an interface too, and its users are the agents that change it. So we design the contributor experience the way we design the product: easy to get right, and impossible to get wrong silently. Where the structure can&rsquo;t prevent a mistake, a check catches it at once and says how to fix it.</p>
+      <p class="reveal d3">So we work on two levels at once. Product UX is the plants: what users see. Code DX is the structure they grow in: the beds, the trellis and the paths. Instructions help, but <a href="./enforce.html">a rule in a document is advice</a>. The structure is what makes the right thing happen.</p>
+    </div>
+    <div class="levels reveal d2" id="levels">
+      <div class="sw" data-hint="switch between the product and the codebase">
+        <button class="pill" data-level="ux">Product UX &middot; users</button>
+        <button class="pill ghost" data-level="dx">Code DX &middot; agents</button>
+      </div>
+      <div class="sdkp">
+        <div class="sp"><b><small>Discoverable</small><span data-ux="The grammar is the guide" data-dx="The pattern is the guide"></span></b><span data-ux="Every c8ctl command is a verb and a resource, like &lt;code&gt;c8 list pi&lt;/code&gt;. Learn one and you can guess the rest. &lt;code&gt;c8ctl help&lt;/code&gt; describes the whole tree." data-dx="Adding a command means calling &lt;code&gt;defineCommand()&lt;/code&gt;. There is one way to do it, and an agent that has seen one command can write the next."></span></div>
+        <div class="sp"><b><small>Complete by construction</small><span data-ux="Nothing half-finished" data-dx="Nothing to forget"></span></b><span data-ux="Every command has help, completion and validation, and they agree with what the tool accepts." data-dx="Help, completion and validation are &lt;a href=&quot;./derive.html&quot;&gt;derived&lt;/a&gt; from the command registry, so a contributor cannot forget them. A structural test fails if a command goes around the registry."></span></div>
+        <div class="sp"><b><small>Feedback</small><span data-ux="Errors with a next step" data-dx="Checks that name the fix"></span></b><span data-ux="A failed connection prints the URL it tried and what to check next, not a stack trace." data-dx="A lint rule in c8ctl stops command handlers calling &lt;code&gt;process.exit&lt;/code&gt;, and its message says what to do instead: &amp;ldquo;Throw a typed Error instead&amp;rdquo;, with a pointer to the guide and the test."></span></div>
+        <div class="sp"><b><small>Look before you leap</small><span data-ux="Preview the action" data-dx="Preview the change"></span></b><span data-ux="&lt;code&gt;--dry-run&lt;/code&gt; shows what a command would do before it does it." data-dx="Red/green tests and a type check that runs in seconds tell the agent whether a change is right before anyone reviews it."></span></div>
+      </div>
+      <p class="src">The same principles at both levels. Examples from <code>c8ctl</code>; see <a href="./case-study.html#c8ctl">Case study 4</a>.</p>
+    </div>
+  </div>
+</section>
+
 <!-- 8 ------------------------------------------------------------------------------------------>
 <section id="summary" data-title="Summary">
   <div class="wrap single">
     <div class="kicker reveal">So</div>
-    <h2 class="reveal d1">Agents are users. Design for them on purpose.</h2>
+    <h2 class="reveal d1">Agents are users, of the product and of the codebase. Design for them on purpose.</h2>
     <p class="lead reveal d2">Give them data, not prose. Give each channel one job. Respect their context budget. Let them preview before acting. Make the tool describe itself from its single source of truth. And make types, errors and examples tell the truth, because that's where agents look.</p>
+    <p class="reveal d2">Then do the same one level down. Shape the codebase so the obvious change is the right one, and any wrong one fails at once with a fix in the message. The product is the plants; the codebase is the structure they grow in.</p>
     <div class="cta reveal d3">
       {{nav}}
     </div>
@@ -239,6 +271,19 @@ layout: chapter
     for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
   }, { rootMargin: '-45% 0px -45% 0px' });
   for (const s of sections) { seen.observe(s); current.observe(s); }
+
+  // Two levels: product UX vs code DX.
+  {
+    const box = document.getElementById('levels');
+    const btns = [...box.querySelectorAll('[data-level]')];
+    const show = (lv) => {
+      box.classList.toggle('dx', lv === 'dx');
+      btns.forEach((b) => b.classList.toggle('ghost', b.dataset.level !== lv));
+      for (const el of box.querySelectorAll('[data-ux]')) el.innerHTML = el.dataset[lv];
+    };
+    btns.forEach((b) => b.addEventListener('click', () => show(b.dataset.level)));
+    show('ux');
+  }
   const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
 
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');

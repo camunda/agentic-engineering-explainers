@@ -40,7 +40,7 @@ Interactive explainers, published at https://camunda.github.io/agentic-engineeri
 - 18 [Conway's Law still holds](https://camunda.github.io/agentic-engineering-explainers/conway.html) (`src/pages/conway.html`)
 - 19 [Start with one garden](https://camunda.github.io/agentic-engineering-explainers/start.html) (`src/pages/start.html`)
 
-**Case study** (20): What happened when we did it: the numbers, from the git history.
+**Case studies** (20): What happened when we did it: the numbers, from the git history.
 
 - 20 [The Cambrian explosion](https://camunda.github.io/agentic-engineering-explainers/case-study.html) (`src/pages/case-study.html`)
 <!-- chapters:end -->

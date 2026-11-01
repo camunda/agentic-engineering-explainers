@@ -122,10 +122,10 @@
       {
         "id": "agent-users",
         "title": "Designing for agent users",
-        "summary": "Agents use our tools too. Data rather than prose, one job per output channel, respecting the context budget, dry runs, self-describing help, and SDKs whose types and errors tell the truth.",
+        "summary": "Agents use our tools too. Data rather than prose, one job per output channel, respecting the context budget, dry runs, self-describing help, and SDKs whose types and errors tell the truth. And one level down: a codebase designed for the agents that change it.",
         "tagline": "Tools shaped for the ones doing the growing.",
-        "kind": "Scroll-through &middot; animated",
-        "length": "~5 min"
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
       },
       {
         "id": "eleventh",
@@ -192,7 +192,7 @@
     ]
   },
   {
-    "group": "Case study",
+    "group": "Case studies",
     "blurb": "What happened when we did it: the numbers, from the git history.",
     "chapters": [
       {
