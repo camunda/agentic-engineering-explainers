@@ -1,0 +1,215 @@
+---
+layout: chapter
+---
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .card { background: var(--paper); border-radius: 22px; padding: 22px; box-shadow: 0 10px 30px rgba(27,27,27,.12); }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 13px; }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+
+  /* Conclusion */
+  .tl { display: grid; gap: 8px; }
+  .tl .ev { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: start; background: var(--paper); padding: 10px 14px; font-size: 14px; border-left: 6px solid var(--c, var(--ink)); }
+  .tl .ev time { font-weight: 600; font-size: 13px; color: var(--muted); padding-top: 1px; }
+  .tl .ev b { display: block; font-size: 15px; }
+  .tl .ev span { color: var(--muted); }
+  .tl .ev code { font-size: 12.5px; }
+  .factors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 26px; text-align: left; }
+  .factors .card h3 { margin: 6px 0 8px; font-size: 20px; }
+  .factors .card p { font-size: 15px; }
+  .quote { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.3; font-weight: 700; }
+  .bars { background: var(--paper); border-radius: 22px; padding: 20px; }
+  .bars .sw { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .bar { margin: 12px 0; }
+  .bar .row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; }
+  .bar .track { height: 18px; border-radius: 9px; background: rgba(27,27,27,.08); overflow: hidden; margin-top: 4px; }
+  .bar .track i { display: block; height: 100%; border-radius: 9px; transition: width 1s ease, background .5s; }
+  .bars .cap { font-size: 14.5px; font-weight: 700; min-height: 66px; margin-top: 12px; }
+  @media (max-width: 820px) {
+    .wrap, .twocol, .factors { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+    .term { font-size: 11px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Agency, not AGENTS.md">
+  <div class="wrap single">
+    <div class="kicker reveal">{{kicker}}</div>
+    <h1 class="reveal d1">Agency, not AGENTS.md</h1>
+    <p class="lead reveal d2">Everything in this explainer can be written down: the loops, the rules, the gates, the skills. Most of it already is, in files an agent reads. But the files are not what made the difference. The people who wrote them did.</p>
+    <div class="scroll-hint">scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="operators" data-title="Same tools">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Same tools, different results</div>
+      <h2 class="reveal d1">The hot takes aren&rsquo;t delusion. They&rsquo;re operator skill.</h2>
+      <p class="reveal d2">Everyone has the same models and the same tools. Some engineers say agents are useless; others say they have changed everything. Both are usually reporting honestly what happened to them.</p>
+      <p class="reveal d3">The difference is the operator. The same model, given a vague prompt in an unprepared codebase, produces plausible rubbish. Given a hard correctness signal, a structure that makes the right change obvious and an operator who reads the failures, it climbs. <a href="./mindset.html">Same model, opposite results</a>; <a href="./skill.html">the model is the same for everyone, your judgement isn&rsquo;t</a>.</p>
+    </div>
+    <div class="card reveal d2">
+      <p class="quote">&ldquo;It doesn&rsquo;t work&rdquo; and &ldquo;it changed everything&rdquo; are both true reports.</p>
+      <p class="muted">They describe the operator and the codebase as much as the model. That is good news: models are bought, but operator skill can be learned.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="factors" data-title="Three factors">
+  <div class="wrap single" style="max-width:1080px">
+    <div class="kicker reveal">What made the difference</div>
+    <h2 class="reveal d1">Curiosity, openness, and a systems engineering mindset.</h2>
+    <p class="reveal d2">Across the case studies, the engineers who got there had three things in common. None of them is a tool.</p>
+    <div class="factors">
+      <div class="card reveal d2">
+        <span class="tag" style="background:var(--human)">Curiosity</span>
+        <h3>Try it, and find out</h3>
+        <p class="muted">Engineer B built a whole product from a plan in five weeks, just to see what would happen. Engineer A pointed the spare capacity at questions nobody could afford to ask before: profile every workload, then research the process itself. (<a href="./three-shapes.html">Three shapes</a>, <a href="./case-study.html">the Cambrian explosion</a>.)</p>
+      </div>
+      <div class="card reveal d3">
+        <span class="tag" style="background:var(--agent)">Openness</span>
+        <h3>Let the method change you</h3>
+        <p class="muted">Changing how you work means letting go of the craft you were proud of. Openness also points outward: Engineer A taught the approach to an intern and a QA team, and c8ctl took contributions from 26 people. (<a href="./c8ctl.html">c8ctl</a>.)</p>
+      </div>
+      <div class="card reveal d4">
+        <span class="tag" style="background:var(--ink)">Systems thinking</span>
+        <h3>Work on the system, not the output</h3>
+        <p class="muted">Each of them built structure around the agents: a fence, a gate, a loop, a registry that makes incomplete commands impossible. They fixed the class, not the instance. (<a href="./enforce.html">Rules that enforce themselves</a>, <a href="./constraints.html">The bottleneck moved</a>.)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="attitude" data-title="Attitude first">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Attitude precedes experience</div>
+      <h2 class="reveal d1">Nobody started with the experience. They started with the attitude.</h2>
+      <p class="reveal d2">Engineers B and C were not taught this. We found them when we went looking for people to spread it to, and they were already there, by different paths. What they shared was not prior experience with agents; nobody had much. It was the willingness to try, to look at the results honestly, and to change the system when it failed.</p>
+      <p class="reveal d3">The experience came afterwards, from doing it. That means you can&rsquo;t hire for this experience yet, and you don&rsquo;t need to. Look for the attitude, give it a <a href="./start.html">garden to start in</a>, and the skill follows.</p>
+    </div>
+    <div class="tl reveal d2">
+      <div class="ev" style="--c:var(--human)"><time>1</time><div><b>Attitude</b><span>Curious enough to try, open enough to change how you work.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>2</time><div><b>Practice</b><span>Run the loop, watch it fail, fix the system rather than the output.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>3</time><div><b>Experience</b><span>Judgement about where the model is reliable, written down as rules, skills and checks.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="outcomes" data-title="Three outcomes">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The outcomes</div>
+      <h2 class="reveal d1">Velocity, innovation, and, almost paradoxically, stability.</h2>
+      <p class="reveal d2"><b>Velocity:</b> 20&times; the commits a month for the same engineer, one repository becoming 21, a product in five weeks. <b>Innovation:</b> seven language SDKs from one spec, a performance matrix nobody had time to build, a research garden, a template migration engine in c8ctl.</p>
+      <p class="reveal d3"><b>Stability</b> is the surprising one. Going fast with agents breaks things quickly, so you can&rsquo;t ignore the cracks. You build the structure that stops them: derived code, self-enforcing rules, no flaky tests, a merge gate only green changes pass. In c8ctl, a whole class of bug stopped appearing once the registry made it impossible to write. Done right, the speed pays for the stability, and the stability makes the speed safe.</p>
+    </div>
+    <div class="bars reveal d2" id="bars">
+      <div class="sw" data-hint="compare speed with and without structure">
+        <button class="pill" data-m="tool">Agents only</button>
+        <button class="pill ghost" data-m="system">Agents + structure</button>
+      </div>
+      <div class="bar"><div class="row"><span>Velocity</span></div><div class="track"><i data-k="v"></i></div></div>
+      <div class="bar"><div class="row"><span>Innovation</span></div><div class="track"><i data-k="i"></i></div></div>
+      <div class="bar"><div class="row"><span>Stability</span></div><div class="track"><i data-k="s"></i></div></div>
+      <div class="cap" id="barsCap"></div>
+      <p class="src">Illustrative, not measured. The measured numbers are in the case studies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">AGENTS.md is a file. Agency is a stance.</h2>
+    <p class="lead reveal d2">The tools are the same for everyone. What differs is the operator: curious enough to try, open enough to change, and thinking in systems rather than outputs. Start with that attitude, and the experience follows. Done right, you get more speed, more new things, and, perhaps surprisingly, more stability.</p>
+    <div class="cta reveal d3">
+      {{nav}}
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+
+
+  // Outcomes: agents alone vs agents with structure (illustrative).
+  {
+    const box = document.getElementById('bars');
+    const btns = [...box.querySelectorAll('[data-m]')];
+    const M = {
+      tool: { v: [70, 'var(--warn)'], i: [35, 'var(--warn)'], s: [20, 'var(--bad)'], cap: 'Fast at first. Then the breakages pile up, review becomes the bottleneck, and the speed gets spent on fixing what it broke.' },
+      system: { v: [92, 'var(--ok)'], i: [80, 'var(--ok)'], s: [85, 'var(--ok)'], cap: 'The structure catches whole classes of mistake, so speed stops costing stability, and the spare capacity goes into new things.' },
+    };
+    const show = (m) => {
+      btns.forEach((b) => b.classList.toggle('ghost', b.dataset.m !== m));
+      for (const i of box.querySelectorAll('i[data-k]')) { const [w, c] = M[m][i.dataset.k]; i.style.width = w + '%'; i.style.background = c; }
+      document.getElementById('barsCap').textContent = M[m].cap;
+    };
+    btns.forEach((b) => b.addEventListener('click', () => show(b.dataset.m)));
+    box.closest('section').addEventListener('enter', () => show('tool'));
+  }
+</script>

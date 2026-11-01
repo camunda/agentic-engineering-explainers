@@ -226,5 +226,21 @@
         "tagline": "Many gardeners, one structure."
       }
     ]
+  },
+  {
+    "group": "Conclusion",
+    "blurb": "What it comes down to.",
+    "chapters": [
+      {
+        "id": "agency",
+        "title": "Conclusion: Agency, not AGENTS.md",
+        "short": "Agency, not AGENTS.md",
+        "description": "Everyone has the same tools. The difference is the operator: curiosity, openness and a systems engineering mindset. Attitude comes before experience, and done right the outcome is more velocity, more innovation and, almost paradoxically, more stability.",
+        "summary": "Same tools, different operators. Curiosity, openness and systems thinking bring velocity, innovation and, paradoxically, stability.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~4 min",
+        "tagline": "The gardener matters more than the tools."
+      }
+    ]
   }
 ]

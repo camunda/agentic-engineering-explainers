@@ -45,6 +45,10 @@ Interactive explainers, published at https://camunda.github.io/agentic-engineeri
 - 20 [The Cambrian explosion](https://camunda.github.io/agentic-engineering-explainers/case-study.html) (`src/pages/case-study.html`)
 - 21 [Three shapes](https://camunda.github.io/agentic-engineering-explainers/three-shapes.html) (`src/pages/three-shapes.html`)
 - 22 [c8ctl](https://camunda.github.io/agentic-engineering-explainers/c8ctl.html) (`src/pages/c8ctl.html`)
+
+**Conclusion** (23): What it comes down to.
+
+- 23 [Agency, not AGENTS.md](https://camunda.github.io/agentic-engineering-explainers/agency.html) (`src/pages/agency.html`)
 <!-- chapters:end -->
 
 The case study's numbers are snapshots from October and November 2026; the data scripts that produced them are not in this repo.
