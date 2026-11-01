@@ -310,7 +310,7 @@ layout: chapter
   {
     const M = {
       hand:   { b: 80, k: 16, h: 24, att: 0.9, note: 'Each version takes two weeks to build and a few days to check. Eleven of them take most of a year, so in practice teams stop at two or three and ship one of the wrong ones.' },
-      agents: { b: 2,  k: 16, h: 24, att: 1,   note: 'Building is now hours, but every version still waits for a person to check that it works. The rounds barely got faster: the human check is the queue.' },
+      agents: { b: 2,  k: 16, h: 24, att: 1,   note: 'Building is now hours, but every version still waits for a person to check that it works. Each round still takes most of a week: the human check is the queue.' },
       guard:  { b: 2,  k: 0.5, h: 6, att: 0.15, note: 'Guardrails check correctness in minutes with nobody watching, and consumers do the first fitness pass. Eleven versions fit in a couple of weeks, and the human time goes into judging fitness.' },
     };
     const rows = document.getElementById('econRows');
