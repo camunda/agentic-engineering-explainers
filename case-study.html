@@ -113,9 +113,11 @@
   .caveats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-top: 18px; }
   .caveats div { background: var(--paper); padding: 14px; font-size: 14.5px; }
   .caveats b { display: block; font-size: 15.5px; margin-bottom: 4px; }
+  .caveats.three { grid-template-columns: 1fr 1fr 1fr; }
   @media (max-width: 820px) {
     .nums { grid-template-columns: 1fr 1fr; }
     .caveats, .before { grid-template-columns: 1fr; }
+    .caveats.three { grid-template-columns: 1fr; }
     .langs { grid-template-columns: repeat(4, 1fr); }
   }
   @media (max-width: 820px) {
@@ -245,10 +247,32 @@
       <h2 class="reveal d1">Speed needs a signal you can trust.</h2>
       <p class="reveal d2">Seven SDKs at agentic speed only work if &ldquo;green&rdquo; means something. So the tests were derived from the spec too: response bodies asserted against the schema, then whole test suites generated from a semantic graph of the API.</p>
       <p class="reveal d3">The test generator became the most collaborative repository in the story: ten people have committed to it.</p>
+      <p class="reveal d3">Then the SDKs were tested against each other. A conformance harness wraps all seven SDKs in thin adapters, sends the same operation to each, and compares the HTTP requests they would send. Seven SDKs must agree on every operation in the spec.</p>
     </div>
     <div class="tl">
       <div class="ev" style="--c:#5f8a17"><time>Sep 2025</time><div><b>assert-json-body</b><span>Extracts response bodies from the OpenAPI spec and asserts them in Playwright tests. 24 releases.</span></div></div>
+      <div class="ev" style="--c:#5f8a17"><time>Mar 2026</time><div><b>camunda-sdk-conformance-test</b><span>Cross-SDK conformance: about 250 spec operations, sent through all seven SDKs, requests compared. Runs as a gate before an SDK release.</span></div></div>
       <div class="ev" style="--c:#5f8a17"><time>Apr 2026</time><div><b>api-test-generator</b><span>Semantic graph extraction and test generation from the spec. 838 commits from ten contributors.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6a ----------------------------------------------------------------------------------------->
+<section id="profile" data-title="Profile every workload">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Stage 3, continued &middot; Profile every workload</div>
+      <h2 class="reveal d1">&ldquo;Profile your workload&rdquo; was the only honest answer. Now we profile all of them.</h2>
+      <p class="reveal d2">Customers ask how to deploy their workers: how many processes, how many workers in each, REST or gRPC streaming, which SDK. Before, the honest answer was &ldquo;profile your workload&rdquo;. Nobody had the time to measure every combination for even one SDK.</p>
+      <p class="reveal d2">At agentic speed, the measurement is the cheap part. A performance matrix runs every valid combination of worker topology, SDK language, SDK mode, handler type and cluster size, locally or on Google Cloud, and publishes the results to a dashboard.</p>
+      <p class="reveal d3">The answers are now specific. Prefer streaming when you run many workers: its tail latency stays flat while REST long-polling climbs. Spread workers across processes, about one event loop per core, instead of adding workers to one process. Set the C# poll interval to 25&nbsp;ms: in the Google Cloud runs, that alone took throughput from 117 to 146 jobs a second.</p>
+      <p class="reveal d3">The matrix also feeds the SDKs: it produced the proposal for threaded workers in the JavaScript SDK.</p>
+    </div>
+    <div class="before reveal d2">
+      <div><b>1,280</b><span>scenarios in the full matrix</span></div>
+      <div><b>8</b><span>SDK builds in 7 languages, 4 transport modes</span></div>
+      <div><b>20</b><span>worker topologies &times; 2 handlers &times; 2 cluster sizes</span></div>
+      <div><b>~84k</b><span>authored lines, 151 commits, two contributors, since March 2026</span></div>
     </div>
   </div>
 </section>
@@ -316,7 +340,7 @@
       <div><b>&ldquo;The team got bigger.&rdquo;</b>It did, and that is part of the result. The same engineer alone went from 182 commits a year to 3,649, and everyone else together added another 1,300. Try the switches on the chart.</div>
       <div><b>&ldquo;Lines of code are a bad measure.&rdquo;</b>Agreed, so look at what shipped: releases of the published packages went from 59 a year to 438, across seven languages instead of one.</div>
     </div>
-    <p class="src reveal d3">Source: the full git history of the 22 public repositories named in this chapter, merges excluded. Bot authors (Renovate, release automation) are excluded from commit and line counts. &ldquo;Authored&rdquo; means written by a person or by an agent working for them. Snapshot taken October 2026.</p>
+    <p class="src reveal d3">Source: the full git history of the 22 public repositories named in this chapter, merges excluded. Bot authors (Renovate, release automation) are excluded from commit and line counts. &ldquo;Authored&rdquo; means written by a person or by an agent working for them. Snapshot taken October 2026. The conformance harness and the performance matrix are internal repositories and are not counted in these numbers.</p>
   </div>
 </section>
 
@@ -387,12 +411,28 @@
   </div>
 </section>
 
+<!-- 11b ---------------------------------------------------------------------------------------->
+<section id="who-decides" data-title="Who decides">
+  <div class="wrap single" style="max-width:1080px">
+    <div class="kicker reveal">Who decides a change is done?</div>
+    <h2 class="reveal d1">An agent loop, a human signature, or a human review.</h2>
+    <p class="reveal d2">All three engineers use agent reviewers. What differs is who decides that a change is finished. That explains the different times to merge.</p>
+    <div class="caveats three reveal d2">
+      <div><b>A &middot; The loop decides</b>Agent reviewers and the coding agent loop until the findings converge: a median of 2 review rounds, and a quarter of PRs take 4 or more. 90% of merged PRs show the loop, and 80% merged with no human review at all. The tests and the loop are the gate. An automatic approver runs in shadow mode beside it. Time to merge: under an hour.</div>
+      <div><b>B &middot; The loop decides, a human signs</b>The same pattern: 91% of PRs show an agent loop, with agent verdicts posted as structured comments. A colleague approves 77% of PRs, but 94% of those approvals carry no comment, and they arrive within an hour of the last agent round. The signature is a formality. Time to merge: under two hours.</div>
+      <div><b>C &middot; The human decides</b>Agents do one first pass on 60% of PRs. Then a colleague reviews for real: on half the PRs they comment or ask for changes, and they approve about a day after the last agent round. The human queue sets the pace. Time to merge: days.</div>
+    </div>
+    <p class="reveal d3">None of these is wrong. Where a change can break other teams, C&rsquo;s gate buys safety with time. Where the loop is trusted, a human signature costs little, and it adds little. The choice should be deliberate, per repository.</p>
+    <p class="src reveal d3">Source: merged pull requests in Camunda&rsquo;s GitHub organisation, May &ndash; October 2026 (C from April). An agent round is a review by an AI reviewer, or a comment that an agent posted: a verdict, a review report or an &ldquo;addressed in &lt;commit&gt;&rdquo; reply. Loops that ran before the PR was opened are not visible, so these numbers undercount them. A comment-free approval can still follow a careful read; the short gap after the last agent round is the stronger signal.</p>
+  </div>
+</section>
+
 <!-- 12 ----------------------------------------------------------------------------------------->
 <section id="summary" data-title="Summary">
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">The explosion came from the structure, not from the agents alone.</h2>
-    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
+    <p class="lead reveal d2">Engineer A hardened the spec first, derived the SDKs and the tests from it, used the new capacity to measure what nobody could measure before, then taught the approach to an intern and a QA team. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
     <p class="reveal d2">All three got faster. What they built around the agents decided where that speed went.</p>
     <div class="cta reveal d3">
       <a class="pill" href="./index.html">Back to contents</a>
