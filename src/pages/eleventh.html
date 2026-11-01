@@ -1,0 +1,391 @@
+---
+layout: chapter
+---
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  .seg { padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+  .seg.on { background: var(--ink); color: #fff; }
+
+  /* One-shot vs crafted */
+  .lanes { display: grid; gap: 14px; text-align: left; }
+  .lane { background: var(--paper); padding: 14px 16px; }
+  .lane h3 { margin: 0 0 10px; font-size: 16px; }
+  .lane .steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13.5px; font-weight: 600; }
+  .lane .steps span { background: #fff; padding: 5px 9px; border: 1.5px solid var(--ink); }
+  .lane .steps i { font-style: normal; opacity: .5; }
+  .lane .steps .loop { border-style: dashed; }
+  .lane p { font-size: 14px; margin: 10px 0 0; color: var(--muted); }
+
+  /* Two kinds of validation */
+  .vtable { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; margin-top: 14px; }
+  .vtable th, .vtable td { padding: 10px 12px; border-bottom: 1px solid #e3e1da; vertical-align: top; }
+  .vtable thead th { font-size: 13px; text-transform: uppercase; letter-spacing: .8px; }
+  .vtable tbody th { font-weight: 600; width: 22%; color: var(--muted); }
+  .vtable .c { border-top: 6px solid var(--purple-400, #8785ff); }
+  .vtable .f { border-top: 6px solid var(--orange-400, #ff905c); }
+
+  /* Attempt economics */
+  .econ { background: var(--paper); padding: 18px; text-align: left; }
+  .econ .ctl { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+  .econ .row { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 8px; margin: 3px 0; font-size: 12px; font-weight: 600; }
+  .econ .bar { display: flex; height: 16px; background: #fff; }
+  .econ .bar i { display: block; height: 100%; transition: width .5s; }
+  .econ .b { background: var(--purple-400, #8785ff); } .econ .k { background: #c9c6bd; } .econ .h { background: var(--orange-400, #ff905c); }
+  .econ .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; margin-top: 10px; }
+  .econ .legend span::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; background: var(--c); }
+  .econ .out { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .econ .out div { background: #fff; padding: 10px 12px; font-size: 13px; }
+  .econ .out b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: 26px; line-height: 1.1; }
+  .econ .note { font-size: 13.5px; margin-top: 10px; min-height: 42px; }
+  .econ .row.eleven { color: #5f8a17; }
+
+  /* Consumer network */
+  .net { position: relative; width: min(460px, 88vw); aspect-ratio: 1; margin: 0 auto; }
+  .net svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .net .hub { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--ink); color: #fff; padding: 10px 14px; font-weight: 700; font-size: 14px; text-align: center; }
+  .net button.node { position: absolute; transform: translate(-50%, -50%); background: #fff; border: 1.5px solid var(--ink); padding: 7px 10px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; max-width: 150px; line-height: 1.25; }
+  .net button.node.on { background: var(--orange-400, #ff905c); }
+  .found { background: var(--paper); padding: 14px 16px; text-align: left; min-height: 210px; border-left: 6px solid var(--orange-400, #ff905c); }
+  .found h3 { margin: 0 0 6px; font-size: 18px; }
+  .found .what { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .found ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+  .found li { margin: 5px 0; }
+
+  /* Escape model */
+  .esc { background: var(--paper); padding: 18px; text-align: left; }
+  .esc label { display: grid; grid-template-columns: 210px 1fr 60px; gap: 10px; align-items: center; font-size: 14px; font-weight: 600; margin: 6px 0; }
+  .esc input[type=range] { width: 100%; accent-color: #1b1b1b; }
+  .esc .bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .esc .bars div { background: #fff; padding: 10px 12px; font-size: 13px; }
+  .esc .bars b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: 30px; line-height: 1.1; }
+  .esc .bars .bad b { color: #e03131; }
+  .esc .meter { display: flex; height: 22px; margin-top: 10px; background: #fff; }
+  .esc .meter i { display: block; height: 100%; transition: width .3s; }
+  .esc .note { font-size: 13.5px; margin-top: 10px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; text-align: left; }
+  .split > div { background: var(--paper); padding: 16px; }
+  .split h3 { margin: 0 0 8px; font-size: 18px; }
+  .split ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+  .split li { margin: 5px 0; }
+  .split .agent { border-top: 6px solid var(--purple-400, #8785ff); }
+  .split .human { border-top: 6px solid var(--orange-400, #ff905c); }
+  @media (max-width: 820px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+    .split, .econ .out, .esc .bars { grid-template-columns: 1fr; }
+    .esc label { grid-template-columns: 1fr 60px; }
+    .esc label span:first-child { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Get to the eleventh">
+  <div class="wrap single">
+    <div class="kicker reveal">{{kicker}}</div>
+    <h1 class="reveal d1">Get to the eleventh</h1>
+    <p class="lead reveal d2">Nobody one-shots good software. The first spec produces a prototype, and the real shape shows up as you use it. Plan for the first ten versions to be wrong, and get to the eleventh as fast and as cheaply as you can.</p>
+    <div class="scroll-hint">scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------------------------------>
+<section id="oneshot" data-title="One-shotting is a myth">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The naive model</div>
+      <h2 class="reveal d1">A spec is a hypothesis. The first build is how you test it.</h2>
+      <p class="reveal d2">&ldquo;One-shotting&rdquo; imagines a perfect spec going in and finished software coming out. But most of what a product needs is unknown until something exists to try. The spec is an input to the first version and an output of the later ones: each round makes it sharper.</p>
+      <p class="reveal d3">So the prototype isn&rsquo;t the end. It has to be questioned, proven and refined. Agents don&rsquo;t remove that work. They make each round cheap enough to do many of them.</p>
+    </div>
+    <div class="lanes reveal d2">
+      <div class="lane">
+        <h3>One-shotting</h3>
+        <div class="steps"><span>Spec</span><i>&#x2192;</i><span>Prompt</span><i>&#x2192;</i><span>Done</span></div>
+        <p>Works for small, well-known problems. For anything new, &ldquo;done&rdquo; is a prototype that nobody has used yet.</p>
+      </div>
+      <div class="lane">
+        <h3>Crafting</h3>
+        <div class="steps"><span>Spec</span><i>&#x2192;</i><span>Prototype</span><i>&#x2192;</i><span class="loop">Question</span><i>&#x2192;</i><span class="loop">Prove</span><i>&#x2192;</i><span class="loop">Refine</span><i>&#x21ba;</i><span>Publish</span></div>
+        <p>The dashed steps repeat. Each round changes the code and the spec, and records what was learned.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------------------------------>
+<section id="two-checks" data-title="Two kinds of check">
+  <div class="wrap single" style="max-width:980px">
+    <div class="kicker reveal">Correct is not the same as right</div>
+    <h2 class="reveal d1">Guardrails settle correctness. Fitness still takes rounds.</h2>
+    <p class="reveal d2">There are two questions about every version. Does it do what we said? And is what we said the right thing? The first can be made deterministic. The second can&rsquo;t.</p>
+    <table class="vtable reveal d3">
+      <thead><tr><th></th><th class="c">Correctness</th><th class="f">Fitness: product and performance</th></tr></thead>
+      <tbody>
+        <tr><th>Question</th><td>Does it do what we said?</td><td>Is what we said right? Is it usable, fast enough, shaped well?</td></tr>
+        <tr><th>Check</th><td>Tests, types, lint, schema, conformance</td><td>Use it, integrate it, measure it, judge it</td></tr>
+        <tr><th>Once set up</th><td>Deterministic and low-attention. The <a href="./loops.html">agent loops</a> run it without you.</td><td>Needs iteration, and needs someone to decide what &ldquo;better&rdquo; means</td></tr>
+        <tr><th>Where it&rsquo;s covered</th><td><a href="./loops.html">Agentic Loop Engineering</a>, <a href="./enforce.html">Rules that enforce themselves</a></td><td><a href="./telemetry.html">Point them at a number</a>, and this chapter</td></tr>
+      </tbody>
+    </table>
+    <p class="reveal d4" style="margin-top:16px">That is what the guardrails are for. When correctness checks itself, attention is free for the question no guardrail can answer.</p>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------------------------------>
+<section id="economics" data-title="The cost of a round">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Where the speed comes from</div>
+      <h2 class="reveal d1">The speed-up is in the cost of a round, not in typing faster.</h2>
+      <p class="reveal d2">If the first ten versions are going to be wrong, what matters is how long it takes to get through them, and how much human attention each one uses.</p>
+      <p class="reveal d3">Faster code alone doesn&rsquo;t get you there. If every version still waits for a person to check that it works, the person becomes the queue. Guardrails take correctness off that person&rsquo;s plate, and a network of consumers does the first pass on fitness. Then a round costs hours, and the human time goes into judging the result.</p>
+      <p class="src reveal d4">The durations are illustrative, not measured. Choose a way of working and watch the eleven rounds.</p>
+    </div>
+    <div class="econ reveal d2">
+      <div class="ctl" id="econCtl" data-hint="switch the way of working">
+        <button class="seg on" data-m="hand">By hand</button>
+        <button class="seg" data-m="agents">Agents, human checks</button>
+        <button class="seg" data-m="guard">Agents and guardrails</button>
+      </div>
+      <div id="econRows"></div>
+      <div class="legend"><span style="--c:var(--purple-400,#8785ff)">build</span><span style="--c:#c9c6bd">correctness check</span><span style="--c:var(--orange-400,#ff905c)">fitness check</span></div>
+      <div class="out">
+        <div><b id="econT">&ndash;</b>to reach version 11</div>
+        <div><b id="econA">&ndash;</b>of human attention on the way</div>
+      </div>
+      <div class="note" id="econNote"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------------------------------>
+<section id="before-publish" data-title="Prove it before you publish">
+  <div class="wrap single">
+    <div class="kicker reveal">The step you can&rsquo;t take back</div>
+    <h2 class="reveal d1">Prove it before you publish.</h2>
+    <p class="lead reveal d2">Not every version is cheap to throw away. Once an API is published, people build on it, and changing it breaks them. So the rounds have to happen before publishing.</p>
+    <p class="reveal d3">For an API, fitness means ergonomics: can someone use it for real work without fighting it? You only find out by using it. So implement it, then consume it from several different integrations. Each integration is a first user. Every awkward call, workaround and wrong first guess is feedback that arrives before anyone outside depends on the API.</p>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="proxy" data-title="User testing by proxy">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">User testing at scale by proxy</div>
+      <h2 class="reveal d1">Many consumers make all fitness problems shallow.</h2>
+      <p class="reveal d2">&ldquo;Given enough eyeballs, all bugs are shallow.&rdquo; The same works for fitness, with the eyeballs replaced by a network of integrations. One engineer can run it: agents write the API, then agents write the integrations that consume it.</p>
+      <p class="reveal d3">For the Camunda SDKs, the network is the seven SDKs generated from the API spec and the harnesses built on top of them. Choose a consumer to see what it found before (or soon after) release.</p>
+      <div class="found reveal d3" id="found"></div>
+    </div>
+    <div class="reveal d2"><div class="net" id="net" data-hint="choose a consumer">
+      <svg id="netSvg" viewBox="0 0 100 100" aria-hidden="true"></svg>
+      <div class="hub">API spec</div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------------------------------>
+<section id="scale" data-title="Scale the network">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The rule</div>
+      <h2 class="reveal d1">Scale the network with the velocity.</h2>
+      <p class="reveal d2">Agents raise the rate at which features ship. Every feature brings its share of defects and fitness problems. If the number of consumers stays the same, the share they catch stays the same, and everything else lands on users.</p>
+      <p class="reveal d3">So when the code speeds up, the integration and scenario network has to grow with it. That is cheap to do, because agents write the integrations too.</p>
+      <p class="src reveal d4">An illustrative model, not a measurement: each feature brings one problem, and each consumer independently catches a quarter of what reaches it.</p>
+    </div>
+    <div class="esc reveal d2">
+      <div data-hint="drag the sliders">
+      <label><span>Features shipped a month</span><input type="range" id="escV" min="5" max="100" step="5" value="10" /><span id="escVo"></span></label>
+      <label><span>Consumers in the network</span><input type="range" id="escN" min="0" max="12" step="1" value="3" /><span id="escNo"></span></label>
+      </div>
+      <div class="meter" id="escMeter"><i style="background:#5f8a17"></i><i style="background:#e03131"></i></div>
+      <div class="bars">
+        <div><b id="escC">&ndash;</b>problems caught before release</div>
+        <div class="bad"><b id="escE">&ndash;</b>problems that reach users</div>
+      </div>
+      <div class="note" id="escNote"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------------------------------>
+<section id="limits" data-title="Proxies aren't users">
+  <div class="wrap single" style="max-width:980px">
+    <div class="kicker reveal">Know what the proxy can&rsquo;t tell you</div>
+    <h2 class="reveal d1">Proxies aren&rsquo;t users, but friction can be measured.</h2>
+    <p class="reveal d2">Agent consumers find friction fast: calls that take too much setup, names that mislead, operations that are easy to misuse, things that are missing. They don&rsquo;t share your users&rsquo; goals, and they share blind spots with the agents that wrote the API. The proxy network gets you to version eleven before publishing. Real users and <a href="./telemetry.html">production telemetry</a> judge it after.</p>
+    <div class="split reveal d3">
+      <div class="human"><h3>Humans decide</h3><ul>
+        <li><b>Which consumers matter:</b> the integrations that stand in for real users.</li>
+        <li><b>What &ldquo;better&rdquo; means:</b> the friction to drive down, and what must not get worse.</li>
+        <li><b>When to stop:</b> when a round no longer teaches anything, publish.</li>
+        <li><b>What can&rsquo;t be undone:</b> which steps need a fence, a flag or a preview first.</li>
+      </ul></div>
+      <div class="agent"><h3>Agents do</h3><ul>
+        <li>Build each version, and the integrations that use it.</li>
+        <li>Record the friction: glue code, workarounds, retries, wrong first attempts.</li>
+        <li>Feed what the consumers found back into the spec.</li>
+        <li>Write down what each round taught, so the throwaway code isn&rsquo;t wasted.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">Versions are disposable. What they teach is not.</h2>
+    <p class="lead reveal d2">Don&rsquo;t expect to one-shot it. Make correctness deterministic so it costs no attention, build a network of consumers that uses each version before anyone else does, and grow that network as fast as the code. Then go through the wrong versions quickly and cheaply, and publish the eleventh.</p>
+    <div class="cta reveal d3">
+      {{nav}}
+    </div>
+  </div>
+</section>
+
+<script>
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+
+  // Attempt economics. Illustrative durations, in working hours (8 h a day).
+  {
+    const M = {
+      hand:   { b: 80, k: 16, h: 24, att: 0.9, note: 'Each version takes two weeks to build and a few days to check. Eleven of them take most of a year, so in practice teams stop at two or three and ship one of the wrong ones.' },
+      agents: { b: 2,  k: 16, h: 24, att: 1,   note: 'Building is now hours, but every version still waits for a person to check that it works. The rounds barely got faster: the human check is the queue.' },
+      guard:  { b: 2,  k: 0.5, h: 6, att: 0.15, note: 'Guardrails check correctness in minutes with nobody watching, and consumers do the first fitness pass. Eleven versions fit in a couple of weeks, and the human time goes into judging fitness.' },
+    };
+    const rows = document.getElementById('econRows');
+    for (let i = 1; i <= 11; i++) rows.insertAdjacentHTML('beforeend', `<div class="row${i === 11 ? ' eleven' : ''}"><span>v${i}</span><div class="bar"><i class="b"></i><i class="k"></i><i class="h"></i></div></div>`);
+    const fmt = (h) => h >= 8 * 20 ? `${Math.round(h / 8 / 20 * 10) / 10} months` : h >= 8 * 5 ? `${Math.round(h / 40)} weeks` : `${Math.round(h / 8)} days`;
+    const MAXR = 120;
+    function show(m) {
+      const p = M[m];
+      for (const r of rows.children) {
+        const [b, k, h] = r.querySelectorAll('i');
+        b.style.width = `${p.b / MAXR * 100}%`; k.style.width = `${p.k / MAXR * 100}%`; h.style.width = `${p.h / MAXR * 100}%`;
+      }
+      const per = p.b + p.k + p.h;
+      document.getElementById('econT').textContent = fmt(per * 11);
+      const human = m === 'hand' ? (p.b + p.k + p.h) * 11 * p.att : m === 'agents' ? (p.k + p.h) * 11 * 0.5 : (p.h * 11) * 0.5;
+      document.getElementById('econA').textContent = fmt(human);
+      document.getElementById('econNote').textContent = p.note;
+    }
+    document.getElementById('econCtl').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      document.querySelectorAll('#econCtl button').forEach((x) => x.classList.toggle('on', x === b));
+      show(b.dataset.m);
+    });
+    show('hand');
+  }
+
+  // Consumer network. Findings from the SDK repositories' issue trackers, October 2026 unless dated.
+  {
+    const C = [
+      { n: 'Seven generated SDKs', w: 'Seven languages, each generated from the same spec. Every ambiguity in the spec shows up seven times.',
+        f: ['One <code>tenantId</code> in the spec was a plain string, while every other tenant ID used the shared identifier schema. It skipped validation, was typed differently in every SDK, and contributed to a typing regression in the Python SDK. Filed as a spec defect.'] },
+      { n: 'Conformance harness', w: 'Sends every operation in the spec through all seven SDKs and compares the HTTP requests. The SDKs are each other&rsquo;s oracle.',
+        f: ['Cluster administration calls in one SDK resolved against the wrong base path.', 'SDKs disagreed on optional request bodies: some sent an empty object, some sent nothing.', 'Fixes went to every affected SDK, and back to the released line. Some of these had shipped: the network was added late.'] },
+      { n: 'Performance matrix', w: 'Runs workers from eight SDKs across 1,280 configurations, and sweeps individual settings.',
+        f: ['The C# SDK never retried 429, 503 or 500 responses, so its adaptive backpressure never kicked in.', 'Python workers collapsed when the client side was over-provisioned (May 2026).', 'The JavaScript SDK needed threaded workers to keep the event loop free (March 2026), and the Java SDK gained a streaming worker.'] },
+      { n: 'Scenario tests', w: 'A test generator builds chains of calls from a graph of the spec, the way a user would: create something, then use what came back.',
+        f: ['Operations are tested in the context of a journey, not one at a time.', 'A step whose input nothing else provides shows up as a scenario that can&rsquo;t be built. That is the same wall a user would hit.'] },
+      { n: 'Integrations written against the SDK', w: 'Agents writing real code against the SDK: workers, the CLI, examples.',
+        f: ['Reading process variables meant paging through name and value pairs and converting them by hand. The ergonomic fix became a feature request for the JavaScript and C# SDKs (May 2026): declare the variables you want as a typed object, and fetch only those.', 'Supporting several tenants per worker was raised as one change running all the way from the environment variable to the activation request.'] },
+    ];
+    const net = document.getElementById('net'), svg = document.getElementById('netSvg'), NS = 'http://www.w3.org/2000/svg';
+    const btns = C.map((c, i) => {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / C.length;
+      const x = 50 + 38 * Math.cos(a), y = 50 + 38 * Math.sin(a);
+      const l = document.createElementNS(NS, 'line');
+      Object.entries({ x1: 50, y1: 50, x2: x, y2: y, stroke: '#c9c6bd', 'stroke-width': 0.6 }).forEach(([k, v]) => l.setAttribute(k, v));
+      svg.append(l);
+      const b = document.createElement('button'); b.className = 'node'; b.textContent = c.n;
+      b.style.left = `${x}%`; b.style.top = `${y}%`;
+      b.addEventListener('click', () => show(i));
+      net.append(b); return { b, l };
+    });
+    function show(i) {
+      btns.forEach(({ b, l }, k) => { b.classList.toggle('on', k === i); l.setAttribute('stroke', k === i ? '#ff905c' : '#c9c6bd'); l.setAttribute('stroke-width', k === i ? 1.4 : 0.6); });
+      const c = C[i];
+      document.getElementById('found').innerHTML = `<h3>${c.n}</h3><div class="what">${c.w}</div><ul>${c.f.map((x) => `<li>${x}</li>`).join('')}</ul>`;
+    }
+    show(1);
+  }
+
+  // Escape model. Illustrative: one problem per feature, each consumer catches 25% of what reaches it.
+  {
+    const V = document.getElementById('escV'), N = document.getElementById('escN');
+    function show() {
+      const v = +V.value, n = +N.value, esc = v * Math.pow(0.75, n), caught = v - esc;
+      document.getElementById('escVo').textContent = v; document.getElementById('escNo').textContent = n;
+      document.getElementById('escC').textContent = Math.round(caught);
+      document.getElementById('escE').textContent = Math.round(esc);
+      const [g, r] = document.querySelectorAll('#escMeter i');
+      g.style.width = `${caught / 100 * 100}%`; r.style.width = `${esc / 100 * 100}%`;
+      const needed = Math.max(0, Math.ceil(Math.log(2 / v) / Math.log(0.75)));
+      document.getElementById('escNote').textContent = esc <= 2
+        ? `About ${Math.round(esc)} a month reach users. Raise the features and watch what happens if the network stays the same.`
+        : `To bring that down to about 2 a month at this velocity, the network needs about ${needed} consumers.`;
+    }
+    V.addEventListener('input', show); N.addEventListener('input', show); show();
+  }
+</script>

@@ -128,6 +128,14 @@
         "length": "~5 min"
       },
       {
+        "id": "eleventh",
+        "title": "Get to the eleventh",
+        "summary": "Nobody one-shots good software. Guardrails make correctness cheap; fitness takes rounds. Prove an API before publishing with a network of consumers, user testing at scale by proxy, and grow that network as fast as the code.",
+        "tagline": "Grown, not cast.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
         "id": "merge-gate",
         "title": "The merge button is part of the system",
         "summary": "Auto-merge is only as safe as what the branch refuses. Required checks that can actually fail, stable branches, settings drift across a fleet, a vulnerability-to-release loop with no human in it, and handing admin changes to humans.",
