@@ -51,6 +51,14 @@
         "length": "~6 min"
       },
       {
+        "id": "no-flaky",
+        "title": "There are no flaky tests",
+        "summary": "An intermittent failure is a real defect, in the test or in the product. Why noisy signals break agent loops, how to control time, and why every fix should cover the whole class of defect.",
+        "tagline": "Clean signals for the loops.",
+        "kind": "Scroll-through &middot; animated",
+        "length": "~5 min"
+      },
+      {
         "id": "fails-somewhere",
         "title": "All software fails somewhere",
         "summary": "All software fails somewhere. Keep the signal non-negotiable, reason at compiler speed instead of human speed, stack integration and scenario tests to find the failure conditions, and feed them back so the defect rate falls as throughput rises.",
@@ -66,14 +74,6 @@
         "kind": "Scroll-through &middot; interactive",
         "length": "~6 min",
         "tagline": "Rain gauges: measure the garden, and let the growers chase the number."
-      },
-      {
-        "id": "no-flaky",
-        "title": "There are no flaky tests",
-        "summary": "An intermittent failure is a real defect, in the test or in the product. Why noisy signals break agent loops, how to control time, and why every fix should cover the whole class of defect.",
-        "tagline": "Clean signals for the loops.",
-        "kind": "Scroll-through &middot; animated",
-        "length": "~5 min"
       },
       {
         "id": "zero-eyes",

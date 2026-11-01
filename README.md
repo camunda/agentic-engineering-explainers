@@ -15,9 +15,9 @@ Interactive explainers, published at https://camunda.github.io/agentic-engineeri
 **Quality** (04–08): How you know it's any good, at agentic speed.
 
 - 04 [Agentic Loop Engineering](https://camunda.github.io/agentic-engineering-explainers/loops.html) (`src/pages/loops.html`)
-- 05 [All software fails somewhere](https://camunda.github.io/agentic-engineering-explainers/fails-somewhere.html) (`src/pages/fails-somewhere.html`)
-- 06 [Point them at a number](https://camunda.github.io/agentic-engineering-explainers/telemetry.html) (`src/pages/telemetry.html`)
-- 07 [There are no flaky tests](https://camunda.github.io/agentic-engineering-explainers/no-flaky.html) (`src/pages/no-flaky.html`)
+- 05 [There are no flaky tests](https://camunda.github.io/agentic-engineering-explainers/no-flaky.html) (`src/pages/no-flaky.html`)
+- 06 [All software fails somewhere](https://camunda.github.io/agentic-engineering-explainers/fails-somewhere.html) (`src/pages/fails-somewhere.html`)
+- 07 [Point them at a number](https://camunda.github.io/agentic-engineering-explainers/telemetry.html) (`src/pages/telemetry.html`)
 - 08 [Zero-eyes PR approval](https://camunda.github.io/agentic-engineering-explainers/zero-eyes.html) (`src/pages/zero-eyes.html`)
 
 **Structure** (09–11): Know where the model is reliable, and harden the edges at compiler speed.
