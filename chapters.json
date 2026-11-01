@@ -199,11 +199,31 @@
         "id": "case-study",
         "title": "Case study: the Cambrian explosion",
         "short": "The Cambrian explosion",
-        "description": "Three Camunda engineers after going agentic: one SDK became 22 repositories and seven language SDKs, a product built in five weeks, and a shared repository where each change waited longer but four times as many got merged. Then c8ctl, where the method left the SDKs and 26 people grew a product inside it.",
-        "summary": "Three Camunda engineers, measured. One SDK became 22 repositories and seven languages; a product was built in five weeks behind a fence; and in a shared repository, each change waited longer while four times as many merged. Then c8ctl: a one-shot that became a shared garden.",
+        "description": "One engineer, one SDK, measured from the git history: a hardened spec, seven language SDKs derived from it, generated tests, profiled workloads, and an approach that spread from one owner to a pod of three.",
+        "summary": "One engineer went agentic. One SDK became 22 repositories and seven languages, and one owner became a pod of three.",
         "kind": "Scroll-through &middot; interactive",
-        "length": "~14 min",
+        "length": "~8 min",
         "tagline": "A real garden: what grew, from the git history."
+      },
+      {
+        "id": "three-shapes",
+        "title": "Case study: three shapes",
+        "short": "Three shapes",
+        "description": "Two more Camunda engineers who went agentic on their own: a product built in five weeks inside a fence, and a shared repository where each change waited longer but four times as many merged. Then all three compared: who decides a change is done?",
+        "summary": "Three engineers, independently. A fence, a gate and a loop: where the speed went, and who decides a change is done.",
+        "kind": "Scroll-through",
+        "length": "~5 min",
+        "tagline": "Same agents, different settings, different shapes."
+      },
+      {
+        "id": "c8ctl",
+        "title": "Case study: c8ctl, a shared garden",
+        "short": "c8ctl",
+        "description": "The Camunda 8 CLI, from a one-day one-shot to a structure 26 people build in. Each phase maps to a chapter: humans at the edges, agents as users, derivation and self-enforcing rules, no flaky tests, and a merge gate only green changes pass.",
+        "summary": "Where the method left the SDKs: a one-shot CLI, hardened so incomplete commands are impossible, now grown by 26 people.",
+        "kind": "Scroll-through",
+        "length": "~5 min",
+        "tagline": "Many gardeners, one structure."
       }
     ]
   }

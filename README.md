@@ -40,9 +40,11 @@ Interactive explainers, published at https://camunda.github.io/agentic-engineeri
 - 18 [Conway's Law still holds](https://camunda.github.io/agentic-engineering-explainers/conway.html) (`src/pages/conway.html`)
 - 19 [Start with one garden](https://camunda.github.io/agentic-engineering-explainers/start.html) (`src/pages/start.html`)
 
-**Case studies** (20): What happened when we did it: the numbers, from the git history.
+**Case studies** (20–22): What happened when we did it: the numbers, from the git history.
 
 - 20 [The Cambrian explosion](https://camunda.github.io/agentic-engineering-explainers/case-study.html) (`src/pages/case-study.html`)
+- 21 [Three shapes](https://camunda.github.io/agentic-engineering-explainers/three-shapes.html) (`src/pages/three-shapes.html`)
+- 22 [c8ctl](https://camunda.github.io/agentic-engineering-explainers/c8ctl.html) (`src/pages/c8ctl.html`)
 <!-- chapters:end -->
 
 The case study's numbers are snapshots from October and November 2026; the data scripts that produced them are not in this repo.

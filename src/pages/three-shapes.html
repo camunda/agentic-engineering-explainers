@@ -1,0 +1,254 @@
+---
+layout: chapter
+---
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  /* Headline numbers */
+  .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 26px; }
+  .nums div { background: var(--paper); padding: 16px 10px; text-align: center; }
+  .nums b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.05; }
+  .nums span { font-size: 13px; color: var(--muted); }
+
+  /* Before strip */
+  .before { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .before div { background: var(--paper); padding: 14px; font-size: 14px; }
+  .before b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: 34px; line-height: 1.1; }
+  .before span { color: var(--muted); }
+
+  /* Explosion chart */
+  .chart { background: var(--paper); padding: 16px 16px 12px; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart .ctl { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 8px; }
+  .chart .ctl .sep { width: 1px; height: 22px; background: rgba(27,27,27,.25); margin: 0 6px; }
+  .seg { padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+  .seg.on { background: var(--ink); color: #fff; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; font-size: 12.5px; margin-top: 10px; }
+  .legend i { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; }
+  .tip { min-height: 22px; font-size: 13.5px; font-weight: 600; text-align: center; margin-top: 6px; }
+
+  /* Stage timelines */
+  .tl { display: grid; gap: 8px; }
+  .tl .ev { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: start; background: var(--paper); padding: 10px 14px; font-size: 14px; border-left: 6px solid var(--c, var(--ink)); }
+  .tl .ev time { font-weight: 600; font-size: 13px; color: var(--muted); padding-top: 1px; }
+  .tl .ev b { display: block; font-size: 15px; }
+  .tl .ev span { color: var(--muted); }
+  .tl .ev code { font-size: 12.5px; }
+  .in .tl .ev { animation: slide .6s both; }
+  .in .tl .ev:nth-child(2) { animation-delay: .15s; } .in .tl .ev:nth-child(3) { animation-delay: .3s; } .in .tl .ev:nth-child(4) { animation-delay: .45s; }
+  .in .tl .ev:nth-child(5) { animation-delay: .6s; } .in .tl .ev:nth-child(6) { animation-delay: .75s; } .in .tl .ev:nth-child(7) { animation-delay: .9s; } .in .tl .ev:nth-child(8) { animation-delay: 1.05s; }
+  @keyframes slide { from { opacity: 0; transform: translateX(-16px); } }
+
+  /* SDK fan-out */
+  .langs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+  .langs div { background: var(--paper); padding: 10px 4px; text-align: center; font-size: 12px; opacity: .25; transition: opacity .5s, background .5s; }
+  .langs div b { display: block; font-size: 15px; }
+  .langs div.on { opacity: 1; background: var(--purple-400, #8785ff); }
+
+  /* Scale out */
+  .out { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; text-align: left; }
+  .out > div { background: var(--paper); padding: 16px; }
+  .out h3 { margin: 0 0 4px; font-size: 18px; }
+  .out p { font-size: 14px; margin: 0 0 8px; }
+  .out svg { width: 100%; height: auto; display: block; }
+  .out ol { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; }
+  .out ol li { margin: 3px 0; }
+  .out .key { font-size: 12.5px; display: flex; gap: 14px; }
+  .out .key i { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; }
+  @media (max-width: 820px) { .out { grid-template-columns: 1fr; } }
+
+  /* Honest reading */
+  .caveats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-top: 18px; }
+  .caveats div { background: var(--paper); padding: 14px; font-size: 14.5px; }
+  .caveats b { display: block; font-size: 15.5px; margin-bottom: 4px; }
+  .caveats.three { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 820px) {
+    .nums { grid-template-columns: 1fr 1fr; }
+    .caveats, .before { grid-template-columns: 1fr; }
+    .caveats.three { grid-template-columns: 1fr; }
+    .langs { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 820px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+  /* Three engineers */
+  .cmp { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14.5px; text-align: left; }
+  .cmp th, .cmp td { padding: 9px 10px; border-bottom: 1px solid rgba(27,27,27,.12); vertical-align: top; }
+  .cmp thead th { font-size: 13px; text-transform: uppercase; letter-spacing: .8px; opacity: .7; }
+  .cmp tbody th { font-weight: 700; width: 26%; }
+  .cmp td b { font-weight: 800; }
+  .cmp-scroll { overflow-x: auto; }
+</style>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="Three shapes">
+  <div class="wrap single">
+    <div class="kicker reveal">{{kicker}}</div>
+    <h1 class="reveal d1">Three shapes</h1>
+    <p class="lead reveal d2">Engineer A is the subject of <a href="./case-study.html">the Cambrian explosion</a>. Then we found two more Camunda engineers who got there on their own. Nobody taught them this approach: we found them when we started looking at how to expand it across the organisation, and each had taken a different path.</p>
+    <div class="nums reveal d3" style="grid-template-columns:repeat(3,1fr)">
+      <div><b>3</b><span>engineers, independently</span></div>
+      <div><b>1,900</b><span>PRs in five weeks, behind a fence</span></div>
+      <div><b>9 &#x2192; 34</b><span>merged PRs a month through a human gate</span></div>
+    </div>
+    <div class="scroll-hint">scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 9 ------------------------------------------------------------------------------------------>
+<section id="engineer-b" data-title="Engineer B">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Engineer B</div>
+      <h2 class="reveal d1">A product in five weeks, inside a fence.</h2>
+      <p class="reveal d2">Engineer B works on the SaaS console and its operations tooling, and went agentic independently of Engineer A. Before agents, B already shipped in small, fast steps: about 34 pull requests a month, a median of 33 changed lines, nearly all approved by a colleague.</p>
+      <p class="reveal d2">From late 2025 the rate tripled, to about 100 a month, and the pull requests grew to a median of 76 lines. Colleagues still approved 94% of them.</p>
+      <p class="reveal d3">Then B ran an experiment: build a whole product from a written plan, in one go, in a private sandbox repository. One of the first pull requests added the CI gates. After that, every pull request carries a task ID from the plan, and each one merged through those gates.</p>
+      <p class="reveal d3">The fence mattered. No person reviewed the sandbox, but in the same months B&rsquo;s work in shared repositories was still 75% approved by a colleague. Zero eyes where the blast radius is contained; human review where it is not.</p>
+    </div>
+    <div class="tl reveal d2">
+      <div class="ev" style="--c:var(--human)"><time>2024&ndash;25</time><div><b>34 PRs a month</b><span>Median 33 lines. 86% approved by a colleague, merged in about 20 minutes.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Q4 2025</time><div><b>3&times; the rate</b><span>About 100 PRs a month, median 76 lines, 94% approved by a colleague.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Spring 2026</time><div><b>New repositories</b><span>Agents for business processes, and internal tools. AI reviewers take on first-pass review: 500+ reviews in six months.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>30 Sep 2026</time><div><b>The one-shot experiment</b><span>CI gates first, then the plan. 1,912 PRs in five weeks, 97% merged, median 356 lines, median 42 minutes from open to merge. No human review, by design.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>Oct 2026</time><div><b>Back to shared work</b><span>A chat-ops bot for cluster status, built the same way.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ----------------------------------------------------------------------------------------->
+<section id="engineer-c" data-title="Engineer C">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Engineer C</div>
+      <h2 class="reveal d1">Each PR waits longer. More of them get through.</h2>
+      <p class="reveal d2">Engineer C maintains a deployment repository that many teams depend on, and went agentic independently too. Every change there is reviewed by another maintainer, and nobody wanted to change that.</p>
+      <p class="reveal d2">From April 2026 C went agentic. C&rsquo;s pull requests in that repository went from 10 a month to 47, and they got bigger. The review rule held: colleagues approved 98% of them.</p>
+      <p class="reveal d3">The median time from open to merge went from 11 hours to six days. That looks like a slowdown. It isn&rsquo;t: merged pull requests went from 9 a month to 34. Time to merge measures how long one change waits. Throughput measures how much gets done.</p>
+      <p class="reveal d3">The reviewers scaled too. Human reviews of C&rsquo;s pull requests went from 14 a month to 69, five times as many. The queue of open pull requests grew from a handful to between 10 and 30, and it drains: it does not grow month on month. That is a longer queue, not a backlog.</p>
+      <p class="reveal d3">The wait has three parts. A first review now comes after about a day instead of a few hours, because reviewers batch their work. Most changes now get a round of comments. And after approval, a change waits about 19 hours instead of 2 for CI and the merge queue. More pull requests were also closed without merging, as approaches were tried and dropped.</p>
+      <p class="reveal d3">The risk is concentration: two reviewers do most of the reviews. C&rsquo;s answer was to work on the gate, not around it. C reviews as much as C writes, and built tools for the queue: a multi-agent PR reviewer with domain checks, a test bed for merge-queue races, and a CLI for running agents across many repositories.</p>
+    </div>
+    <div class="before reveal d2">
+      <div><b>10 &#x2192; 47</b><span>PRs a month in the shared repository</span></div>
+      <div><b>73 &#x2192; 185</b><span>median changed lines per PR</span></div>
+      <div><b>11 h &#x2192; 6 d</b><span>median time from open to merge</span></div>
+      <div><b>9 &#x2192; 34</b><span>merged PRs a month</span></div>
+      <div><b>14 &#x2192; 69</b><span>human reviews a month; 98% still approved by a colleague</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ----------------------------------------------------------------------------------------->
+<section id="three" data-title="Three shapes">
+  <div class="wrap single" style="max-width:1000px">
+    <div class="kicker reveal">Three engineers</div>
+    <h2 class="reveal d1">Three engineers, independently. Three different shapes.</h2>
+    <p class="reveal d2">None of them copied the others. Each went agentic on their own, with their own tools, in a different setting, and the setting decided where the speed went. Even so, all three ended up putting agent reviewers in front of the merge, each with their own setup.</p>
+    <div class="cmp-scroll reveal d2">
+      <table class="cmp">
+        <thead><tr><th></th><th>A &middot; Derive</th><th>B &middot; Fence</th><th>C &middot; Gate</th></tr></thead>
+        <tbody>
+          <tr><th>Setting</th><td>SDKs and tools: one owner before, a pod of three after</td><td>Product team; a private sandbox</td><td>A repository many teams depend on</td></tr>
+          <tr><th>PRs a month, before &#x2192; after</th><td><b>11 &#x2192; 95</b></td><td><b>34 &#x2192; 100</b>, and 1,900 in five weeks in the sandbox</td><td><b>18 &#x2192; 75</b></td></tr>
+          <tr><th>Median PR size</th><td>114 &#x2192; 285 lines</td><td>33 &#x2192; 317 lines</td><td>57 &#x2192; 126 lines</td></tr>
+          <tr><th>Approved by a colleague</th><td>Rarely, before and after. Before: one owner. After: the tests and the agent loop are the gate</td><td>Mostly in shared repos; never in the sandbox</td><td>Always, before and after</td></tr>
+          <tr><th>Median time to merge</th><td>Under an hour</td><td>Under an hour; up to 2 hours in shared repos</td><td>11 hours &#x2192; 3&ndash;6 days, while merged PRs a month went up almost 4&times;</td></tr>
+          <tr><th>Where the speed went</th><td>Into new repositories, languages and people</td><td>Into a whole product, fenced off</td><td>Into throughput, paid for with a longer wait per change, and into tools for the review queue</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src reveal d3">Source for this section: pull requests in Camunda&rsquo;s GitHub organisation by each engineer. &ldquo;Before&rdquo; is May 2024 &ndash; April 2025 for A and B, and May 2025 &ndash; March 2026 for C, who went agentic later. &ldquo;After&rdquo; is May &ndash; October 2026 for A and B (B without the sandbox), and April &ndash; September 2026 for C. Line counts here include generated files. AI reviewers and bots do not count as a colleague. Direct commits without a pull request, and work outside the organisation, are not included. Snapshot taken November 2026.</p>
+  </div>
+</section>
+
+<!-- 11b ---------------------------------------------------------------------------------------->
+<section id="who-decides" data-title="Who decides">
+  <div class="wrap single" style="max-width:1080px">
+    <div class="kicker reveal">Who decides a change is done?</div>
+    <h2 class="reveal d1">An agent loop, a human signature, or a human review.</h2>
+    <p class="reveal d2">All three engineers use agent reviewers. What differs is who decides that a change is finished. That explains the different times to merge.</p>
+    <div class="caveats three reveal d2">
+      <div><b>A &middot; The loop decides</b>Agent reviewers and the coding agent loop until the findings converge: a median of 2 review rounds, and a quarter of PRs take 4 or more. 90% of merged PRs show the loop, and 80% merged with no human review at all. The tests and the loop are the gate. An automatic approver runs in shadow mode beside it. Time to merge: under an hour.</div>
+      <div><b>B &middot; The loop decides, a human signs</b>The same pattern: 91% of PRs show an agent loop, with agent verdicts posted as structured comments. A colleague approves 77% of PRs, but 94% of those approvals carry no comment, and they arrive within an hour of the last agent round. The signature is a formality. Time to merge: under two hours.</div>
+      <div><b>C &middot; The human decides</b>Agents do one first pass on 60% of PRs. Then a colleague reviews for real: on half the PRs they comment or ask for changes, and they approve about a day after the last agent round. The human queue sets the pace. Time to merge: days.</div>
+    </div>
+    <p class="reveal d3">None of these is wrong. Where a change can break other teams, C&rsquo;s gate buys safety with time. Where the loop is trusted, a human signature costs little, and it adds little. The choice should be deliberate, per repository.</p>
+    <p class="src reveal d3">Source: merged pull requests in Camunda&rsquo;s GitHub organisation, May &ndash; October 2026 (C from April). An agent round is a review by an AI reviewer, or a comment that an agent posted: a verdict, a review report or an &ldquo;addressed in &lt;commit&gt;&rdquo; reply. Loops that ran before the PR was opened are not visible, so these numbers undercount them. A comment-free approval can still follow a careful read; the short gap after the last agent round is the stronger signal.</p>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">All three got faster. What they built around the agents decided where that speed went.</h2>
+    <p class="lead reveal d2">Engineer A derived everything from a hardened spec and let the loop decide. Engineer B put the gates in first and fenced the experiment off, so it could run with zero eyes. Engineer C kept the human gate on shared code. Each change waited longer, but the reviewers scaled with the volume, so the queue grew without becoming a backlog, and C started building tools for the gate.</p>
+    <div class="cta reveal d3">
+      {{nav}}
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+
+</script>

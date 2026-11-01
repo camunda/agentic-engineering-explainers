@@ -1,0 +1,258 @@
+---
+layout: chapter
+---
+<style>
+  :root {
+    --ink: #1b1b1b; --bg: #ffffff; --paper: #f5f3ed; --muted: rgba(27,27,27,.62);
+    --human: #ff905c; --agent: #8785ff; --review: #d5f37b; --ok: #2f9e44; --warn: #f08c00; --bad: #e03131;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-rounded, system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  a { color: inherit; }
+  code { overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(27,27,27,.07); padding: 1px 5px; border-radius: 5px; }
+  header.top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; z-index: 10; background: linear-gradient(var(--bg) 60%, transparent); }
+  header.top .brand { font-weight: 800; font-size: 18px; text-decoration: none; }
+  header.top .brand span { font-weight: 500; opacity: .6; font-size: 14px; margin-left: 8px; }
+  .pill { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; border: 0; cursor: pointer; font-family: inherit; }
+  .pill.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .pill.off { background: rgba(27,27,27,.12); color: var(--ink); }
+  nav.dots { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+  nav.dots a { width: 10px; height: 10px; border-radius: 50%; background: rgba(27,27,27,.2); transition: all .3s; position: relative; }
+  nav.dots a.on { background: var(--ink); transform: scale(1.3); }
+  nav.dots a span { position: absolute; left: 20px; top: -5px; white-space: nowrap; font-size: 12px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  nav.dots a:hover span { opacity: .8; }
+
+  section { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 90px 7vw 60px; }
+  .wrap { width: min(1080px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .wrap > * { min-width: 0; }
+  .wrap.single { grid-template-columns: 1fr; text-align: center; max-width: 880px; }
+  .kicker { font-size: 13px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; opacity: .55; }
+  h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; margin: 10px 0 18px; letter-spacing: -.5px; }
+  h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.15; margin: 8px 0 16px; letter-spacing: -.3px; }
+  p { font-size: 18px; margin: 0 0 14px; }
+  p.lead { font-size: 21px; }
+  .muted { color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s; }
+  .in .reveal { opacity: 1; transform: none; }
+  .in .reveal.d1 { transition-delay: .15s; } .in .reveal.d2 { transition-delay: .3s; } .in .reveal.d3 { transition-delay: .45s; } .in .reveal.d4 { transition-delay: .6s; }
+  .scroll-hint { margin-top: 40px; font-size: 13px; font-weight: 700; opacity: .5; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .panel { background: var(--paper); border-radius: 22px; padding: 18px; }
+
+  /* Headline numbers */
+  .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 26px; }
+  .nums div { background: var(--paper); padding: 16px 10px; text-align: center; }
+  .nums b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.05; }
+  .nums span { font-size: 13px; color: var(--muted); }
+
+  /* Before strip */
+  .before { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .before div { background: var(--paper); padding: 14px; font-size: 14px; }
+  .before b { display: block; font-family: var(--font-head, serif); font-weight: 400; font-size: 34px; line-height: 1.1; }
+  .before span { color: var(--muted); }
+
+  /* Explosion chart */
+  .chart { background: var(--paper); padding: 16px 16px 12px; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart .ctl { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 8px; }
+  .chart .ctl .sep { width: 1px; height: 22px; background: rgba(27,27,27,.25); margin: 0 6px; }
+  .seg { padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+  .seg.on { background: var(--ink); color: #fff; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; font-size: 12.5px; margin-top: 10px; }
+  .legend i { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; }
+  .tip { min-height: 22px; font-size: 13.5px; font-weight: 600; text-align: center; margin-top: 6px; }
+
+  /* Stage timelines */
+  .tl { display: grid; gap: 8px; }
+  .tl .ev { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: start; background: var(--paper); padding: 10px 14px; font-size: 14px; border-left: 6px solid var(--c, var(--ink)); }
+  .tl .ev time { font-weight: 600; font-size: 13px; color: var(--muted); padding-top: 1px; }
+  .tl .ev b { display: block; font-size: 15px; }
+  .tl .ev span { color: var(--muted); }
+  .tl .ev code { font-size: 12.5px; }
+  .in .tl .ev { animation: slide .6s both; }
+  .in .tl .ev:nth-child(2) { animation-delay: .15s; } .in .tl .ev:nth-child(3) { animation-delay: .3s; } .in .tl .ev:nth-child(4) { animation-delay: .45s; }
+  .in .tl .ev:nth-child(5) { animation-delay: .6s; } .in .tl .ev:nth-child(6) { animation-delay: .75s; } .in .tl .ev:nth-child(7) { animation-delay: .9s; } .in .tl .ev:nth-child(8) { animation-delay: 1.05s; }
+  @keyframes slide { from { opacity: 0; transform: translateX(-16px); } }
+
+  /* SDK fan-out */
+  .langs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+  .langs div { background: var(--paper); padding: 10px 4px; text-align: center; font-size: 12px; opacity: .25; transition: opacity .5s, background .5s; }
+  .langs div b { display: block; font-size: 15px; }
+  .langs div.on { opacity: 1; background: var(--purple-400, #8785ff); }
+
+  /* Scale out */
+  .out { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; text-align: left; }
+  .out > div { background: var(--paper); padding: 16px; }
+  .out h3 { margin: 0 0 4px; font-size: 18px; }
+  .out p { font-size: 14px; margin: 0 0 8px; }
+  .out svg { width: 100%; height: auto; display: block; }
+  .out ol { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; }
+  .out ol li { margin: 3px 0; }
+  .out .key { font-size: 12.5px; display: flex; gap: 14px; }
+  .out .key i { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; }
+  @media (max-width: 820px) { .out { grid-template-columns: 1fr; } }
+
+  /* Honest reading */
+  .caveats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-top: 18px; }
+  .caveats div { background: var(--paper); padding: 14px; font-size: 14.5px; }
+  .caveats b { display: block; font-size: 15.5px; margin-bottom: 4px; }
+  .caveats.three { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 820px) {
+    .nums { grid-template-columns: 1fr 1fr; }
+    .caveats, .before { grid-template-columns: 1fr; }
+    .caveats.three { grid-template-columns: 1fr; }
+    .langs { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 820px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav.dots { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+  /* Three engineers */
+  .cmp { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14.5px; text-align: left; }
+  .cmp th, .cmp td { padding: 9px 10px; border-bottom: 1px solid rgba(27,27,27,.12); vertical-align: top; }
+  .cmp thead th { font-size: 13px; text-transform: uppercase; letter-spacing: .8px; opacity: .7; }
+  .cmp tbody th { font-weight: 700; width: 26%; }
+  .cmp td b { font-weight: 800; }
+  .cmp-scroll { overflow-x: auto; }
+</style>
+
+<!-- 1 ------------------------------------------------------------------------------------------>
+<section id="intro" data-title="c8ctl">
+  <div class="wrap single">
+    <div class="kicker reveal">{{kicker}}</div>
+    <h1 class="reveal d1">c8ctl: a shared garden</h1>
+    <p class="lead reveal d2">The first case studies are about engineers. This one is about a repository: the Camunda 8 command-line tool, where the method left the SDKs it was born in, and many people grew a product inside one structure.</p>
+    <div class="scroll-hint">scroll &#x2193;</div>
+  </div>
+</section>
+
+<!-- 13 ----------------------------------------------------------------------------------------->
+<section id="c8ctl" data-title="c8ctl">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">c8ctl &middot; A shared garden</div>
+      <h2 class="reveal d1">The method leaves the SDKs.</h2>
+      <p class="reveal d2"><a href="https://github.com/camunda/c8ctl"><code>c8ctl</code></a> is the Camunda 8 command-line tool. It is not an SDK, and it was not started by Engineer A. That makes it the test of whether the method is general: here it left its original domain, and other people grew a product inside it.</p>
+      <p class="reveal d2">Its originator started with a clear vision, down to the user experience: every command is a verb and a resource, like <code>c8 list pi</code>. He committed that vision first, as a plan, agent instructions and the API spec. Then he set up CI on a matrix of versions and let a coding agent run at full speed. The first day ended with every command implemented, tests, docs and a 1.0.0 release.</p>
+      <p class="reveal d3">Integration testing was done by users, with the originator as user zero. Today every merge publishes to an <code>alpha</code> channel straight away. When nobody reports a problem against an alpha, it is promoted to stable.</p>
+    </div>
+    <div class="before reveal d2">
+      <div><b>1 day</b><span>from first commit to 1.0.0, January 2026</span></div>
+      <div><b>26</b><span>people have committed; 18 of them joined after the hardening</span></div>
+      <div><b>148 &#x2192; 23</b><span>alpha releases, and the ones promoted to stable</span></div>
+      <div><b>40,600</b><span>npm downloads, 4,000&ndash;6,000 a month</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ----------------------------------------------------------------------------------------->
+<section id="c8ctl-phases" data-title="c8ctl, phase by phase">
+  <div class="wrap single" style="max-width:960px">
+    <div class="kicker reveal">Phase by phase</div>
+    <h2 class="reveal d1">Each phase is a chapter of this explainer.</h2>
+    <div class="tl reveal d2" style="text-align:left">
+      <div class="ev" style="--c:var(--human)"><time>Jan 2026</time><div><b>Vision at the edge, agents in the middle</b><span>The plan and the verb&ndash;resource grammar came first; a coding agent implemented every command on day one. The originator&rsquo;s issues are one-line specs, and his bug reports are integration tests: &ldquo;investigate thoroughly and fix. also look into why no tests have caught this?!&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/111">#111</a>). <a href="./humans.html">The role of humans</a>, <a href="./eleventh.html">Get to the eleventh</a>.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Feb&ndash;Mar</time><div><b>Agents as users</b><span>An issue to &ldquo;make c8ctl ready for consumption by agents&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/127">#127</a>) led to JSON help, <code>--fields</code>, <code>--dry-run</code> and a <code>CONTEXT.md</code> for agents. <a href="./agent-users.html">Designing for agent users</a>.</span></div></div>
+      <div class="ev" style="--c:var(--agent)"><time>Apr&ndash;May</time><div><b>Make incomplete implementations impossible</b><span>Engineer A arrives: 257 commits in April. Command facts were spread over five files, repeated up to three times, and missing for most verbs (<a href="https://github.com/camunda/c8ctl/issues/223">#223</a>). One declarative command registry now drives validation, help, completion, dispatch and the README. Structural tests and lint guards keep it that way, and an allow-list of unmigrated code was ratcheted to zero (<a href="https://github.com/camunda/c8ctl/issues/300">#300</a>). <a href="./derive.html">Derivation over duplication</a>, <a href="./enforce.html">Rules that enforce themselves</a>.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>Apr &rarr;</time><div><b>No flaky tests, no stable-only testing</b><span>Intermittent failures are fixed at the cause (<a href="https://github.com/camunda/c8ctl/issues/312">#312</a>, <a href="https://github.com/camunda/c8ctl/issues/316">#316</a>, <a href="https://github.com/camunda/c8ctl/issues/344">#344</a>). In one, an agent re-ran a failing job and called it a flake; the diagnosis found a product defect, and the rule now loads for every agent (<a href="https://github.com/camunda/c8ctl/issues/656">#656</a>). Users on the alpha channel report against exact versions (<a href="https://github.com/camunda/c8ctl/issues/523">#523</a>, <a href="https://github.com/camunda/c8ctl/issues/526">#526</a>, <a href="https://github.com/camunda/c8ctl/issues/630">#630</a>). <a href="./no-flaky.html">There are no flaky tests</a>, <a href="./fails-somewhere.html">All software fails somewhere</a>.</span></div></div>
+      <div class="ev" style="--c:var(--review)"><time>Jun&ndash;Oct</time><div><b>Others grow in the structure</b><span>Contributors from other teams add the commands their work needs, and run the method themselves. <a href="./start.html">Start with one garden</a>, <a href="./conway.html">Conway&rsquo;s Law still holds</a>.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ----------------------------------------------------------------------------------------->
+<section id="c8ctl-defects" data-title="A defect class, closed">
+  <div class="wrap single" style="max-width:1000px">
+    <div class="kicker reveal">What the registry changed</div>
+    <h2 class="reveal d1">The bugs moved from missing parts to the edges.</h2>
+    <p class="reveal d2">Before the registry, users found commands with parts missing: a <code>get</code> that did not exist, a flag rejected by every search command, a flag accepted and then ignored. When one was patched, the next one was still possible to write. <a href="https://github.com/camunda/c8ctl/issues/256">#256</a> says so: the instance was fixed, &ldquo;but the pattern is still expressible&rdquo;.</p>
+    <div class="chart reveal d2">
+      <svg viewBox="0 0 760 210" role="img" aria-label="Issues reporting an incomplete command, February to October 2026">
+<line x1="60" y1="170" x2="730" y2="170" stroke="currentColor" stroke-opacity=".3"/>
+<text x="60" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Feb</text>
+<text x="129" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Mar</text>
+<text x="205" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Apr</text>
+<text x="278" y="190" font-size="12" fill="currentColor" fill-opacity=".6">May</text>
+<text x="355" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Jun</text>
+<text x="428" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Jul</text>
+<text x="504" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Aug</text>
+<text x="580" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Sep</text>
+<text x="654" y="190" font-size="12" fill="currentColor" fill-opacity=".6">Oct</text>
+<line x1="237" y1="32" x2="237" y2="170" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="3 3"/><text x="241" y="28" font-size="11" fill="currentColor">registry</text>
+<line x1="251" y1="48" x2="251" y2="170" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="3 3"/><text x="255" y="44" font-size="11" fill="currentColor">guards</text>
+<line x1="305" y1="64" x2="305" y2="170" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="3 3"/><text x="309" y="60" font-size="11" fill="currentColor">plugin contract</text>
+<text x="4" y="104" font-size="11" fill="currentColor" fill-opacity=".7">built-in</text><text x="4" y="144" font-size="11" fill="currentColor" fill-opacity=".7">edges</text>
+<a href="https://github.com/camunda/c8ctl/issues/41"><circle cx="72" cy="100" r="6" fill="var(--human)"><title>#41 2026-02-06: get incidents missing</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/43"><circle cx="72" cy="86" r="6" fill="var(--human)"><title>#43 2026-02-06: get form missing</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/111"><circle cx="124" cy="100" r="6" fill="var(--human)"><title>#111 2026-02-27: --between rejected by every search</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/246"><circle cx="239" cy="100" r="6" fill="var(--human)"><title>#246 2026-04-15: help empty for plugin verbs</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/256"><circle cx="239" cy="86" r="6" fill="var(--human)"><title>#256 2026-04-15: verb flag silently ignored</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/441"><circle cx="394" cy="100" r="6" fill="var(--human)"><title>#441 2026-06-17: empty resource list for run</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/358"><circle cx="286" cy="140" r="6" fill="var(--agent)"><title>#358 2026-05-04: plugins cannot declare flags</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/363"><circle cx="301" cy="140" r="6" fill="var(--agent)"><title>#363 2026-05-10: plugin name collisions</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/364"><circle cx="301" cy="126" r="6" fill="var(--agent)"><title>#364 2026-05-10: unsatisfiable plugin flag</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/407"><circle cx="335" cy="140" r="6" fill="var(--agent)"><title>#407 2026-05-24: verb aliases do not dispatch</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/593"><circle cx="649" cy="140" r="6" fill="var(--agent)"><title>#593 2026-09-29: plugin re-reads argv</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/597"><circle cx="651" cy="140" r="6" fill="var(--agent)"><title>#597 2026-09-30: global flag swallows next flag</title></circle></a>
+<a href="https://github.com/camunda/c8ctl/issues/638"><circle cx="683" cy="140" r="6" fill="var(--agent)"><title>#638 2026-10-13: completion after global flags</title></circle></a>
+</svg>
+    </div>
+    <p class="reveal d3">After April, one built-in report of this kind remains (<a href="https://github.com/camunda/c8ctl/issues/441">#441</a>). The rest are at the edges the registry did not cover yet: plugins, verb aliases, flag parsing and shell completion. Each got a structural fix rather than a patch: a plugin contract, and two-stage flag parsing that scopes every flag to its verb (<a href="https://github.com/camunda/c8ctl/issues/373">#373</a>).</p>
+    <p class="src reveal d3">Source: issues in <code>camunda/c8ctl</code>, open and closed, to October 2026, classified by hand. Built-in: a command, flag or help entry that was declared but missing or not wired (<a href="https://github.com/camunda/c8ctl/issues/41">#41</a>, <a href="https://github.com/camunda/c8ctl/issues/43">#43</a>, <a href="https://github.com/camunda/c8ctl/issues/111">#111</a>, <a href="https://github.com/camunda/c8ctl/issues/246">#246</a>, <a href="https://github.com/camunda/c8ctl/issues/256">#256</a>, <a href="https://github.com/camunda/c8ctl/issues/441">#441</a>). Edges: the same kind of gap in plugins, aliases, parsing or completion (<a href="https://github.com/camunda/c8ctl/issues/358">#358</a>, <a href="https://github.com/camunda/c8ctl/issues/363">#363</a>, <a href="https://github.com/camunda/c8ctl/issues/364">#364</a>, <a href="https://github.com/camunda/c8ctl/issues/407">#407</a>, <a href="https://github.com/camunda/c8ctl/issues/593">#593</a>, <a href="https://github.com/camunda/c8ctl/issues/597">#597</a>, <a href="https://github.com/camunda/c8ctl/issues/638">#638</a>). The numbers are small; the chart shows where the bugs are, not a rate.</p>
+  </div>
+</section>
+
+<!-- 16 ----------------------------------------------------------------------------------------->
+<section id="c8ctl-garden" data-title="Growing in the garden">
+  <div class="wrap single" style="max-width:1080px">
+    <div class="kicker reveal">Many gardeners</div>
+    <h2 class="reveal d1">The structure tells new contributors where things go.</h2>
+    <p class="reveal d2">28 people have filed issues and 26 have committed. Most arrived after the hardening, and they arrive with features, not with questions about where to put them.</p>
+    <div class="caveats three reveal d2">
+      <div><b>They add what they need</b>Teams added the commands their own work needed: wait states (<a href="https://github.com/camunda/c8ctl/issues/437">#437</a>), Business IDs (<a href="https://github.com/camunda/c8ctl/issues/438">#438</a>), job custom headers (<a href="https://github.com/camunda/c8ctl/issues/447">#447</a>), physical tenants, suspend and resume, and process-instance migration and modification (<a href="https://github.com/camunda/c8ctl/issues/628">#628</a>, <a href="https://github.com/camunda/c8ctl/issues/674">#674</a>).</div>
+      <div><b>They build to the structure</b>One contributor asked for the cluster plugin to &ldquo;declare flags instead of re-reading <code>process.argv</code>&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/593">#593</a>). Another made plugins declare the c8ctl version they need (<a href="https://github.com/camunda/c8ctl/issues/523">#523</a>). A third built an element-template migration engine in about ten small, typed, tested slices, and wrote its bugs up as defect classes (<a href="https://github.com/camunda/c8ctl/issues/643">#643</a>&ndash;<a href="https://github.com/camunda/c8ctl/issues/660">#660</a>).</div>
+      <div><b>They run the method themselves</b>The originator designed an agentic pipeline with an implementer, two independent reviewers and a deterministic merge coordinator (<a href="https://github.com/camunda/c8ctl/issues/577">#577</a>). Another engineer turned an audit into tickets for red/green checks on fixes, coverage ratchets and reports of runs that pass only on re-run (<a href="https://github.com/camunda/c8ctl/issues/664">#664</a>&ndash;<a href="https://github.com/camunda/c8ctl/issues/670">#670</a>).</div>
+    </div>
+    <p class="reveal d3">An automated repository audit in July, run by an agent skill, called c8ctl &ldquo;a near-exemplar of LLM-velocity engineering discipline&rdquo; (<a href="https://github.com/camunda/c8ctl/issues/474">#474</a>). The philosophy is &ldquo;if it is green, it merges&rdquo;, and <code>main</code> enforces it: a pull request can only merge when the <code>Tests passed</code> check is green, and direct pushes are rejected. <a href="./merge-gate.html">The merge button is part of the system</a>.</p>
+    <p class="src reveal d3">Source: git history, issues and releases of <code>camunda/c8ctl</code>, and npm download counts for <code>@camunda8/cli</code>, to October 2026. Branch rules checked on the repository in November 2026.</p>
+  </div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------------------------------>
+<section id="summary" data-title="Summary">
+  <div class="wrap single">
+    <div class="kicker reveal">So</div>
+    <h2 class="reveal d1">A one-shot became a structure that 26 people build in.</h2>
+    <p class="lead reveal d2">A clear vision and a coding agent produced a working tool in a day. Users found what was missing. Hardening made whole classes of mistake impossible, and that structure is what let other teams, and their agents, add what they needed without asking where it goes. Only green changes merge.</p>
+    <div class="cta reveal d3">
+      {{nav}}
+    </div>
+  </div>
+</section>
+
+<script>
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sections = [...document.querySelectorAll('section')];
+  const nav = document.querySelector('nav.dots');
+  for (const s of sections) {
+    const a = document.createElement('a');
+    a.href = `#${s.id}`; a.innerHTML = `<span>${s.dataset.title}</span>`; a.setAttribute('aria-label', s.dataset.title);
+    nav.append(a);
+  }
+  const dots = [...nav.children];
+  const seen = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting && !e.target.classList.contains('in')) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); }
+  }, { threshold: 0.25 });
+  const current = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', sections[i] === e.target));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  for (const s of sections) { seen.observe(s); current.observe(s); }
+
+</script>
