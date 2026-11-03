@@ -10,7 +10,7 @@ Interactive explainers, published at https://camunda.github.io/agentic-engineeri
 - 00 [From Dark Factory to Software Garden](https://camunda.github.io/agentic-engineering-explainers/dark-factory.html) (`src/pages/dark-factory.html`)
 - 01 [The role of humans](https://camunda.github.io/agentic-engineering-explainers/humans.html) (`src/pages/humans.html`)
 - 02 [The organisation of agents](https://camunda.github.io/agentic-engineering-explainers/garden.html) (`src/pages/garden.html`)
-- 03 [Two ways to lose](https://camunda.github.io/agentic-engineering-explainers/risk.html) (`src/pages/risk.html`)
+- 03 [Engineering Risk](https://camunda.github.io/agentic-engineering-explainers/risk.html) (`src/pages/risk.html`)
 
 **Quality** (04–08): How you know it's any good, at agentic speed.
 

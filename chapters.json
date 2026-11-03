@@ -30,9 +30,9 @@
       },
       {
         "id": "risk",
-        "title": "Two ways to lose",
+        "title": "Engineering Risk",
         "summary": "Too careful loses the market; too careless loses trust. Engineering manages two trade-offs: speed against risk, and speed against complexity.",
-        "tagline": "Weeds and drought: too careless, or too careful. It's the engineering part.",
+        "tagline": "Two ways to lose: weeds or drought, too careless or too careful.",
         "kind": "Scroll-through &middot; interactive",
         "length": "~8 min"
       }
