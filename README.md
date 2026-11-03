@@ -32,23 +32,24 @@ Interactive explainers, published at https://camunda.github.io/agentic-engineeri
 - 13 [Get to the eleventh](https://camunda.github.io/agentic-engineering-explainers/eleventh.html) (`src/pages/eleventh.html`)
 - 14 [The merge button is part of the system](https://camunda.github.io/agentic-engineering-explainers/merge-gate.html) (`src/pages/merge-gate.html`)
 
-**Organisation** (15–19): Rolling it out: people, teams, tools and bottlenecks.
+**Organisation** (15–20): Rolling it out: people, teams, tools and bottlenecks.
 
 - 15 [The bottleneck moved](https://camunda.github.io/agentic-engineering-explainers/constraints.html) (`src/pages/constraints.html`)
-- 16 [The constraint is mindset, not the model](https://camunda.github.io/agentic-engineering-explainers/mindset.html) (`src/pages/mindset.html`)
-- 17 [You are the skill](https://camunda.github.io/agentic-engineering-explainers/skill.html) (`src/pages/skill.html`)
-- 18 [Conway's Law still holds](https://camunda.github.io/agentic-engineering-explainers/conway.html) (`src/pages/conway.html`)
-- 19 [Start with one garden](https://camunda.github.io/agentic-engineering-explainers/start.html) (`src/pages/start.html`)
+- 16 [It was never the typing](https://camunda.github.io/agentic-engineering-explainers/grief.html) (`src/pages/grief.html`)
+- 17 [The constraint is mindset, not the model](https://camunda.github.io/agentic-engineering-explainers/mindset.html) (`src/pages/mindset.html`)
+- 18 [You are the skill](https://camunda.github.io/agentic-engineering-explainers/skill.html) (`src/pages/skill.html`)
+- 19 [Conway's Law still holds](https://camunda.github.io/agentic-engineering-explainers/conway.html) (`src/pages/conway.html`)
+- 20 [Start with one garden](https://camunda.github.io/agentic-engineering-explainers/start.html) (`src/pages/start.html`)
 
-**Case studies** (20–22): What happened when we did it: the numbers, from the git history.
+**Case studies** (21–23): What happened when we did it: the numbers, from the git history.
 
-- 20 [The Cambrian explosion](https://camunda.github.io/agentic-engineering-explainers/case-study.html) (`src/pages/case-study.html`)
-- 21 [Three shapes](https://camunda.github.io/agentic-engineering-explainers/three-shapes.html) (`src/pages/three-shapes.html`)
-- 22 [c8ctl](https://camunda.github.io/agentic-engineering-explainers/c8ctl.html) (`src/pages/c8ctl.html`)
+- 21 [The Cambrian explosion](https://camunda.github.io/agentic-engineering-explainers/case-study.html) (`src/pages/case-study.html`)
+- 22 [Three shapes](https://camunda.github.io/agentic-engineering-explainers/three-shapes.html) (`src/pages/three-shapes.html`)
+- 23 [c8ctl](https://camunda.github.io/agentic-engineering-explainers/c8ctl.html) (`src/pages/c8ctl.html`)
 
-**Conclusion** (23): What it comes down to.
+**Conclusion** (24): What it comes down to.
 
-- 23 [Agency, not AGENTS.md](https://camunda.github.io/agentic-engineering-explainers/agency.html) (`src/pages/agency.html`)
+- 24 [Agency, not AGENTS.md](https://camunda.github.io/agentic-engineering-explainers/agency.html) (`src/pages/agency.html`)
 <!-- chapters:end -->
 
 The case study's numbers are snapshots from October and November 2026; the data scripts that produced them are not in this repo.

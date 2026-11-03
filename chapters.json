@@ -158,6 +158,14 @@
         "length": "~6 min"
       },
       {
+        "id": "grief",
+        "title": "It was never the typing",
+        "summary": "For many engineers, writing code is identity. Agents bring a real loss, a team that splits, and a temptation to lead by fear. Name the loss, protect the dip, pair across the spread, and show what carries over.",
+        "tagline": "Grief is part of the rollout.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
         "id": "mindset",
         "title": "The constraint is mindset, not the model",
         "summary": "Same model, opposite results. The beliefs, incentives and learning curve that decide which.",
