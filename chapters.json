@@ -12,6 +12,14 @@
         "tagline": "Why we stopped calling it a dark factory."
       },
       {
+        "id": "grief",
+        "title": "It was never the typing",
+        "summary": "For many engineers, writing code is identity. Agents bring a real loss, a team that splits, and a temptation to lead by fear. Name the loss, protect the dip, pair across the spread, and show what carries over.",
+        "tagline": "Grief is part of the rollout.",
+        "kind": "Scroll-through &middot; interactive",
+        "length": "~6 min"
+      },
+      {
         "id": "humans",
         "title": "The role of humans in the agentic SDLC",
         "short": "The role of humans",
@@ -154,14 +162,6 @@
         "title": "The bottleneck moved",
         "summary": "The Theory of Constraints for agentic engineering: find where work waits, fix it, find the next one.",
         "tagline": "Find the constraint, fix it, repeat.",
-        "kind": "Scroll-through &middot; interactive",
-        "length": "~6 min"
-      },
-      {
-        "id": "grief",
-        "title": "It was never the typing",
-        "summary": "For many engineers, writing code is identity. Agents bring a real loss, a team that splits, and a temptation to lead by fear. Name the loss, protect the dip, pair across the spread, and show what carries over.",
-        "tagline": "Grief is part of the rollout.",
         "kind": "Scroll-through &middot; interactive",
         "length": "~6 min"
       },

@@ -5,37 +5,37 @@ Agentic engineering, from the model to the organisation.
 Interactive explainers, published at https://camunda.github.io/agentic-engineering-explainers/. Chapters, in reading order:
 
 <!-- chapters:start (generated from chapters.json by scripts/build.mjs; do not edit) -->
-**Why** (00–03): The model, where humans fit in it, and the risks it balances.
+**Why** (00–04): The model, where humans fit in it, and the risks it balances.
 
 - 00 [From Dark Factory to Software Garden](https://camunda.github.io/agentic-engineering-explainers/dark-factory.html) (`src/pages/dark-factory.html`)
-- 01 [The role of humans](https://camunda.github.io/agentic-engineering-explainers/humans.html) (`src/pages/humans.html`)
-- 02 [The organisation of agents](https://camunda.github.io/agentic-engineering-explainers/garden.html) (`src/pages/garden.html`)
-- 03 [Engineering Risk](https://camunda.github.io/agentic-engineering-explainers/risk.html) (`src/pages/risk.html`)
+- 01 [It was never the typing](https://camunda.github.io/agentic-engineering-explainers/grief.html) (`src/pages/grief.html`)
+- 02 [The role of humans](https://camunda.github.io/agentic-engineering-explainers/humans.html) (`src/pages/humans.html`)
+- 03 [The organisation of agents](https://camunda.github.io/agentic-engineering-explainers/garden.html) (`src/pages/garden.html`)
+- 04 [Engineering Risk](https://camunda.github.io/agentic-engineering-explainers/risk.html) (`src/pages/risk.html`)
 
-**Quality** (04–08): How you know it's any good, at agentic speed.
+**Quality** (05–09): How you know it's any good, at agentic speed.
 
-- 04 [Agentic Loop Engineering](https://camunda.github.io/agentic-engineering-explainers/loops.html) (`src/pages/loops.html`)
-- 05 [There are no flaky tests](https://camunda.github.io/agentic-engineering-explainers/no-flaky.html) (`src/pages/no-flaky.html`)
-- 06 [All software fails somewhere](https://camunda.github.io/agentic-engineering-explainers/fails-somewhere.html) (`src/pages/fails-somewhere.html`)
-- 07 [Point them at a number](https://camunda.github.io/agentic-engineering-explainers/telemetry.html) (`src/pages/telemetry.html`)
-- 08 [Zero-eyes PR approval](https://camunda.github.io/agentic-engineering-explainers/zero-eyes.html) (`src/pages/zero-eyes.html`)
+- 05 [Agentic Loop Engineering](https://camunda.github.io/agentic-engineering-explainers/loops.html) (`src/pages/loops.html`)
+- 06 [There are no flaky tests](https://camunda.github.io/agentic-engineering-explainers/no-flaky.html) (`src/pages/no-flaky.html`)
+- 07 [All software fails somewhere](https://camunda.github.io/agentic-engineering-explainers/fails-somewhere.html) (`src/pages/fails-somewhere.html`)
+- 08 [Point them at a number](https://camunda.github.io/agentic-engineering-explainers/telemetry.html) (`src/pages/telemetry.html`)
+- 09 [Zero-eyes PR approval](https://camunda.github.io/agentic-engineering-explainers/zero-eyes.html) (`src/pages/zero-eyes.html`)
 
-**Structure** (09–11): Know where the model is reliable, and harden the edges at compiler speed.
+**Structure** (10–12): Know where the model is reliable, and harden the edges at compiler speed.
 
-- 09 [Every model has an envelope](https://camunda.github.io/agentic-engineering-explainers/envelope.html) (`src/pages/envelope.html`)
-- 10 [Rules that enforce themselves](https://camunda.github.io/agentic-engineering-explainers/enforce.html) (`src/pages/enforce.html`)
-- 11 [Derivation over duplication](https://camunda.github.io/agentic-engineering-explainers/derive.html) (`src/pages/derive.html`)
+- 10 [Every model has an envelope](https://camunda.github.io/agentic-engineering-explainers/envelope.html) (`src/pages/envelope.html`)
+- 11 [Rules that enforce themselves](https://camunda.github.io/agentic-engineering-explainers/enforce.html) (`src/pages/enforce.html`)
+- 12 [Derivation over duplication](https://camunda.github.io/agentic-engineering-explainers/derive.html) (`src/pages/derive.html`)
 
-**System** (12–14): The tools agents use, and the gates they pass through.
+**System** (13–15): The tools agents use, and the gates they pass through.
 
-- 12 [Designing for agent users](https://camunda.github.io/agentic-engineering-explainers/agent-users.html) (`src/pages/agent-users.html`)
-- 13 [Get to the eleventh](https://camunda.github.io/agentic-engineering-explainers/eleventh.html) (`src/pages/eleventh.html`)
-- 14 [The merge button is part of the system](https://camunda.github.io/agentic-engineering-explainers/merge-gate.html) (`src/pages/merge-gate.html`)
+- 13 [Designing for agent users](https://camunda.github.io/agentic-engineering-explainers/agent-users.html) (`src/pages/agent-users.html`)
+- 14 [Get to the eleventh](https://camunda.github.io/agentic-engineering-explainers/eleventh.html) (`src/pages/eleventh.html`)
+- 15 [The merge button is part of the system](https://camunda.github.io/agentic-engineering-explainers/merge-gate.html) (`src/pages/merge-gate.html`)
 
-**Organisation** (15–20): Rolling it out: people, teams, tools and bottlenecks.
+**Organisation** (16–20): Rolling it out: people, teams, tools and bottlenecks.
 
-- 15 [The bottleneck moved](https://camunda.github.io/agentic-engineering-explainers/constraints.html) (`src/pages/constraints.html`)
-- 16 [It was never the typing](https://camunda.github.io/agentic-engineering-explainers/grief.html) (`src/pages/grief.html`)
+- 16 [The bottleneck moved](https://camunda.github.io/agentic-engineering-explainers/constraints.html) (`src/pages/constraints.html`)
 - 17 [The constraint is mindset, not the model](https://camunda.github.io/agentic-engineering-explainers/mindset.html) (`src/pages/mindset.html`)
 - 18 [You are the skill](https://camunda.github.io/agentic-engineering-explainers/skill.html) (`src/pages/skill.html`)
 - 19 [Conway's Law still holds](https://camunda.github.io/agentic-engineering-explainers/conway.html) (`src/pages/conway.html`)
