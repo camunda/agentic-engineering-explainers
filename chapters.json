@@ -53,7 +53,7 @@
       {
         "id": "loops",
         "title": "Agentic Loop Engineering",
-        "summary": "TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, and why it's engineering all the way down.",
+        "summary": "TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, an import graph that decides how much of the suite runs, and why it's engineering all the way down.",
         "tagline": "Irrigation: loops that climb to correctness.",
         "kind": "Scroll-through &middot; interactive",
         "length": "~6 min"
@@ -108,7 +108,7 @@
       {
         "id": "enforce",
         "title": "Rules that enforce themselves",
-        "summary": "A rule in a document is advice; a rule in the build is a fact. The enforcement ladder, ratchets, narrow exceptions, an always-green baseline, and turning review comments into checks.",
+        "summary": "A rule in a document is advice; a rule in the build is a fact. The enforcement ladder, ratchets, narrow exceptions, an always-green baseline, and turning review comments and incidents into checks.",
         "tagline": "Trellises that agents can't lean past.",
         "kind": "Scroll-through &middot; animated",
         "length": "~5 min"

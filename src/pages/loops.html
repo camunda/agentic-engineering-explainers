@@ -106,12 +106,21 @@ layout: chapter
   .lever b { display: block; font-size: 17px; margin-bottom: 4px; }
   .lever span { font-size: 14px; color: var(--muted); }
 
+  /* Import graph */
+  .graph .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .graph .row span { font-size: 13px; font-weight: 800; align-self: center; margin-right: 4px; }
+  .graph .pill.ghost[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .specs { display: grid; grid-template-columns: repeat(23, 1fr); gap: 3px; margin: 12px 0 4px; }
+  .specs i { aspect-ratio: 1; border-radius: 2px; background: rgba(27,27,27,.1); transition: background .4s; }
+  .specs i.on { background: var(--agent); }
+
   /* Summary: loops all the way down */
   .down { width: 260px; height: 260px; margin: 26px auto 0; display: block; }
   .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
   @media (max-width: 820px) {
     .wrap, .two, .levers { grid-template-columns: 1fr; }
+    .specs { grid-template-columns: repeat(15, 1fr); }
     nav.dots { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -291,11 +300,41 @@ layout: chapter
 </section>
 
 <!-- 9 ------------------------------------------------------------------------------------------>
+<section id="graph" data-title="The import graph">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The shape of the code</div>
+      <h2 class="reveal d1">The import graph decides how much of the suite a change runs.</h2>
+      <p class="reveal d2">Test impact analysis runs the tests whose imports reach the changed file. It can only be as narrow as the import graph. A barrel file, an index that re-exports a whole folder, connects every module in that folder to every test that imports any of them.</p>
+      <p class="reveal d3">In the Camunda Hub frontend, an edit to one store selected 966 of about 1,380 test files, because every test reached every store through the barrel. With each store imported from its own module, the same edit selects 64. Removing the services barrel takes an edit to one service from 944 test files to 199.</p>
+      <p class="reveal d4 muted">Cutting imports can change the order modules load in. The Hub's first attempt failed on start; that crash became a lint rule (chapter {{num:enforce}}, <a href="./enforce.html">Rules that enforce themselves</a>).</p>
+    </div>
+    <div class="lab graph reveal d2">
+      <div class="row"><span>Edit</span>
+        <button class="pill ghost" data-file="store" aria-pressed="true" data-hint="choose which file the agent edits">a store</button>
+        <button class="pill ghost" data-file="service" aria-pressed="false">a service</button>
+      </div>
+      <div class="row"><span>Imports</span>
+        <button class="pill ghost" data-mode="barrel" aria-pressed="true" data-hint="switch between barrel imports and direct imports">through the barrel</button>
+        <button class="pill ghost" data-mode="direct" aria-pressed="false">from each module</button>
+      </div>
+      <div class="specs" id="specs" aria-hidden="true"></div>
+      <div class="nums">
+        <div><b id="gRun"></b>test files run</div>
+        <div><b id="gShare"></b>of the suite</div>
+        <div><b id="gSkip"></b>skipped</div>
+      </div>
+      <p class="muted" style="font-size:13px;margin:10px 0 0">Measured with Jest <code>--findRelatedTests</code> in the Hub frontend (SaaS build). One square is about ten test files.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ----------------------------------------------------------------------------------------->
 <section id="down" data-title="All the way down">
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">Once you understand the loop, it's engineering all the way down.</h2>
-    <p class="lead reveal d2">Designing the conditions. Placing each check in the right loop. Pushing detection inward. Making loops faster and cheaper. Trading time and resources for confidence. Agents go round the loops; engineers design them.</p>
+    <p class="lead reveal d2">Designing the conditions. Placing each check in the right loop. Pushing detection inward. Making loops faster and cheaper, down to the shape of the import graph. Trading time and resources for confidence. Agents go round the loops; engineers design them.</p>
     <svg class="down reveal d3" viewBox="0 0 260 260" aria-hidden="true" id="downSvg"></svg>
     <div class="cta reveal d4">
       {{nav}}
@@ -450,6 +489,29 @@ layout: chapter
   }
   k.addEventListener('input', lab);
   lab();
+
+  // Import graph: test files an edit selects, with and without the barrel (measured).
+  const SUITE = 1382;
+  const RUNS = { store: { barrel: 966, direct: 64 }, service: { barrel: 944, direct: 199 } };
+  const specs = document.getElementById('specs');
+  const SQUARES = Math.round(SUITE / 10);
+  // A fixed shuffle, so the direct-import selection is a subset of the barrel one.
+  const order = [...Array(SQUARES).keys()].map((i) => [Math.imul(i + 1, 2654435761) >>> 0, i]).sort((a, b) => a[0] - b[0]).map(([, i]) => i);
+  for (let i = 0; i < SQUARES; i++) specs.append(document.createElement('i'));
+  const sel = { file: 'store', mode: 'barrel' };
+  function graph() {
+    const n = RUNS[sel.file][sel.mode];
+    const lit = new Set(order.slice(0, Math.round(n / 10)));
+    [...specs.children].forEach((sq, i) => sq.classList.toggle('on', lit.has(i)));
+    document.getElementById('gRun').textContent = n;
+    document.getElementById('gShare').textContent = `${Math.round((100 * n) / SUITE)}%`;
+    document.getElementById('gSkip').textContent = SUITE - n;
+    document.querySelectorAll('.graph [data-file]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.file === sel.file));
+    document.querySelectorAll('.graph [data-mode]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.mode === sel.mode));
+  }
+  document.querySelectorAll('.graph [data-file], .graph [data-mode]').forEach((b) =>
+    b.addEventListener('click', () => { Object.assign(sel, b.dataset.file ? { file: b.dataset.file } : { mode: b.dataset.mode }); graph(); }));
+  graph();
 
   // All the way down: loops within loops within loops.
   const down = document.getElementById('downSvg');
