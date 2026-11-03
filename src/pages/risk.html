@@ -239,9 +239,9 @@ layout: chapter
     <div>
       <div class="kicker reveal">Measure it</div>
       <h2 class="reveal d1">Headlines aren't data.</h2>
-      <p class="reveal d2">&ldquo;The agent dropped the production database&rdquo; is rare and memorable, so it sets the intuition. Steer by the headline and you get one of two naive answers: <b>&ldquo;we have flags!&rdquo;</b>, a mitigation assumed to pay off without anyone measuring what it buys or what it costs, or <b>&ldquo;we must avoid risk&rdquo;</b>, which is losing slowly with a worst case as the excuse.</p>
+      <p class="reveal d2">&ldquo;The agent dropped the production database&rdquo; is rare and memorable, so it sets the intuition. Steer by the headline and you get one of two naive answers: <b>cargo-culted mitigations</b>, adopted because careful teams have them, without anyone measuring what they buy or what they cost, or <b>&ldquo;we must avoid risk&rdquo;</b>, which is losing slowly with a worst case as the excuse.</p>
       <p class="reveal d3">Quality is measurable. Count defect reports, and segment them <b>by surface</b> (API, SDK, UI, docs, data) and <b>by impact</b> (severity, customers affected, how long). Add where they're caught (by your loops or by customers), how fast you detect and restore, and how many changes cause one.</p>
-      <p class="reveal d4">Then treat every mitigation as a hypothesis. <b>Measure its benefit</b> on the surface it targets, and <b>weigh it against its complexity</b>. Keep it if the benefit is worth the cost; retire it if not. Risk is a number you can <a href="./telemetry.html">point the loops at</a>.</p>
+      <p class="reveal d4">Then treat every mitigation as a hypothesis. <b>Measure its benefit</b> on the surface it targets, and <b>weigh it against its complexity</b>. Keep it if the benefit is worth the cost; retire it if not. With agents writing the code, engineers finally have the time to weigh these balances in detail. Risk is a number you can <a href="./telemetry.html">point the loops at</a>.</p>
     </div>
     <div class="panel hm reveal d2">
       <div class="views" role="group" aria-label="View" data-hint="switch views">
@@ -252,7 +252,7 @@ layout: chapter
         <div class="mits" id="hmMits">
           <button class="pill ghost" data-m="contract">&#x1F4DC; Contract tests</button>
           <button class="pill ghost" data-m="docs">&#x1F4D8; Docs from the spec</button>
-          <button class="pill ghost" data-m="flags">&#x1F6A9; Feature flags</button>
+          <button class="pill ghost" data-m="signoff">&#x270D;&#xFE0F; Extra sign-off</button>
           <button class="pill ghost" data-m="migr">&#x21A9;&#xFE0F; Reversible migrations</button>
         </div>
       </div>
@@ -383,7 +383,7 @@ layout: chapter
     const MIT = {
       contract: { name: 'Contract tests', rows: [0, 1], cols: [0, 1, 2, 3], f: 0.5, c: 1 },
       docs: { name: 'Docs from the spec', rows: [3], cols: [0, 1, 2, 3], f: 0.3, c: 1 },
-      flags: { name: 'Feature flags', rows: [2], cols: [2, 3], f: 0.5, c: 2 },
+      signoff: { name: 'Extra sign-off', rows: [2], cols: [2, 3], f: 0.5, c: 2 },
       migr: { name: 'Reversible migrations', rows: [4], cols: [2, 3], f: 0.3, c: 3 },
     };
     const grid = document.getElementById('hmGrid'), cap = document.getElementById('hmCap');
@@ -419,7 +419,7 @@ layout: chapter
         cap.innerHTML = '<span style="color:var(--bad)">One outage.</span> It&rsquo;s all anyone remembers, so the answer is &ldquo;guard the database&rdquo; or &ldquo;stop shipping&rdquo;. Now look at the measured view.';
       } else if (last) {
         const without = risk(counts(active.filter((m) => m !== last))), saved = without - R;
-        cap.innerHTML = `<b>${last.name}</b>: risk ${Math.round(without)} &rarr; ${Math.round(R)} (&minus;${Math.round((saved / without) * 100)}%) for <span style="color:#b07a2a">+${last.c} complexity</span>. ${saved / last.c > 40 ? '<span style="color:var(--ok)">Earns its keep.</span>' : saved / last.c > 15 ? 'Worth it, on this surface.' : '<span style="color:var(--bad)">&ldquo;We have flags!&rdquo;</span> Having them isn&rsquo;t the point. Measured here, the benefit is small for the complexity. Reason about both.'}`;
+        cap.innerHTML = `<b>${last.name}</b>: risk ${Math.round(without)} &rarr; ${Math.round(R)} (&minus;${Math.round((saved / without) * 100)}%) for <span style="color:#b07a2a">+${last.c} complexity</span>. ${saved / last.c > 40 ? '<span style="color:var(--ok)">Earns its keep.</span>' : saved / last.c > 15 ? 'Worth it, on this surface.' : '<span style="color:var(--bad)">Cargo cult.</span> It feels careful, but measured here the benefit is small for the complexity. Reason about both.'}`;
       } else {
         cap.innerHTML = 'The outage is 12% of the risk. The steady stream of SDK and API defects is more than half. That&rsquo;s where mitigation pays. Try each one and compare.';
       }
