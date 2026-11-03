@@ -58,6 +58,11 @@ layout: chapter
   .rk .out div { background: #fff; border-radius: 12px; padding: 8px 12px; }
   .rk .out small { display: block; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
   .rk .out b { font-size: 20px; }
+  .rk .step { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-top: 12px; }
+  .rk .step + .try-it, .rk .step + .row, .rk .step + .mits { margin-top: 4px; }
+  .rk .mits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .rk .mits button { font-size: 12.5px; padding: 6px 11px; }
+  .rk .mits button.on { background: var(--ok); border-color: var(--ok); color: #fff; }
   .legend { display: flex; gap: 14px; font-size: 12px; font-weight: 800; margin-bottom: 4px; flex-wrap: wrap; }
   .legend i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
 
@@ -65,8 +70,10 @@ layout: chapter
   table.m { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 14px; }
   table.m th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; padding: 0 12px; }
   table.m td { background: var(--paper); padding: 9px 12px; vertical-align: top; }
-  table.m td:first-child { border-radius: 12px 0 0 12px; font-weight: 800; width: 40%; }
+  table.m td:first-child { border-radius: 12px 0 0 12px; font-weight: 800; width: 26%; }
+  table.m td:nth-child(2) { width: 38%; }
   table.m td:last-child { border-radius: 0 12px 12px 0; color: var(--muted); }
+  table.m + .src { margin-top: 2px; }
 
   /* Questions */
   .qs { display: grid; gap: 8px; }
@@ -88,7 +95,7 @@ layout: chapter
     <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">Two ways to lose</h1>
     <p class="lead reveal d1" style="font-weight:700;margin-top:-6px">It's not the agentic part. It's the engineering part.</p>
-    <p class="lead reveal d2">You can lose by shipping something broken. You can also lose by being too careful, while a faster competitor takes the deal, the market and the lead. Both are real. Balancing them, change by change, is engineering.</p>
+    <p class="lead reveal d2">You can lose by shipping something broken. You can also lose by being too careful, while a faster competitor takes the deal, the market and the lead. Both are real. Engineering does two things about them: it <b>locates</b> each change on the trade-off between them, and it <b>changes</b> the trade-off, lowering the risk so the right speed gets faster.</p>
     <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x2696;&#xFE0F;</div>
     <div class="scroll-hint">Scroll &#x2193;</div>
   </div>
@@ -134,15 +141,23 @@ layout: chapter
 <section id="curve" data-title="Change the curve">
   <div class="wrap">
     <div>
-      <div class="kicker reveal">The trade-off</div>
+      <div class="kicker reveal">Two moves</div>
       <h2 class="reveal d1">Don't just pick a point on the trade-off. Change the trade-off.</h2>
-      <p class="reveal d2">Business risk falls as you go faster. Quality risk rises. The total has a best point, and without engineering it's at a modest speed.</p>
-      <p class="reveal d3">Engineering is what moves it. Fast loops, real checks, gates that refuse bad changes and quick rollback all flatten the quality curve, so the same level of risk now allows much more speed. <b>That's what the rest of this book is about.</b></p>
+      <p class="reveal d2"><b>Locate.</b> Business risk falls as you go faster. Quality risk rises. The total has a best point, and without engineering it's at a modest speed. Finding it, change by change, is the first move.</p>
+      <p class="reveal d3"><b>Change the curve.</b> Every mitigation lowers quality risk at every speed: loops that catch mistakes in minutes, checks that can't be argued with, a gate that refuses bad changes, flags and rollback that make a change cheap to undo. Each one flattens the curve, and the best point moves right. Same risk, more speed. <b>The rest of this book is those mitigations.</b></p>
     </div>
     <div class="panel rk reveal d2">
-      <div class="legend"><span><i style="background:#4c6ef5"></i>Business risk</span><span><i style="background:var(--bad)"></i>Quality risk</span><span><i style="background:#1b1b1b"></i>Total</span></div>
-      <svg viewBox="0 0 440 230" id="rkSvg" role="img" aria-label="Business risk falls and quality risk rises with speed; engineering lowers quality risk so the best speed moves higher"></svg>
-      <div class="row"><span>Speed</span><input type="range" id="spd" min="0" max="100" value="20" data-hint="drag to choose a speed" aria-label="Speed" /><button class="pill ghost" id="eng" data-hint="then add engineering">&#x1F527; Add engineering</button></div>
+      <div class="legend"><span><i style="background:#4c6ef5"></i>Business risk</span><span><i style="background:var(--bad)"></i>Quality risk</span><span><i style="background:#1b1b1b"></i>Total</span><span><i style="background:#1b1b1b;opacity:.2"></i>Before mitigation</span></div>
+      <svg viewBox="0 0 440 230" id="rkSvg" role="img" aria-label="Business risk falls and quality risk rises with speed; each mitigation lowers quality risk so the best speed moves higher"></svg>
+      <div class="step">1 &middot; Locate</div>
+      <div class="row" data-hint="drag to find the best balance"><span>Speed</span><input type="range" id="spd" min="0" max="100" value="20" aria-label="Speed" /></div>
+      <div class="step">2 &middot; Change the curve</div>
+      <div class="mits" id="mits" data-hint="then add mitigations, one at a time">
+        <button class="pill ghost" data-k=".6">&#x1F501; Fast loops</button>
+        <button class="pill ghost" data-k=".65">&#x1F9EA; Real checks</button>
+        <button class="pill ghost" data-k=".7">&#x1F6A7; Merge gate</button>
+        <button class="pill ghost" data-k=".6">&#x21A9;&#xFE0F; Flags &amp; rollback</button>
+      </div>
       <div class="out">
         <div><small>Business risk</small><b id="rB">0</b></div>
         <div><small>Quality risk</small><b id="rQ">0</b></div>
@@ -155,24 +170,27 @@ layout: chapter
 </section>
 
 <!-- 5 ------------------------------------------------------------------------------------------>
-<section id="doors" data-title="Risk isn't uniform">
+<section id="doors" data-title="Risk isn't fixed">
   <div class="wrap">
     <div>
-      <div class="kicker reveal">Nuance</div>
-      <h2 class="reveal d1">Not every change carries the same risk. Don't treat them as if they do.</h2>
+      <div class="kicker reveal">Mitigation</div>
+      <h2 class="reveal d1">Risk isn't uniform, and it isn't fixed.</h2>
       <p class="reveal d2">One process for every change is the lazy answer in both directions: everything gets the scrutiny of a database migration, or nothing does.</p>
-      <p class="reveal d3">Ask two questions of each change: <b>how far can the damage spread</b>, and <b>how fast can we undo it?</b> Amazon calls these one-way and two-way doors. Walk through two-way doors quickly. Slow down for one-way doors, and turn as many one-way doors as you can into two-way ones.</p>
+      <p class="reveal d3">Ask two questions of each change: <b>how far can the damage spread</b>, and <b>how fast can we undo it?</b> Amazon calls these one-way and two-way doors. Walk through two-way doors quickly, and slow down for one-way doors. Then ask a third: <b>what would lower it?</b> Most risk can be engineered down before you decide how fast to go. Turn one-way doors into two-way ones, and make the blast radius small.</p>
     </div>
-    <table class="m reveal d2">
-      <thead><tr><th>Change</th><th>How to treat it</th></tr></thead>
-      <tbody>
-        <tr><td>UI copy, behind a flag</td><td>Two-way door. Ship it; the loops are enough.</td></tr>
-        <tr><td>New endpoint, additive</td><td>Contract tests, then ship. Easy to roll back.</td></tr>
-        <tr><td>Change to a public API</td><td>Consumer promises, a deprecation path, owners told.</td></tr>
-        <tr><td>Data migration</td><td>One-way door. Rehearse it, make it reversible if you can, and have a human decide.</td></tr>
-        <tr><td>Auth and payments</td><td>Small blast radius by design, extra gates, staged rollout.</td></tr>
-      </tbody>
-    </table>
+    <div class="reveal d2">
+      <table class="m">
+        <thead><tr><th>Change</th><th>Lower the risk</th><th>Then</th></tr></thead>
+        <tbody>
+          <tr><td>UI copy</td><td>Put it behind a flag.</td><td>Two-way door. Ship it; the loops are enough.</td></tr>
+          <tr><td>New endpoint, additive</td><td>Contract tests.</td><td>Ship it. Easy to roll back.</td></tr>
+          <tr><td>Change to a public API</td><td>Add the new beside the old, deprecate, tell the consumers.</td><td>A breaking change becomes an additive one.</td></tr>
+          <tr><td>Data migration</td><td>Reversible script, dual writes, rehearse on a copy.</td><td>A one-way door becomes nearly two-way. A human still decides.</td></tr>
+          <tr><td>Auth and payments</td><td>Small blast radius by design, staged rollout, extra gates.</td><td>A failure hits a few, not everyone.</td></tr>
+        </tbody>
+      </table>
+      <p class="src">Illustrative examples.</p>
+    </div>
   </div>
 </section>
 
@@ -190,6 +208,7 @@ layout: chapter
       <div class="reveal d2">What's the worst realistic case?<span>Not the worst imaginable one. And who would it hit?</span></div>
       <div class="reveal d3">How would we know?<span>Which loop, check or signal would catch it, and how soon.</span></div>
       <div class="reveal d4">How fast can we undo it?<span>Flags, rollback, staged rollout. Speed is safest when it's reversible.</span></div>
+      <div class="reveal d4">What would make it safer?<span>Flag it, split it, stage it, make it reversible. Lower the risk before you choose the speed.</span></div>
     </div>
   </div>
 </section>
@@ -199,7 +218,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">Neither slow nor reckless. Engineered.</h2>
-    <p class="lead reveal d2">Losing the market by being too careful and losing trust by being careless are both failures. Weigh both, change by change, by blast radius and reversibility. Then use engineering to move the trade-off itself, so you can go faster with more confidence, not less.</p>
+    <p class="lead reveal d2">Losing the market by being too careful and losing trust by being careless are both failures. Two moves, every time. <b>Locate</b> each change on the trade-off by blast radius and reversibility. Then <b>change the curve</b>: mitigate, so the same risk buys more speed. Done change by change and system by system, the right speed keeps getting faster.</p>
     <div class="cta reveal d3">
       {{nav}}
     </div>
@@ -225,44 +244,55 @@ layout: chapter
   for (const s of sections) { seen.observe(s); current.observe(s); }
   const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
 
-  // Risk curves: business risk falls with speed, quality risk rises; engineering flattens quality risk.
+  // Risk curves: business risk falls with speed, quality risk rises; each mitigation flattens quality risk.
   {
     const NS = 'http://www.w3.org/2000/svg';
-    const svg = document.getElementById('rkSvg'), slider = document.getElementById('spd'), btn = document.getElementById('eng'), cap = document.getElementById('rkCap');
+    const svg = document.getElementById('rkSvg'), slider = document.getElementById('spd'), cap = document.getElementById('rkCap');
+    const mits = [...document.querySelectorAll('#mits button')];
     const $ = (id) => document.getElementById(id);
     const X0 = 36, X1 = 425, Y0 = 200, Y1 = 12, YMAX = 1.3;
-    let engineered = false;
+    let k = 1; // product of the active mitigations' factors
     const B = (s) => 0.05 + 0.9 * Math.pow(1 - s, 1.5);
-    const Q = (s) => (engineered ? 0.03 + 0.35 : 0.03 + 1.5) * Math.pow(s, 3);
+    const Q0 = (s) => (0.03 + 1.5) * Math.pow(s, 3);
+    const Q = (s) => (0.03 + 1.5 * k) * Math.pow(s, 3);
+    const T0 = (s) => B(s) + Q0(s);
     const T = (s) => B(s) + Q(s);
     const px = (s) => X0 + (X1 - X0) * s, py = (v) => Y0 - (Y0 - Y1) * Math.min(v, YMAX) / YMAX;
     const el = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); svg.append(e); return e; };
     const path = (f) => { let d = ''; for (let i = 0; i <= 100; i++) d += `${i ? 'L' : 'M'}${px(i / 100).toFixed(1)} ${py(f(i / 100)).toFixed(1)} `; return d; };
-    const best = () => { let bs = 0; for (let i = 0; i <= 100; i++) if (T(i / 100) < T(bs)) bs = i / 100; return bs; };
+    const best = (f) => { let bs = 0; for (let i = 0; i <= 100; i++) if (f(i / 100) < f(bs)) bs = i / 100; return bs; };
     function draw() {
-      const s = +slider.value / 100, b = best();
+      const s = +slider.value / 100, b = best(T), b0 = best(T0), n = mits.filter((m) => m.classList.contains('on')).length;
       svg.innerHTML = '';
       el('line', { x1: X0, y1: Y0, x2: X1, y2: Y0, stroke: '#1b1b1b', 'stroke-opacity': .3, 'stroke-width': 2 });
       el('line', { x1: X0, y1: Y1, x2: X0, y2: Y0, stroke: '#1b1b1b', 'stroke-opacity': .3, 'stroke-width': 2 });
       el('text', { x: X1, y: 222, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 700, fill: '#1b1b1b', 'fill-opacity': .6 }).textContent = 'speed \u2192';
       el('text', { x: 18, y: 106, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: '#1b1b1b', 'fill-opacity': .6, transform: 'rotate(-90 18 106)' }).textContent = 'risk \u2192';
+      if (n) {
+        el('path', { d: path(Q0), fill: 'none', stroke: '#e03131', 'stroke-opacity': .25, 'stroke-width': 2, 'stroke-dasharray': '4 4' });
+        el('path', { d: path(T0), fill: 'none', stroke: '#1b1b1b', 'stroke-opacity': .2, 'stroke-width': 3, 'stroke-dasharray': '4 4' });
+        el('line', { x1: px(b0), y1: Y1 + 18, x2: px(b0), y2: Y0, stroke: '#1b1b1b', 'stroke-opacity': .25, 'stroke-width': 2, 'stroke-dasharray': '3 4' });
+        el('text', { x: px(b0) - 5, y: Y1 + 30, 'text-anchor': 'end', 'font-size': 11, 'font-weight': 800, fill: '#1b1b1b', 'fill-opacity': .4 }).textContent = 'before';
+        el('line', { x1: px(b0) + 4, y1: Y1 + 26, x2: px(b) - 6, y2: Y1 + 26, stroke: '#2f9e44', 'stroke-width': 2, 'marker-end': 'url(#rkArr)' });
+        const defs = el('defs', {}); defs.innerHTML = '<marker id="rkArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2f9e44"/></marker>';
+      }
       el('path', { d: path(B), fill: 'none', stroke: '#4c6ef5', 'stroke-width': 3 });
       el('path', { d: path(Q), fill: 'none', stroke: '#e03131', 'stroke-width': 3 });
       el('path', { d: path(T), fill: 'none', stroke: '#1b1b1b', 'stroke-width': 4 });
       el('line', { x1: px(b), y1: Y1, x2: px(b), y2: Y0, stroke: '#2f9e44', 'stroke-width': 2, 'stroke-dasharray': '5 5' });
-      el('text', { x: px(b) + 5, y: Y1 + 12, 'font-size': 11, 'font-weight': 800, fill: '#2f9e44' }).textContent = 'best balance';
+      el('text', { x: b > 0.75 ? px(b) - 5 : px(b) + 5, y: Y1 + 12, 'text-anchor': b > 0.75 ? 'end' : 'start', 'font-size': 11, 'font-weight': 800, fill: '#2f9e44' }).textContent = 'best balance';
       el('circle', { cx: px(s), cy: py(T(s)), r: 8, fill: '#1b1b1b' });
       $('rB').textContent = B(s).toFixed(2); $('rQ').textContent = Q(s).toFixed(2); $('rT').textContent = T(s).toFixed(2);
-      const d = s - b;
-      cap.innerHTML = d < -0.12 ? '<span style="color:#4c6ef5">Losing slowly.</span> Safe-looking, but the deals and the lead are going to someone faster.'
-        : d > 0.12 ? '<span style="color:var(--bad)">Losing fast.</span> Shipping faster than your confidence can keep up with.'
-        : engineered ? '<span style="color:var(--ok)">Engineered balance.</span> Much faster than before, at lower total risk.'
-        : 'The best balance, without engineering. Note how slow it is.';
+      const d = s - b, gain = Math.round((b / b0 - 1) * 100);
+      cap.innerHTML = d < -0.12 ? `<span style="color:#4c6ef5">Losing slowly.</span> Safe-looking, but the deals and the lead are going to someone faster.${n ? ' The mitigations moved the best point; move with it.' : ''}`
+        : d > 0.12 ? `<span style="color:var(--bad)">Losing fast.</span> Shipping faster than your confidence can keep up with.${n < mits.length ? ' Add mitigations to make this speed safe.' : ''}`
+        : n ? `<span style="color:var(--ok)">Engineered balance.</span> ${n} of ${mits.length} mitigations: the best speed is ${gain}% faster, at lower total risk.${n < mits.length ? ' Add another.' : ''}`
+        : 'Located: the best balance without mitigation. Note how slow it is. Now change the curve.';
     }
     slider.addEventListener('input', draw);
-    btn.addEventListener('click', () => {
-      engineered = !engineered;
-      btn.innerHTML = engineered ? '\u21A9 Remove engineering' : '\u{1F527} Add engineering';
+    for (const m of mits) m.addEventListener('click', () => {
+      m.classList.toggle('on');
+      k = mits.filter((x) => x.classList.contains('on')).reduce((p, x) => p * +x.dataset.k, 1);
       draw();
     });
     draw();
