@@ -183,7 +183,7 @@ layout: chapter
       <h2 class="reveal d1">Ratchet: freeze the violations, then let the list only shrink.</h2>
       <p class="reveal d2">A new rule often has existing violators. Fixing them all first stalls the rule. Waiting means new violations keep arriving.</p>
       <p class="reveal d3">c8ctl's test-import guard starts with a <b>closed</b> allow-list of the current violators, <code>PENDING_MIGRATION</code>. Nothing new can be added, and every migrated file comes off the list. The debt can only go down.</p>
-      <p class="reveal d4">Make the ratchet record each fix, too. The Camunda Hub frontend counts lint warnings per file and per rule. If a file ends up with fewer warnings than its entry allows, the build stays red until the lower count is committed. Otherwise a fix leaves slack, and the next new warning quietly fills it.</p>
+      <p class="reveal d4">Make the ratchet record each fix, too. One project counts lint warnings per file and per rule. If a file ends up with fewer warnings than its entry allows, the build stays red until the lower count is committed. Otherwise a fix leaves slack, and the next new warning quietly fills it.</p>
       <p class="reveal d4 muted">A ratchet turns a big clean-up into many small, safe changes. That's exactly the kind of work agents are good at.</p>
     </div>
     <div class="ratchet reveal d2">
@@ -258,7 +258,7 @@ layout: chapter
       </div>
     </div>
     <p class="reveal d4 muted" style="margin-top:20px">A red baseline teaches agents (and people) that red is normal. After that, no check means anything.</p>
-    <p class="reveal d4" style="margin-top:20px">Writing the policy down isn&rsquo;t enough. The Camunda Hub frontend had it in AGENTS.md and still had 68 lint warnings, because lint passed with warnings. Now a warning ratchet fails the build on any new one.</p>
+    <p class="reveal d4" style="margin-top:20px">Writing the policy down isn&rsquo;t enough. One project had it in AGENTS.md and still had 68 lint warnings, because lint passed with warnings. Now a warning ratchet fails the build on any new one.</p>
   </div>
 </section>
 
@@ -269,7 +269,7 @@ layout: chapter
       <div class="kicker reveal">Where rules come from</div>
       <h2 class="reveal d1">If a review says something twice, make it a rule.</h2>
       <p class="reveal d2">Every repeated review comment is a rule waiting to move up the ladder. The first time, fix the code. The second time, fix the system: write the check, then document why it exists.</p>
-      <p class="reveal d3">An incident doesn't have to happen twice. The Camunda Hub frontend changed how its modules import each other, which changed the order they load in, and the app failed on start in the end-to-end tests: two stores read the user store in their constructors before it existed. Splitting the user store so its core imports no other store fixed it. The class it belongs to, a store constructor that reads a store that might not be loaded yet, is becoming a lint rule.</p>
+      <p class="reveal d3">An incident doesn't have to happen twice. One project changed how its modules import each other, which changed the order they load in, and the app failed on start in the end-to-end tests: two stores read the user store in their constructors before it existed. Splitting the user store so its core imports no other store fixed it. The class it belongs to, a store constructor that reads a store that might not be loaded yet, is becoming a lint rule.</p>
       <p class="reveal d3">c8ctl takes review comments one step further. Agents copy the pattern from a nearby file, and that copying is only reliable &ldquo;<i>when every nearby file follows the canonical shape</i>&rdquo;. So the canonical command-handler shape is written down <i>and</i> enforced by lints.</p>
     </div>
     <div class="promote">

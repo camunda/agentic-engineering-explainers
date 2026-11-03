@@ -306,8 +306,8 @@ layout: chapter
       <div class="kicker reveal">The shape of the code</div>
       <h2 class="reveal d1">The import graph decides how much of the suite a change runs.</h2>
       <p class="reveal d2">Test impact analysis runs the tests whose imports reach the changed file. It can only be as narrow as the import graph. A barrel file, an index that re-exports a whole folder, connects every module in that folder to every test that imports any of them.</p>
-      <p class="reveal d3">In the Camunda Hub frontend, an edit to one store selected 966 of about 1,380 test files, because every test reached every store through the barrel. With each store imported from its own module, the same edit selects 64. Removing the services barrel takes an edit to one service from 944 test files to 199.</p>
-      <p class="reveal d4 muted">Cutting imports can change the order modules load in. The Hub's first attempt failed on start; that crash became a lint rule (chapter {{num:enforce}}, <a href="./enforce.html">Rules that enforce themselves</a>).</p>
+      <p class="reveal d3">In one project, editing a single store selected 966 of about 1,380 test files, because every test reached every store through the barrel. With each store imported from its own module, the same edit selects 64. Removing the services barrel takes an edit to one service from 944 test files to 199.</p>
+      <p class="reveal d4 muted">Cutting imports can change the order modules load in. The project&rsquo;s first attempt failed on start; that crash became a lint rule (chapter {{num:enforce}}, <a href="./enforce.html">Rules that enforce themselves</a>).</p>
     </div>
     <div class="lab graph reveal d2">
       <div class="row"><span>Edit</span>
@@ -324,7 +324,7 @@ layout: chapter
         <div><b id="gShare"></b>of the suite</div>
         <div><b id="gSkip"></b>skipped</div>
       </div>
-      <p class="muted" style="font-size:13px;margin:10px 0 0">Measured with Jest <code>--findRelatedTests</code> in the Hub frontend (SaaS build). One square is about ten test files.</p>
+      <p class="muted" style="font-size:13px;margin:10px 0 0">Measured with Jest <code>--findRelatedTests</code> in that project. One square is about ten test files.</p>
     </div>
   </div>
 </section>
