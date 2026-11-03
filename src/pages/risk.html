@@ -60,6 +60,20 @@ layout: chapter
   .rk .out div { background: #fff; border-radius: 12px; padding: 8px 12px; }
   .rk .out small { display: block; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
   .rk .out b { font-size: 20px; }
+  /* Defect heatmap */
+  .hm .views { display: inline-flex; background: #fff; border-radius: 999px; padding: 3px; margin-bottom: 10px; }
+  .hm .views button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; color: var(--ink); }
+  .hm .views button.on { background: var(--ink); color: #fff; }
+  .hm .grid { display: grid; grid-template-columns: 62px repeat(4, 1fr) 46px; gap: 3px; font-size: 12px; }
+  .hm .grid > div { padding: 7px 4px; text-align: center; border-radius: 6px; }
+  .hm .h { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+  .hm .r { text-align: left !important; font-weight: 800; }
+  .hm .c { background: #fff; font-weight: 700; transition: background .4s, color .4s; }
+  .hm .s { font-weight: 800; color: var(--muted); }
+  .hm .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .hm .totals div { background: #fff; border-radius: 12px; padding: 8px 12px; }
+  .hm .totals small { display: block; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .hm .totals b { font-size: 20px; }
   .rk .step { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-top: 12px; }
   .rk .step + .try-it, .rk .step + .row, .rk .step + .mits { margin-top: 4px; }
   .rk .mits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -219,6 +233,40 @@ layout: chapter
   </div>
 </section>
 
+<!-- 5c ----------------------------------------------------------------------------------------->
+<section id="measure" data-title="Measure it">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Measure it</div>
+      <h2 class="reveal d1">Headlines aren't data.</h2>
+      <p class="reveal d2">&ldquo;The agent dropped the production database&rdquo; is rare and memorable, so it sets the intuition. Steer by the headline and you get one of two naive answers: <b>&ldquo;we have flags!&rdquo;</b>, a control nobody has shown to work, or <b>&ldquo;we must avoid risk&rdquo;</b>, which is losing slowly with a worst case as the excuse.</p>
+      <p class="reveal d3">Quality is measurable. Count defect reports, and segment them <b>by surface</b> (API, SDK, UI, docs, data) and <b>by impact</b> (severity, customers affected, how long). Add where they're caught (by your loops or by customers), how fast you detect and restore, and how many changes cause one.</p>
+      <p class="reveal d4">Then treat every mitigation as a hypothesis, and <b>measure its effect</b>. If the number moves on the surface it targets, it has earned its complexity. If not, retire it. Risk is a number you can <a href="./telemetry.html">point the loops at</a>.</p>
+    </div>
+    <div class="panel hm reveal d2">
+      <div class="views" role="group" aria-label="View" data-hint="switch views">
+        <button data-v="headline" class="on">&#x1F4F0; Headline view</button><button data-v="measured">&#x1F4CA; Measured view</button>
+      </div>
+      <div class="grid" id="hmGrid"></div>
+      <div class="rk"><div class="step">Mitigate, then measure</div>
+        <div class="mits" id="hmMits">
+          <button class="pill ghost" data-m="contract">&#x1F4DC; Contract tests</button>
+          <button class="pill ghost" data-m="docs">&#x1F4D8; Docs from the spec</button>
+          <button class="pill ghost" data-m="flags">&#x1F6A9; Feature flags</button>
+          <button class="pill ghost" data-m="migr">&#x21A9;&#xFE0F; Reversible migrations</button>
+        </div>
+      </div>
+      <div class="totals">
+        <div><small>Defects / quarter</small><b id="hmN">0</b></div>
+        <div><small>Risk score</small><b id="hmR">0</b></div>
+        <div><small>Complexity</small><b id="hmC" style="color:#b07a2a">0</b></div>
+      </div>
+      <div class="cap" id="hmCap">&nbsp;</div>
+      <p class="src">Illustrative data. Risk score = defect count &times; impact weight (low 1, medium 4, high 15, critical 60).</p>
+    </div>
+  </div>
+</section>
+
 <!-- 6 ------------------------------------------------------------------------------------------>
 <section id="thinking" data-title="Keep thinking">
   <div class="wrap">
@@ -244,7 +292,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">Neither slow nor reckless. Engineered.</h2>
-    <p class="lead reveal d2">Losing the market by being too careful and losing trust by being careless are both failures. Two trade-offs, every time. <b>Speed against risk</b>: locate each change by blast radius and reversibility, then mitigate to move the curve. <b>Speed against complexity</b>: every mitigation has a price, so choose the cheapest one that buys the speed, and retire it when it's done. With agents writing the code, this is the engineering.</p>
+    <p class="lead reveal d2">Losing the market by being too careful and losing trust by being careless are both failures. Two trade-offs, every time. <b>Speed against risk</b>: locate each change by blast radius and reversibility, then mitigate to move the curve. <b>Speed against complexity</b>: every mitigation has a price, so choose the cheapest one that buys the speed, and retire it when it's done. <b>Measure both</b>: defects by surface and impact, before and after each mitigation, not the headlines. With agents writing the code, this is the engineering.</p>
     <div class="cta reveal d3">
       {{nav}}
     </div>
@@ -322,6 +370,65 @@ layout: chapter
     for (const m of mits) m.addEventListener('click', () => {
       m.classList.toggle('on');
       k = mits.filter((x) => x.classList.contains('on')).reduce((p, x) => p * +x.dataset.k, 1);
+      draw();
+    });
+    draw();
+  }
+
+  // Defect heatmap: surfaces × impact. Headline view shows only the outage; measured view shows the stream.
+  {
+    const SURF = ['API', 'SDK', 'UI', 'Docs', 'Data', 'Infra'];
+    const IMP = ['Low', 'Medium', 'High', 'Critical'], W = [1, 4, 15, 60];
+    const BASE = [[12, 8, 3, 0], [30, 22, 4, 0], [18, 6, 1, 0], [25, 9, 0, 0], [2, 1, 1, 1], [4, 3, 2, 0]];
+    const MIT = {
+      contract: { name: 'Contract tests', rows: [0, 1], cols: [0, 1, 2, 3], f: 0.5, c: 1 },
+      docs: { name: 'Docs from the spec', rows: [3], cols: [0, 1, 2, 3], f: 0.3, c: 1 },
+      flags: { name: 'Feature flags', rows: [2], cols: [2, 3], f: 0.5, c: 2 },
+      migr: { name: 'Reversible migrations', rows: [4], cols: [2, 3], f: 0.3, c: 3 },
+    };
+    const grid = document.getElementById('hmGrid'), cap = document.getElementById('hmCap');
+    const views = [...document.querySelectorAll('.hm .views button')], mits = [...document.querySelectorAll('#hmMits button')];
+    let view = 'headline', last = null;
+    const on = () => mits.filter((m) => m.classList.contains('on')).map((m) => MIT[m.dataset.m]);
+    const counts = (active) => BASE.map((row, r) => row.map((n, c) => active.reduce((v, m) => (m.rows.includes(r) && m.cols.includes(c) ? v * m.f : v), n)));
+    const risk = (cs) => cs.reduce((t, row) => t + row.reduce((u, n, c) => u + n * W[c], 0), 0);
+    const R0 = risk(BASE), MAXC = Math.max(...BASE.flatMap((row) => row.map((n, c) => n * W[c])));
+    function draw() {
+      const active = on(), cs = counts(active), R = risk(cs);
+      let h = '<div></div>' + IMP.map((i) => `<div class="h">${i}</div>`).join('') + '<div class="h">Share</div>';
+      cs.forEach((row, r) => {
+        h += `<div class="r">${SURF[r]}</div>`;
+        row.forEach((n, c) => {
+          const outage = r === 4 && c === 3;
+          if (view === 'headline') {
+            h += outage ? '<div class="c" style="background:#e03131;color:#fff">&#x1F4A5; 1</div>' : '<div class="c" style="color:rgba(27,27,27,.2)">?</div>';
+          } else {
+            const a = Math.min(1, (n * W[c]) / MAXC);
+            h += `<div class="c" style="background:rgba(224,49,49,${(0.06 + 0.9 * a).toFixed(2)});color:${a > 0.5 ? '#fff' : '#1b1b1b'}">${n ? Math.round(n * 10) / 10 : '&middot;'}</div>`;
+          }
+        });
+        const share = row.reduce((u, n, c) => u + n * W[c], 0) / R0;
+        h += `<div class="s">${view === 'headline' ? '' : Math.round(share * 100) + '%'}</div>`;
+      });
+      grid.innerHTML = h;
+      const N = cs.flat().reduce((a, b) => a + b, 0), C = active.reduce((a, m) => a + m.c, 0);
+      document.getElementById('hmN').textContent = view === 'headline' ? '1' : Math.round(N);
+      document.getElementById('hmR').textContent = view === 'headline' ? '?' : Math.round(R);
+      document.getElementById('hmC').textContent = C ? `+${C}` : '0';
+      if (view === 'headline') {
+        cap.innerHTML = '<span style="color:var(--bad)">One outage.</span> It&rsquo;s all anyone remembers, so the answer is &ldquo;guard the database&rdquo; or &ldquo;stop shipping&rdquo;. Now look at the measured view.';
+      } else if (last) {
+        const without = risk(counts(active.filter((m) => m !== last))), saved = without - R;
+        cap.innerHTML = `<b>${last.name}</b>: risk ${Math.round(without)} &rarr; ${Math.round(R)} (&minus;${Math.round((saved / without) * 100)}%) for <span style="color:#b07a2a">+${last.c} complexity</span>. ${saved / last.c > 40 ? '<span style="color:var(--ok)">Earns its keep.</span>' : saved / last.c > 15 ? 'Worth it, on this surface.' : '<span style="color:var(--bad)">&ldquo;We have flags!&rdquo;</span> Real, but it barely moves the number here.'}`;
+      } else {
+        cap.innerHTML = 'The outage is 12% of the risk. The steady stream of SDK and API defects is more than half. That&rsquo;s where mitigation pays. Try each one and compare.';
+      }
+    }
+    for (const v of views) v.addEventListener('click', () => { view = v.dataset.v; views.forEach((x) => x.classList.toggle('on', x === v)); draw(); });
+    for (const m of mits) m.addEventListener('click', () => {
+      m.classList.toggle('on');
+      last = m.classList.contains('on') ? MIT[m.dataset.m] : null;
+      if (view === 'headline') { view = 'measured'; views.forEach((x) => x.classList.toggle('on', x.dataset.v === 'measured')); }
       draw();
     });
     draw();
