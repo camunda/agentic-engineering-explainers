@@ -31,10 +31,10 @@
       {
         "id": "risk",
         "title": "Two ways to lose",
-        "summary": "Too careful loses the market; too careless loses trust. It's not the agentic part, it's the engineering part.",
+        "summary": "Too careful loses the market; too careless loses trust. Engineering manages two trade-offs: speed against risk, and speed against complexity.",
         "tagline": "Weeds and drought: too careless, or too careful. It's the engineering part.",
         "kind": "Scroll-through &middot; interactive",
-        "length": "~6 min"
+        "length": "~7 min"
       }
     ]
   },

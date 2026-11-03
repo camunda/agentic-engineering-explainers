@@ -54,7 +54,9 @@ layout: chapter
   .rk .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 14px; font-weight: 700; margin-top: 8px; }
   .rk .row .try-it { flex-basis: 100%; margin: 0; }
   .rk input[type=range] { flex: 1 1 160px; accent-color: var(--ink); }
-  .rk .out { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .rk .out { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+  .rk .out .cx b { color: #b07a2a; }
+  @media (max-width: 520px) { .rk .out { grid-template-columns: repeat(2, 1fr); } }
   .rk .out div { background: #fff; border-radius: 12px; padding: 8px 12px; }
   .rk .out small { display: block; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
   .rk .out b { font-size: 20px; }
@@ -95,7 +97,7 @@ layout: chapter
     <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">Two ways to lose</h1>
     <p class="lead reveal d1" style="font-weight:700;margin-top:-6px">It's not the agentic part. It's the engineering part.</p>
-    <p class="lead reveal d2">You can lose by shipping something broken. You can also lose by being too careful, while a faster competitor takes the deal, the market and the lead. Both are real. Engineering does two things about them: it <b>locates</b> each change on the trade-off between them, and it <b>changes</b> the trade-off, lowering the risk so the right speed gets faster.</p>
+    <p class="lead reveal d2">You can lose by shipping something broken. You can also lose by being too careful, while a faster competitor takes the deal, the market and the lead. Both are real. Engineering manages two trade-offs: <b>speed against risk</b>, and <b>speed against complexity</b>. It locates each change on the first, then changes the curve with mitigations. Those cost complexity, which is the second.</p>
     <div class="reveal d3" style="font-size:60px;margin-top:20px" aria-hidden="true">&#x2696;&#xFE0F;</div>
     <div class="scroll-hint">Scroll &#x2193;</div>
   </div>
@@ -141,10 +143,10 @@ layout: chapter
 <section id="curve" data-title="Change the curve">
   <div class="wrap">
     <div>
-      <div class="kicker reveal">Two moves</div>
+      <div class="kicker reveal">Trade-off one: speed against risk</div>
       <h2 class="reveal d1">Don't just pick a point on the trade-off. Change the trade-off.</h2>
       <p class="reveal d2"><b>Locate.</b> Business risk falls as you go faster. Quality risk rises. The total has a best point, and without engineering it's at a modest speed. Finding it, change by change, is the first move.</p>
-      <p class="reveal d3"><b>Change the curve.</b> Every mitigation lowers quality risk at every speed: loops that catch mistakes in minutes, checks that can't be argued with, a gate that refuses bad changes, flags and rollback that make a change cheap to undo. Each one flattens the curve, and the best point moves right. Same risk, more speed. <b>The rest of this book is those mitigations.</b></p>
+      <p class="reveal d3"><b>Change the curve.</b> Every mitigation lowers quality risk at every speed: loops that catch mistakes in minutes, checks that can't be argued with, a gate that refuses bad changes, flags and rollback that make a change cheap to undo. Each one flattens the curve, and the best point moves right. Same risk, more speed. <b>The rest of this book is those mitigations.</b> But watch the complexity counter: none of them is free.</p>
     </div>
     <div class="panel rk reveal d2">
       <div class="legend"><span><i style="background:#4c6ef5"></i>Business risk</span><span><i style="background:var(--bad)"></i>Quality risk</span><span><i style="background:#1b1b1b"></i>Total</span><span><i style="background:#1b1b1b;opacity:.2"></i>Before mitigation</span></div>
@@ -153,15 +155,16 @@ layout: chapter
       <div class="row" data-hint="drag to find the best balance"><span>Speed</span><input type="range" id="spd" min="0" max="100" value="20" aria-label="Speed" /></div>
       <div class="step">2 &middot; Change the curve</div>
       <div class="mits" id="mits" data-hint="then add mitigations, one at a time">
-        <button class="pill ghost" data-k=".6">&#x1F501; Fast loops</button>
-        <button class="pill ghost" data-k=".65">&#x1F9EA; Real checks</button>
-        <button class="pill ghost" data-k=".7">&#x1F6A7; Merge gate</button>
-        <button class="pill ghost" data-k=".6">&#x21A9;&#xFE0F; Flags &amp; rollback</button>
+        <button class="pill ghost" data-k=".6" data-c="1">&#x1F501; Fast loops</button>
+        <button class="pill ghost" data-k=".65" data-c="1">&#x1F9EA; Real checks</button>
+        <button class="pill ghost" data-k=".7" data-c="2">&#x1F6A7; Merge gate</button>
+        <button class="pill ghost" data-k=".6" data-c="3">&#x21A9;&#xFE0F; Flags &amp; rollback</button>
       </div>
       <div class="out">
         <div><small>Business risk</small><b id="rB">0</b></div>
         <div><small>Quality risk</small><b id="rQ">0</b></div>
-        <div><small>Total</small><b id="rT">0</b></div>
+        <div><small>Total risk</small><b id="rT">0</b></div>
+        <div class="cx"><small>Complexity</small><b id="rC">0</b></div>
       </div>
       <div class="cap" id="rkCap">&nbsp;</div>
       <p class="src">Illustrative curves, not measured data.</p>
@@ -194,13 +197,35 @@ layout: chapter
   </div>
 </section>
 
+<!-- 5b ----------------------------------------------------------------------------------------->
+<section id="cost" data-title="Mitigations aren't free">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Trade-off two: speed against complexity</div>
+      <h2 class="reveal d1">Mitigations buy speed. They cost complexity.</h2>
+      <p class="reveal d2">An additive API spares customers a breaking change, and leaves engineering two versions to maintain and test, and customers a migration to plan. A flag makes a change cheap to undo, and doubles the states to test until someone removes it. Somebody pays: the customer, or the team.</p>
+      <p class="reveal d3">Complexity is a risk of its own. Left to pile up, it slows every later change: that's the <a href="./garden.html">jungle</a>. So mitigate deliberately. Choose the cheapest mitigation that buys the speed this change needs, and <b>retire it when it has done its job</b>. Remove the flag. Sunset the old API.</p>
+    </div>
+    <table class="m reveal d2">
+      <thead><tr><th>Mitigation</th><th>Buys</th><th>Costs</th></tr></thead>
+      <tbody>
+        <tr><td>Additive API</td><td>No breaking change.</td><td>Two versions to maintain and test. A migration for customers, a deprecation to run.</td></tr>
+        <tr><td>Feature flag</td><td>Ship dark, switch off fast.</td><td>More states to test. A forgotten flag is permanent entropy.</td></tr>
+        <tr><td>Reversible migration</td><td>An undoable data change.</td><td>Dual writes, more code, drift between the copies.</td></tr>
+        <tr><td>Another gate or check</td><td>Mistakes caught before merge.</td><td>A slower loop for every change. A flaky one taxes everyone.</td></tr>
+        <tr><td>Staged rollout</td><td>A small blast radius.</td><td>Longer until it's fully live. Versions running side by side.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
 <!-- 6 ------------------------------------------------------------------------------------------>
 <section id="thinking" data-title="Keep thinking">
   <div class="wrap">
     <div>
       <div class="kicker reveal">Engineering judgement</div>
       <h2 class="reveal d1">Agents do the typing. Engineers still own the risk.</h2>
-      <p class="reveal d2">None of this is new. Balancing speed against confidence has always been the engineering part of software engineering. What's new is that agents removed the cost of implementation, so the balance is now the whole job.</p>
+      <p class="reveal d2">None of this is new. Balancing speed against confidence has always been the engineering part of software engineering. What's new is that agents removed the cost of implementation. An agent writes the dual-write code in minutes; it won't decide whether this change deserves it. <b>That's where engineering attention goes now: speed against risk, and speed against complexity.</b></p>
       <p class="reveal d3">The answer is never &ldquo;go slow to be safe&rdquo; or &ldquo;ship it and see&rdquo;. It's a handful of questions, asked every time, and answered with evidence rather than habit.</p>
     </div>
     <div class="qs">
@@ -209,6 +234,7 @@ layout: chapter
       <div class="reveal d3">How would we know?<span>Which loop, check or signal would catch it, and how soon.</span></div>
       <div class="reveal d4">How fast can we undo it?<span>Flags, rollback, staged rollout. Speed is safest when it's reversible.</span></div>
       <div class="reveal d4">What would make it safer?<span>Flag it, split it, stage it, make it reversible. Lower the risk before you choose the speed.</span></div>
+      <div class="reveal d4">What does the mitigation cost?<span>Who pays, the customer or the team, and when does it come out?</span></div>
     </div>
   </div>
 </section>
@@ -218,7 +244,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">Neither slow nor reckless. Engineered.</h2>
-    <p class="lead reveal d2">Losing the market by being too careful and losing trust by being careless are both failures. Two moves, every time. <b>Locate</b> each change on the trade-off by blast radius and reversibility. Then <b>change the curve</b>: mitigate, so the same risk buys more speed. Done change by change and system by system, the right speed keeps getting faster.</p>
+    <p class="lead reveal d2">Losing the market by being too careful and losing trust by being careless are both failures. Two trade-offs, every time. <b>Speed against risk</b>: locate each change by blast radius and reversibility, then mitigate to move the curve. <b>Speed against complexity</b>: every mitigation has a price, so choose the cheapest one that buys the speed, and retire it when it's done. With agents writing the code, this is the engineering.</p>
     <div class="cta reveal d3">
       {{nav}}
     </div>
@@ -284,9 +310,12 @@ layout: chapter
       el('circle', { cx: px(s), cy: py(T(s)), r: 8, fill: '#1b1b1b' });
       $('rB').textContent = B(s).toFixed(2); $('rQ').textContent = Q(s).toFixed(2); $('rT').textContent = T(s).toFixed(2);
       const d = s - b, gain = Math.round((b / b0 - 1) * 100);
+      const cx = mits.filter((m) => m.classList.contains('on')).reduce((p, m) => p + +m.dataset.c, 0);
+      $('rC').textContent = cx ? `+${cx}` : '0';
       cap.innerHTML = d < -0.12 ? `<span style="color:#4c6ef5">Losing slowly.</span> Safe-looking, but the deals and the lead are going to someone faster.${n ? ' The mitigations moved the best point; move with it.' : ''}`
         : d > 0.12 ? `<span style="color:var(--bad)">Losing fast.</span> Shipping faster than your confidence can keep up with.${n < mits.length ? ' Add mitigations to make this speed safe.' : ''}`
-        : n ? `<span style="color:var(--ok)">Engineered balance.</span> ${n} of ${mits.length} mitigations: the best speed is ${gain}% faster, at lower total risk.${n < mits.length ? ' Add another.' : ''}`
+        : n === mits.length ? `<span style="color:var(--ok)">Engineered balance.</span> The best speed is ${gain}% faster, at lower total risk. <span style="color:#b07a2a">Paid for with +${cx} complexity</span>: code to maintain, states to test. That's the second trade-off.`
+        : n ? `<span style="color:var(--ok)">Engineered balance.</span> ${n} of ${mits.length} mitigations: the best speed is ${gain}% faster, at lower total risk, for <span style="color:#b07a2a">+${cx} complexity</span>.`
         : 'Located: the best balance without mitigation. Note how slow it is. Now change the curve.';
     }
     slider.addEventListener('input', draw);
