@@ -75,6 +75,7 @@ layout: chapter
   .lrow { transition: opacity .4s; }
   .lrow.dim { opacity: .3; }
   .nbuild .ctl { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+  .nbuild .stat { font-size: 14px; font-weight: 800; text-align: center; min-height: 22px; margin-top: 8px; }
   .nbuild .cap { font-size: 14px; font-weight: 700; min-height: 64px; margin-top: 10px; text-align: center; }
   #rings { overflow: hidden; }
   #rings .evl { transition: opacity .4s; }
@@ -313,10 +314,12 @@ layout: chapter
       </div>
     </div>
     <div class="nbuild reveal d2">
-      <svg class="rings" viewBox="0 0 480 480" id="rings" aria-label="Nested loops, added one at a time; the inner one turns fastest">
+      <svg viewBox="0 0 1000 700" id="rings" style="width:100%;height:auto;display:block;background:#fff;border-radius:16px" role="img" aria-label="Loops inside loops: each loop of implementer, implementation and evaluator is the implementer of the next loop out">
+        <defs><marker id="fbArr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1b1b1b" /></marker></defs>
         <g id="ringG"></g>
       </svg>
-      <div class="ctl"><button class="pill" id="nAdd" data-hint="add the next loop, and watch the view zoom out">+ Add the CI loop</button><button class="pill ghost" id="nReset">Reset</button></div>
+      <div class="ctl"><button class="pill" id="nAdd" data-hint="zoom out to the next loop">+ Zoom out</button><button class="pill ghost" id="nReset">Reset</button></div>
+      <div class="stat" id="nStat">&nbsp;</div>
       <div class="cap" id="nCap">&nbsp;</div>
     </div>
   </div>
@@ -610,68 +613,124 @@ layout: chapter
     el('circle', { cx: 240, cy: 240, r: 22, fill: '#8785ff' }, g);
     el('text', { x: 240, y: 244, 'text-anchor': 'middle', fill: '#fff' }, g).textContent = 'code';
   }
-  // Nested loops, assembled one at a time. Each new loop zooms the view out, ending on the full picture.
+  // Loops inside loops, as a zoom out: each loop (implementer, implementation, evaluator) is the
+  // implementer of the next one. Same shape at every scale. Adding a loop zooms out to reveal it.
   {
     const svg = document.getElementById('rings'), g = document.getElementById('ringG');
-    const addBtn = document.getElementById('nAdd'), resetBtn = document.getElementById('nReset'), cap = document.getElementById('nCap');
+    const addBtn = document.getElementById('nAdd'), resetBtn = document.getElementById('nReset');
+    const cap = document.getElementById('nCap'), stat = document.getElementById('nStat');
     const rows = [...document.querySelectorAll('#nested .lrow')];
-    const EVAL = ['types, unit tests', 'full suite, builds', 'scenarios, other systems', 'users, telemetry'];
-    const CAPS = [
-      'The local loop: the agent changes the code, the compiler and unit tests evaluate it in seconds, and red sends it round again.',
-      'Green locally isn\u2019t done. The CI loop evaluates what the local loop can\u2019t afford to: the full suite, boundaries, builds. Its red goes back to the agent, which re-enters the inner loop.',
-      'Merged isn\u2019t done either. Integration and acceptance evaluate the change against other systems and real scenarios, in hours.',
-      'Users are the last evaluator. Their signal is slowest, in days, and the most expensive to receive. Every loop inside exists to make this one quiet.',
+    const LV = [
+      { name: 'Local loop', when: 'seconds', c: '#8785ff', impl: 'the code', ev: 'types, unit tests' },
+      { name: 'CI loop', when: 'minutes', c: '#9fbf3a', impl: 'the pull request', ev: 'full suite, builds' },
+      { name: 'Integration loop', when: 'hours', c: '#f08c00', impl: 'main, merged', ev: 'scenarios, other systems' },
+      { name: 'Production loop', when: 'days', c: '#e03131', impl: 'the release', ev: 'users, telemetry' },
     ];
-    let n = 0, vb = 100, anim = 0;
-    const labels = [];
-    function setView(half) {
-      vb = half; svg.setAttribute('viewBox', `${240 - half} ${240 - half} ${half * 2} ${half * 2}`);
-      const fs = (12 * half) / 240;
-      for (const t of labels) { t.setAttribute('font-size', fs * (t.dataset.k || 1)); t.setAttribute('stroke-width', fs / 3); }
+    const CAPS = [
+      'The local loop: the agent changes the code, types and unit tests evaluate it, and red goes back to the agent. Seconds per round.',
+      'Zoom out: the whole local loop is the implementer of the next one. It produces a pull request; CI evaluates it; red goes back to the local loop, which goes round again.',
+      'Same shape, one scale up. The CI loop is the implementer; what it produces is merged code; integration and acceptance evaluate it, in hours.',
+      'And again. Everything inside is the implementer of a release, and users are its evaluator: the slowest, most expensive signal. Every loop inside exists to keep this one quiet.',
+    ];
+    const low = (s) => s.toLowerCase().replace(/^ci /, 'CI ');
+    const S = 0.46, CX = 60, CY = 175; // where (and how small) the inner loop sits inside the implementer box
+    const lv = []; // per level: { own, tok, sig, ev, imp, scale, x, y }
+    const add = (tag, a, p) => el(tag, a, p);
+    const txt = (p, x, y, s, size, weight, fill, anchor = 'middle') => { const t = add('text', { x, y, 'font-size': size, 'font-weight': weight, fill, 'text-anchor': anchor }, p); t.textContent = s; return t; };
+    // Build from the outside in: level 3 at world scale, each inner level inside its implementer box.
+    function build() {
+      g.replaceChildren(); lv.length = 0;
+      let parent = g, x = 0, y = 0, sc = 1;
+      for (let k = LV.length - 1; k >= 0; k--) {
+        const L = LV[k];
+        const frame = add('g', {}, parent);
+        const own = add('g', { style: 'transition: opacity .6s' }, frame);
+        add('rect', { x: 8, y: 8, width: 984, height: 684, rx: 36, fill: '#fff', stroke: L.c, 'stroke-width': 6, 'stroke-opacity': 0.5 }, own);
+        txt(own, 40, 66, `${L.name} \u00b7 ${L.when}`, 34, 800, L.c, 'start');
+        const imp = add('rect', { x: 40, y: 100, width: 500, height: 500, rx: 26, fill: '#f5f3ed', stroke: 'rgba(27,27,27,.25)', 'stroke-width': 3 }, own);
+        txt(own, 290, 146, 'Implementer', 28, 800, '#1b1b1b');
+        if (k === 0) { add('circle', { cx: 290, cy: 370, r: 90, fill: '#8785ff' }, own); txt(own, 290, 382, 'agent', 40, 800, '#fff'); }
+        add('rect', { x: 680, y: 100, width: 280, height: 160, rx: 22, fill: '#fff', stroke: 'rgba(27,27,27,.25)', 'stroke-width': 3 }, own);
+        txt(own, 820, 170, 'Implementation', 28, 800, '#1b1b1b'); txt(own, 820, 210, L.impl, 24, 600, 'rgba(27,27,27,.6)');
+        const ev = add('rect', { x: 680, y: 440, width: 280, height: 160, rx: 22, fill: '#fff', stroke: L.c, 'stroke-width': 5 }, own);
+        txt(own, 820, 510, 'Evaluator', 28, 800, '#1b1b1b'); txt(own, 820, 550, L.ev, 24, 600, 'rgba(27,27,27,.6)');
+        const wire = (d, label, lx, ly) => { add('path', { d, fill: 'none', stroke: '#1b1b1b', 'stroke-width': 4, 'marker-end': 'url(#fbArr)' }, own); txt(own, lx, ly, label, 22, 800, 'rgba(27,27,27,.55)'); };
+        wire('M540 180 L672 180', 'changes', 610, 166);
+        wire('M820 260 L820 432', 'measures', 880, 356);
+        wire('M680 520 L548 520', 'signals', 610, 506);
+        const sig = add('circle', { r: 14, fill: '#e03131', stroke: '#fff', 'stroke-width': 4, opacity: 0 }, own);
+        const tok = add('circle', { r: 14, fill: L.c, stroke: '#fff', 'stroke-width': 4, opacity: 0 }, own);
+        lv[k] = { own, tok, sig, ev, imp, x, y, sc };
+        if (k > 0) {
+          const inner = add('g', { transform: `translate(${CX} ${CY}) scale(${S})` }, frame);
+          parent = inner; x += CX * sc; y += CY * sc; sc *= S;
+        }
+      }
     }
-    function zoomTo(half) {
-      const from = vb, id = ++anim, t0 = performance.now(), D = 900;
-      const step = (now) => { if (id !== anim) return; const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3); setView(from + (half - from) * e); if (k < 1) requestAnimationFrame(step); };
+    // The viewBox that frames level k, with a little margin.
+    const rectOf = (k) => { const { x, y, sc } = lv[k], m = 30 * sc; return [x - m, y - m, 1000 * sc + 2 * m, 700 * sc + 2 * m]; };
+    let view = null, anim = 0;
+    const setView = (r) => { view = r; svg.setAttribute('viewBox', r.join(' ')); };
+    function zoomTo(r1) {
+      const r0 = view, id = ++anim, t0 = performance.now(), D = 1400;
+      const step = (now) => {
+        if (id !== anim) return;
+        const k = Math.min(1, (now - t0) / D), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        const w = r0[2] * Math.pow(r1[2] / r0[2], e), f = (w - r0[2]) / (r1[2] - r0[2]); // geometric zoom about a fixed point
+        setView([r0[0] + (r1[0] - r0[0]) * f, r0[1] + (r1[1] - r0[1]) * f, w, r0[3] * w / r0[2]]);
+        if (k < 1) requestAnimationFrame(step);
+      };
       requestAnimationFrame(step);
     }
-    function addRing(i) {
-      const ring = RINGS[i];
-      const layer = el('g', { class: 'nring' }, g);
-      g.insertBefore(layer, g.firstChild); // outer rings sit underneath
-      const circ = 2 * Math.PI * ring.r;
-      const c = el('circle', { cx: 240, cy: 240, r: ring.r, fill: 'none', stroke: ring.c, 'stroke-opacity': 0.3, 'stroke-width': 12, 'stroke-dasharray': circ, 'stroke-dashoffset': circ, style: 'transition: stroke-dashoffset 1s ease-out' }, layer);
-      requestAnimationFrame(() => requestAnimationFrame(() => c.setAttribute('stroke-dashoffset', 0)));
-      const name = el('text', { x: 240, y: 240 - ring.r + 4, 'text-anchor': 'middle', fill: ring.c, stroke: '#ffffff', 'paint-order': 'stroke', 'font-weight': 800 }, layer);
-      name.textContent = ring.name; labels.push(name);
-      // The evaluator on this loop, at the right: red sends the agent back in.
-      const ex = 240 + ring.r * Math.cos(Math.PI / 5), ey = 240 + ring.r * Math.sin(Math.PI / 5);
-      el('rect', { x: ex - 8, y: ey - 8, width: 16, height: 16, rx: 4, fill: '#fff', stroke: ring.c, 'stroke-width': 4 }, layer);
-      for (const old of g.querySelectorAll('.evl')) old.setAttribute('opacity', 0); // only the newest evaluator is labelled
-      const ev = el('text', { class: 'evl', x: ex - 13, y: ey + 4, 'text-anchor': 'end', fill: '#1b1b1b', 'fill-opacity': 0.75, stroke: '#ffffff', 'paint-order': 'stroke', 'font-weight': 700 }, layer);
-      ev.dataset.k = 0.9; ev.textContent = `evaluator: ${EVAL[i]}`; labels.push(ev);
-      // SVG rotation about the true centre: CSS spin would pivot on the viewBox, which moves as we zoom.
-      const t = el('g', {}, layer);
-      el('animateTransform', { attributeName: 'transform', type: 'rotate', from: '0 240 240', to: '360 240 240', dur: `${ring.dur}s`, repeatCount: 'indefinite' }, t);
-      el('circle', { cx: 240 + ring.r, cy: 240, r: 9, fill: ring.c }, t);
-      el('circle', { cx: 240 + ring.r, cy: 240, r: 3.5, fill: '#e9cf7a' }, t);
+    // Feedback flow. A level's implementer is the level inside it: run that to green, then this loop's wires.
+    let flowId = 0, n = 1;
+    const frameNow = () => new Promise((r) => requestAnimationFrame(r));
+    async function tween(id, ms, f) { const t0 = performance.now(); for (;;) { if (id !== flowId) throw 0; const k = Math.min(1, (performance.now() - t0) / ms); f(k); if (k >= 1) return; await frameNow(); } }
+    const put = (c, x, y) => { c.setAttribute('cx', x); c.setAttribute('cy', y); };
+    const say = (h) => { stat.innerHTML = h; };
+    const SPEED = [380, 520, 680, 860];
+    async function runLevel(id, k, visits) {
+      const L = lv[k], sp = SPEED[k];
+      for (;;) {
+        L.imp.setAttribute('stroke', LV[k].c);
+        if (k === 0) await tween(id, 300, () => {}); else await runLevel(id, k - 1, visits);
+        L.imp.setAttribute('stroke', 'rgba(27,27,27,.25)');
+        L.tok.setAttribute('opacity', 1);
+        await tween(id, sp, (t) => put(L.tok, 540 + 140 * t, 180));
+        await tween(id, sp * .8, (t) => put(L.tok, 820, 260 + 180 * t));
+        L.tok.setAttribute('opacity', 0);
+        const red = k === 0 ? visits.local-- > 0 : visits[k]++ === 0;
+        L.ev.setAttribute('fill', red ? '#ffe3e3' : '#e6f7e9');
+        if (k === n - 1 || red) say(red ? `<span style="color:var(--bad)">${LV[k].name}: red.</span> The signal goes back to its implementer${k ? ', the ' + low(LV[k - 1].name) + ', which goes round again' : ''}.` : `<span style="color:var(--ok)">${LV[k].name}: green.</span>`);
+        await tween(id, 380, () => {});
+        L.ev.setAttribute('fill', '#fff');
+        if (!red) return;
+        if (k > 0) visits.local = 1;
+        L.sig.setAttribute('opacity', 1);
+        await tween(id, sp, (t) => put(L.sig, 680 - 140 * t, 520));
+        L.sig.setAttribute('opacity', 0);
+      }
     }
-    function centre() {
-      const c = el('g', {}, g);
-      el('circle', { cx: 240, cy: 240, r: 22, fill: '#8785ff' }, c);
-      const t = el('text', { x: 240, y: 238, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 800 }, c); t.textContent = 'agent'; t.dataset.k = 0.85; labels.push(t);
-      const t2 = el('text', { x: 240, y: 250, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 700 }, c); t2.textContent = '+ code'; t2.dataset.k = 0.75; labels.push(t2);
+    async function flow() {
+      const id = ++flowId;
+      try {
+        for (;;) {
+          const visits = { local: 2 }; LV.forEach((_, i) => { visits[i] = 0; });
+          await runLevel(id, n - 1, visits);
+          say(`<span style="color:var(--ok)">Green at every level.</span> Shipped. The next change starts.`);
+          await tween(id, 1500, () => {});
+        }
+      } catch (e) { if (e !== 0) throw e; }
     }
     function paint() {
+      lv.forEach((L, k) => L.own.setAttribute('opacity', k < n ? 1 : 0));
       rows.forEach((r, i) => r.classList.toggle('dim', i >= n));
       cap.textContent = CAPS[n - 1];
-      addBtn.disabled = n >= RINGS.length;
-      addBtn.innerHTML = n >= RINGS.length ? 'All four loops' : `+ Add the ${['', 'CI', 'integration', 'production'][n]} loop`;
+      addBtn.disabled = n >= LV.length;
+      addBtn.innerHTML = n >= LV.length ? 'All four loops' : `+ Zoom out to the ${low(LV[n].name)}`;
     }
-    function reset() {
-      g.replaceChildren(); labels.length = 0; n = 1;
-      addRing(0); centre(); setView(RINGS[0].r + 40); paint();
-    }
-    addBtn.addEventListener('click', () => { if (n >= RINGS.length) return; addRing(n); n++; zoomTo(n === RINGS.length ? 240 : RINGS[n - 1].r + 40); paint(); });
+    function reset() { anim++; n = 1; build(); setView(rectOf(0)); paint(); say('&nbsp;'); flow(); }
+    addBtn.addEventListener('click', () => { if (n >= LV.length) return; n++; paint(); zoomTo(rectOf(n - 1)); flow(); });
     resetBtn.addEventListener('click', reset);
     reset();
   }
