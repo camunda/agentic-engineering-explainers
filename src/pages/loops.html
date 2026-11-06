@@ -72,6 +72,12 @@ layout: chapter
   .lrow i { width: 14px; height: 14px; border-radius: 50%; margin-top: 4px; }
   .lrow b { display: block; font-size: 16px; }
   .lrow span { font-size: 14px; color: var(--muted); }
+  .lrow { transition: opacity .4s; }
+  .lrow.dim { opacity: .3; }
+  .nbuild .ctl { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+  .nbuild .cap { font-size: 14px; font-weight: 700; min-height: 64px; margin-top: 10px; text-align: center; }
+  #rings { overflow: hidden; }
+  #rings .evl { transition: opacity .4s; }
   .lrow em { font-style: normal; font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
 
   /* Escape story */
@@ -306,9 +312,13 @@ layout: chapter
         <div class="lrow"><i style="background:var(--l4)"></i><div><b>Production</b><span>Users, monitoring, bug reports, telemetry</span></div><em>days+</em></div>
       </div>
     </div>
-    <svg class="rings reveal d2" viewBox="0 0 480 480" id="rings" aria-label="Four nested loops; the inner one turns fastest">
-      <g id="ringG"></g>
-    </svg>
+    <div class="nbuild reveal d2">
+      <svg class="rings" viewBox="0 0 480 480" id="rings" aria-label="Nested loops, added one at a time; the inner one turns fastest">
+        <g id="ringG"></g>
+      </svg>
+      <div class="ctl"><button class="pill" id="nAdd" data-hint="add the next loop, and watch the view zoom out">+ Add the CI loop</button><button class="pill ghost" id="nReset">Reset</button></div>
+      <div class="cap" id="nCap">&nbsp;</div>
+    </div>
   </div>
 </section>
 
@@ -599,7 +609,71 @@ layout: chapter
     el('circle', { cx: 240, cy: 240, r: 22, fill: '#8785ff' }, g);
     el('text', { x: 240, y: 244, 'text-anchor': 'middle', fill: '#fff' }, g).textContent = 'code';
   }
-  drawRings(document.getElementById('ringG'), true);
+  // Nested loops, assembled one at a time. Each new loop zooms the view out, ending on the full picture.
+  {
+    const svg = document.getElementById('rings'), g = document.getElementById('ringG');
+    const addBtn = document.getElementById('nAdd'), resetBtn = document.getElementById('nReset'), cap = document.getElementById('nCap');
+    const rows = [...document.querySelectorAll('#nested .lrow')];
+    const EVAL = ['types, unit tests', 'full suite, builds', 'scenarios, other systems', 'users, telemetry'];
+    const CAPS = [
+      'The local loop: the agent changes the code, the compiler and unit tests evaluate it in seconds, and red sends it round again.',
+      'Green locally isn\u2019t done. The CI loop evaluates what the local loop can\u2019t afford to: the full suite, boundaries, builds. Its red goes back to the agent, which re-enters the inner loop.',
+      'Merged isn\u2019t done either. Integration and acceptance evaluate the change against other systems and real scenarios, in hours.',
+      'Users are the last evaluator. Their signal is slowest, in days, and the most expensive to receive. Every loop inside exists to make this one quiet.',
+    ];
+    let n = 0, vb = 100, anim = 0;
+    const labels = [];
+    function setView(half) {
+      vb = half; svg.setAttribute('viewBox', `${240 - half} ${240 - half} ${half * 2} ${half * 2}`);
+      const fs = (12 * half) / 240;
+      for (const t of labels) { t.setAttribute('font-size', fs * (t.dataset.k || 1)); t.setAttribute('stroke-width', fs / 3); }
+    }
+    function zoomTo(half) {
+      const from = vb, id = ++anim, t0 = performance.now(), D = 900;
+      const step = (now) => { if (id !== anim) return; const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3); setView(from + (half - from) * e); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }
+    function addRing(i) {
+      const ring = RINGS[i];
+      const layer = el('g', { class: 'nring' }, g);
+      g.insertBefore(layer, g.firstChild); // outer rings sit underneath
+      const circ = 2 * Math.PI * ring.r;
+      const c = el('circle', { cx: 240, cy: 240, r: ring.r, fill: 'none', stroke: ring.c, 'stroke-opacity': 0.3, 'stroke-width': 12, 'stroke-dasharray': circ, 'stroke-dashoffset': circ, style: 'transition: stroke-dashoffset 1s ease-out' }, layer);
+      requestAnimationFrame(() => requestAnimationFrame(() => c.setAttribute('stroke-dashoffset', 0)));
+      const name = el('text', { x: 240, y: 240 - ring.r + 4, 'text-anchor': 'middle', fill: ring.c, stroke: '#ffffff', 'paint-order': 'stroke', 'font-weight': 800 }, layer);
+      name.textContent = ring.name; labels.push(name);
+      // The evaluator on this loop, at the right: red sends the agent back in.
+      const ex = 240 + ring.r * Math.cos(Math.PI / 5), ey = 240 + ring.r * Math.sin(Math.PI / 5);
+      el('rect', { x: ex - 8, y: ey - 8, width: 16, height: 16, rx: 4, fill: '#fff', stroke: ring.c, 'stroke-width': 4 }, layer);
+      for (const old of g.querySelectorAll('.evl')) old.setAttribute('opacity', 0); // only the newest evaluator is labelled
+      const ev = el('text', { class: 'evl', x: ex - 13, y: ey + 4, 'text-anchor': 'end', fill: '#1b1b1b', 'fill-opacity': 0.75, stroke: '#ffffff', 'paint-order': 'stroke', 'font-weight': 700 }, layer);
+      ev.dataset.k = 0.9; ev.textContent = `evaluator: ${EVAL[i]}`; labels.push(ev);
+      // SVG rotation about the true centre: CSS spin would pivot on the viewBox, which moves as we zoom.
+      const t = el('g', {}, layer);
+      el('animateTransform', { attributeName: 'transform', type: 'rotate', from: '0 240 240', to: '360 240 240', dur: `${ring.dur}s`, repeatCount: 'indefinite' }, t);
+      el('circle', { cx: 240 + ring.r, cy: 240, r: 9, fill: ring.c }, t);
+      el('circle', { cx: 240 + ring.r, cy: 240, r: 3.5, fill: '#e9cf7a' }, t);
+    }
+    function centre() {
+      const c = el('g', {}, g);
+      el('circle', { cx: 240, cy: 240, r: 22, fill: '#8785ff' }, c);
+      const t = el('text', { x: 240, y: 238, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 800 }, c); t.textContent = 'agent'; t.dataset.k = 0.85; labels.push(t);
+      const t2 = el('text', { x: 240, y: 250, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 700 }, c); t2.textContent = '+ code'; t2.dataset.k = 0.75; labels.push(t2);
+    }
+    function paint() {
+      rows.forEach((r, i) => r.classList.toggle('dim', i >= n));
+      cap.textContent = CAPS[n - 1];
+      addBtn.disabled = n >= RINGS.length;
+      addBtn.innerHTML = n >= RINGS.length ? 'All four loops' : `+ Add the ${['', 'CI', 'integration', 'production'][n]} loop`;
+    }
+    function reset() {
+      g.replaceChildren(); labels.length = 0; n = 1;
+      addRing(0); centre(); setView(RINGS[0].r + 40); paint();
+    }
+    addBtn.addEventListener('click', () => { if (n >= RINGS.length) return; addRing(n); n++; zoomTo(n === RINGS.length ? 240 : RINGS[n - 1].r + 40); paint(); });
+    resetBtn.addEventListener('click', reset);
+    reset();
+  }
 
   // Escape: the bug walks out through every ring, then detection is pushed back in.
   drawRings(document.getElementById('escG'), false);
