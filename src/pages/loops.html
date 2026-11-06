@@ -97,6 +97,30 @@ layout: chapter
   .sbmove { font-size: 14px; font-weight: 700; text-align: center; min-height: 44px; margin: 10px 0 6px; }
   .sbnote { font-size: 14px; color: var(--muted); border-left: 4px solid var(--l1); padding-left: 12px; margin-top: 8px; }
 
+  /* The loop that tunes the loops */
+  .tune { background: var(--paper); border-radius: 20px; padding: 16px; margin-top: 22px; text-align: left; }
+  .ttray .tlabel { margin-top: 4px; }
+  #tuneSvg { width: 100%; height: auto; display: block; }
+  #tuneSvg text { font-weight: 800; }
+  .tpanel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 14px; margin-top: 8px; }
+  @media (max-width: 760px) { .tpanel { grid-template-columns: 1fr; } }
+  .tlabel { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .tstat { background: #fff; border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; }
+  .tstat b { font-size: 28px; margin-right: 8px; }
+  .tstat span { font-size: 13px; font-weight: 700; color: var(--muted); }
+  #tTray { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+  #tTray button { border: 0; border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 800; color: #fff; cursor: pointer; }
+  #tTray button[aria-pressed="true"] { outline: 3px solid var(--ink); outline-offset: 2px; }
+  #tTray .none { font-size: 14px; font-weight: 700; color: var(--ok); }
+  .tasst { background: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+  .tasst p { margin: 0 0 8px; }
+  .tasst .opts { display: grid; gap: 6px; }
+  .tasst .opts button { text-align: left; border: 2px solid rgba(27,27,27,.15); background: #fff; border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 14px; cursor: pointer; }
+  .tasst .opts button:hover { border-color: var(--ink); }
+  .tasst .opts button b { display: block; }
+  .tasst .opts button span { color: var(--muted); font-size: 13px; }
+  .tasst .opts .rec { border-color: var(--ok); }
+
   /* Escape story */
   .escape { position: relative; }
   .escape .step { font-size: 16px; min-height: 52px; font-weight: 700; text-align: center; margin-top: 10px; }
@@ -378,6 +402,16 @@ layout: chapter
         <span class="tag" style="background:var(--human)">The loop that tunes the loops</span>
         <h3>Fix the loops</h3>
         <p class="muted">Escaped defects, slow runs and wasted resources feed back into the design of the loops. Engineers do this: better types, better checks, a better place for each check.</p>
+      </div>
+    </div>
+    <div class="tune reveal d3" id="tune">
+      <svg viewBox="0 0 900 430" id="tuneSvg" role="img" aria-label="Defects flow from the agent through four loops; escapes go to an engineer, who changes the loop they escaped from"></svg>
+      <div class="tpanel">
+        <div class="tleft">
+          <div class="tstat"><b id="tEsc">&ndash;</b><span>escape rate, last 30 defects</span></div>
+          <div class="ttray"><div class="tlabel">Escaped to users</div><div id="tTray" data-hint="pick a pile of escapes to analyse"></div></div>
+        </div>
+        <div class="tasst" id="tAsst"><div class="tlabel">&#x1F916; Assistant</div><p>Pick a pile of escaped defects and I'll analyse where they got through.</p></div>
       </div>
     </div>
   </div>
@@ -850,6 +884,141 @@ layout: chapter
     draw(run, series(kind), 1);
     onEnter('scoreboard', play);
     window.__sb = { series };
+  }
+
+  // The loop that tunes the loops: defects flow through the agent's loops; the engineer analyses escapes
+  // (with an assistant) and changes the loop that should have caught them.
+  {
+    const svg = document.getElementById('tuneSvg'), tray = document.getElementById('tTray'), asst = document.getElementById('tAsst'), escEl = document.getElementById('tEsc');
+    const LOOPS = [
+      { name: 'Local', when: 'seconds', x: 230, c: '#8785ff' },
+      { name: 'CI', when: 'minutes', x: 390, c: '#9fbf3a' },
+      { name: 'Integration', when: 'hours', x: 550, c: '#f08c00' },
+    ];
+    const USERS = { x: 760 }, AGENT = { x: 70 }, Y = 105;
+    const CLASSES = {
+      typo: { label: 'Syntax slip', c: '#868e96', w: 3 },
+      timeout: { label: 'Timeout', c: '#f59f00', w: 2 },
+      nul: { label: 'Unhandled null', c: '#7048e8', w: 3,
+        opts: [{ loop: 0, fix: 'Turn on strict null checks', why: 'The compiler catches it in seconds.' }, { loop: 1, fix: 'Add a lint rule in CI', why: 'Caught in minutes.' }, { loop: 2, fix: 'Add a scenario that sends nulls', why: 'Caught in hours, if the scenario covers it.' }] },
+      contract: { label: 'API contract drift', c: '#1c7ed6', w: 2,
+        opts: [{ loop: 0, fix: 'Generate types from the API spec', why: 'A drift becomes a type error, locally.' }, { loop: 1, fix: 'Add contract tests to CI', why: 'Caught in minutes, before merge.' }, { loop: 2, fix: 'Test against the real service', why: 'Caught in hours, after merge.' }] },
+      config: { label: 'Bad config default', c: '#c2255c', w: 2,
+        opts: [{ loop: 0, fix: 'Validate config against a schema at load', why: 'Every test run fails fast on it.' }, { loop: 2, fix: 'Boot with production config in integration', why: 'Caught in hours.' }] },
+    };
+    const START = { typo: 0, timeout: 2, nul: -1, contract: -1, config: -1 };
+    let catcher, escaped, recent, dots, active = false, timer = 0, seed = 7, picked = null;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const pickClass = () => { const ks = Object.keys(CLASSES), tot = ks.reduce((a, k) => a + CLASSES[k].w, 0); let r = rnd() * tot; for (const k of ks) { r -= CLASSES[k].w; if (r < 0) return k; } return ks[0]; };
+    const txt = (s, a, p = svg) => { const t = el('text', a, p); t.textContent = s; return t; };
+    let chipG, boxes;
+    function scene() {
+      svg.replaceChildren();
+      el('defs', {}, svg).innerHTML = '<marker id="tArr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1b1b1b"/></marker>';
+      txt('The loops the agent runs', { x: 20, y: 24, 'font-size': 14, fill: 'rgba(27,27,27,.55)' });
+      el('line', { x1: AGENT.x, y1: Y, x2: USERS.x - 60, y2: Y, stroke: 'rgba(27,27,27,.2)', 'stroke-width': 4 }, svg);
+      el('circle', { cx: AGENT.x, cy: Y, r: 34, fill: '#8785ff' }, svg);
+      txt('agent', { x: AGENT.x, y: Y + 5, 'text-anchor': 'middle', fill: '#fff', 'font-size': 15 });
+      boxes = LOOPS.map((L) => {
+        const b = el('rect', { x: L.x - 60, y: Y - 36, width: 120, height: 72, rx: 14, fill: '#fff', stroke: L.c, 'stroke-width': 4 }, svg);
+        txt(L.name, { x: L.x, y: Y - 6, 'text-anchor': 'middle', 'font-size': 16 });
+        txt(L.when, { x: L.x, y: Y + 14, 'text-anchor': 'middle', 'font-size': 12, fill: 'rgba(27,27,27,.55)' });
+        return b;
+      });
+      el('rect', { x: USERS.x - 60, y: Y - 36, width: 120, height: 72, rx: 14, fill: '#fff5f5', stroke: '#e03131', 'stroke-width': 4 }, svg);
+      txt('Users', { x: USERS.x, y: Y - 6, 'text-anchor': 'middle', 'font-size': 16 });
+      txt('days', { x: USERS.x, y: Y + 14, 'text-anchor': 'middle', 'font-size': 12, fill: 'rgba(27,27,27,.55)' });
+      txt('catches:', { x: 20, y: Y + 66, 'font-size': 12, fill: 'rgba(27,27,27,.55)' });
+      chipG = el('g', {}, svg);
+      // The engineer's loop: escapes come down to the engineer, changes go back up into a loop.
+      txt('The loop that tunes the loops', { x: 20, y: 290, 'font-size': 14, fill: 'rgba(27,27,27,.55)' });
+      el('path', { d: `M${USERS.x} ${Y + 38} C ${USERS.x} 360, 620 380, 520 380`, fill: 'none', stroke: '#e03131', 'stroke-width': 3, 'stroke-dasharray': '6 6', 'marker-end': 'url(#tArr)' }, svg);
+      txt('escapes', { x: USERS.x - 20, y: 340, 'text-anchor': 'end', 'font-size': 13, fill: '#e03131' });
+      el('circle', { cx: 450, cy: 380, r: 32, fill: '#ff905c' }, svg);
+      txt('engineer', { x: 450, y: 385, 'text-anchor': 'middle', 'font-size': 13, fill: '#fff' });
+      el('circle', { cx: 378, cy: 394, r: 20, fill: '#8785ff' }, svg);
+      txt('\u{1F916}', { x: 378, y: 400, 'text-anchor': 'middle', 'font-size': 16 });
+      fixPath = el('path', { d: '', fill: 'none', stroke: '#ff905c', 'stroke-width': 4, 'marker-end': 'url(#tArr)', opacity: 0 }, svg);
+      fixLbl = txt('', { 'font-size': 13, fill: '#e8590c', 'text-anchor': 'middle' });
+      dots = el('g', {}, svg);
+    }
+    let fixPath, fixLbl;
+    function chips() {
+      chipG.replaceChildren();
+      LOOPS.forEach((L, i) => {
+        const ks = Object.keys(CLASSES).filter((k) => catcher[k] === i);
+        ks.forEach((k, j) => {
+          el('rect', { x: L.x - 60, y: Y + 50 + j * 22, width: 120, height: 18, rx: 9, fill: CLASSES[k].c }, chipG);
+          txt(CLASSES[k].label, { x: L.x, y: Y + 63 + j * 22, 'text-anchor': 'middle', 'font-size': 11, fill: '#fff' }, chipG);
+        });
+      });
+    }
+    function stats() {
+      const n = recent.length, e = recent.filter(Boolean).length;
+      escEl.textContent = n ? `${Math.round((e / n) * 100)}%` : '\u2013';
+      escEl.style.color = !n ? '' : e / n > 0.2 ? 'var(--bad)' : e / n > 0.05 ? '#e8590c' : 'var(--ok)';
+    }
+    function renderTray() {
+      const ks = Object.keys(escaped).filter((k) => escaped[k] > 0);
+      tray.replaceChildren();
+      if (!ks.length) { tray.innerHTML = '<span class="none">Nothing escaping right now.</span>'; return; }
+      for (const k of ks) {
+        const b = document.createElement('button');
+        b.style.background = CLASSES[k].c; b.textContent = `${CLASSES[k].label} \u00d7${escaped[k]}`;
+        b.setAttribute('aria-pressed', picked === k);
+        b.addEventListener('click', () => analyse(k));
+        tray.append(b);
+      }
+    }
+    function analyse(k) {
+      picked = k; renderTray();
+      const C = CLASSES[k];
+      const passed = LOOPS.map((L) => L.name).join(', ');
+      asst.innerHTML = `<div class="tlabel">&#x1F916; Assistant</div><p><b>${escaped[k]} escaped defects: ${C.label.toLowerCase()}.</b> All introduced by agent changes that passed ${passed}: none of the loops has a check for this class. The tightest loop that could catch it is <b>${LOOPS[C.opts[0].loop].name.toLowerCase()}</b>.</p><p>Which loop do you want to change?</p><div class="opts"></div>`;
+      const box = asst.querySelector('.opts');
+      C.opts.forEach((o, i) => {
+        const b = document.createElement('button'); if (i === 0) b.className = 'rec';
+        b.innerHTML = `<b>${LOOPS[o.loop].name}: ${o.fix}${i === 0 ? ' (recommended)' : ''}</b><span>${o.why}</span>`;
+        b.addEventListener('click', () => fix(k, o));
+        box.append(b);
+      });
+    }
+    async function fix(k, o) {
+      const L = LOOPS[o.loop];
+      catcher[k] = o.loop; escaped[k] = 0; picked = null;
+      fixPath.setAttribute('d', `M450 346 C 450 270, ${L.x} 290, ${L.x} ${Y + 42}`); fixPath.setAttribute('opacity', 1);
+      fixLbl.setAttribute('x', (450 + L.x) / 2); fixLbl.setAttribute('x', 450 + 70); fixLbl.setAttribute('y', 318); fixLbl.textContent = 'changes the loop';
+      boxes[o.loop].setAttribute('stroke-width', 8);
+      chips(); renderTray();
+      const left = Object.keys(CLASSES).filter((c) => catcher[c] < 0);
+      asst.innerHTML = `<div class="tlabel">&#x1F916; Assistant</div><p><b>Done: ${o.fix.toLowerCase()}.</b> ${C2(k)} is now caught in the ${L.name.toLowerCase()} loop. ${o.loop > 0 ? 'You could push it further in later. ' : ''}${left.length ? 'Watch the escape rate, then pick the next pile.' : 'Every class is caught before users see it. Next: make the loops faster and cheaper.'}</p>`;
+      await sleep(1600);
+      fixPath.setAttribute('opacity', 0); fixLbl.textContent = ''; boxes[o.loop].setAttribute('stroke-width', 4);
+    }
+    const C2 = (k) => CLASSES[k].label;
+    function spawn() {
+      const k = pickClass(), C = CLASSES[k], dest = catcher[k] >= 0 ? LOOPS[catcher[k]].x : USERS.x;
+      const d = el('circle', { cx: AGENT.x, cy: Y, r: 8, fill: C.c, stroke: '#fff', 'stroke-width': 2 }, dots);
+      const t0 = performance.now(), dur = (dest - AGENT.x) * 3.2;
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / dur);
+        d.setAttribute('cx', AGENT.x + (dest - AGENT.x) * p);
+        if (p < 1) return requestAnimationFrame(step);
+        const esc = catcher[k] < 0;
+        recent.push(esc); if (recent.length > 30) recent.shift(); stats();
+        if (esc) { escaped[k]++; renderTray(); if (picked === k) analyse(k); }
+        d.setAttribute('r', 14); d.setAttribute('opacity', 0.35); d.setAttribute('fill', esc ? '#e03131' : '#2f9e44');
+        setTimeout(() => d.remove(), 350);
+      };
+      requestAnimationFrame(step);
+    }
+    function reset() {
+      catcher = { ...START }; escaped = Object.fromEntries(Object.keys(CLASSES).map((k) => [k, 0])); recent = []; picked = null; seed = 7;
+      scene(); chips(); renderTray(); stats();
+    }
+    reset();
+    new IntersectionObserver((es) => { active = es[0].isIntersecting; clearInterval(timer); if (active) timer = setInterval(spawn, 650); }, { threshold: 0.2 }).observe(document.getElementById('tune'));
+    window.__tune = { reset, analyse, fix: (k, i) => fix(k, CLASSES[k].opts[i]), state: () => ({ catcher, escaped, recent }) };
   }
 
   // Escape: the bug walks out through every ring, then detection is pushed back in.
