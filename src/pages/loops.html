@@ -81,6 +81,22 @@ layout: chapter
   #rings .evl { transition: opacity .4s; }
   .lrow em { font-style: normal; font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
 
+  /* Scoreboard */
+  .sb { background: var(--paper); border-radius: 20px; padding: 16px; }
+  .sbtabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; }
+  .sbtabs .pill[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  #sbChart { width: 100%; height: auto; display: block; }
+  #sbChart text { font-size: 11px; font-weight: 700; fill: rgba(27,27,27,.6); }
+  .sbkey { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font-size: 12px; font-weight: 700; margin-top: 4px; }
+  .sbkey i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .sbkey i.ln { height: 3px; width: 16px; background: var(--ink); border-radius: 2px; vertical-align: 3px; }
+  .sbstat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .sbstat div { background: #fff; border-radius: 12px; padding: 8px 12px; text-align: center; }
+  .sbstat b { display: block; font-size: 26px; }
+  .sbstat span { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .sbmove { font-size: 14px; font-weight: 700; text-align: center; min-height: 44px; margin: 10px 0 6px; }
+  .sbnote { font-size: 14px; color: var(--muted); border-left: 4px solid var(--l1); padding-left: 12px; margin-top: 8px; }
+
   /* Escape story */
   .escape { position: relative; }
   .escape .step { font-size: 16px; min-height: 52px; font-weight: 700; text-align: center; margin-top: 10px; }
@@ -367,6 +383,31 @@ layout: chapter
   </div>
 </section>
 
+<!-- 6b ----------------------------------------------------------------------------------------->
+<section id="scoreboard" data-title="The scoreboard">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The scoreboard</div>
+      <h2 class="reveal d1">Having the loops is table stakes. Tuning them is the job.</h2>
+      <p class="reveal d2">Putting feedback loops in place is where loop engineering starts, not where it ends. Loops that nobody measures drift. The agents ship more, the system grows, and more defects reach users.</p>
+      <p class="reveal d3"><b>The agents write the code. We engineer the loops that determine the quality of the code.</b> Obsessively, and continuously.</p>
+      <p class="reveal d4">So measure them. For every defect, record <b>which loop caught it</b>: local, CI, integration, or a user. Watch how that changes over time. The share that reaches users is the <b>defect escape rate</b>, and it's the score. The game is to keep engineering the loops so it goes down.</p>
+      <div class="sbnote reveal d4">To get the data, label each defect with where it was found and, when you can, the change that introduced it. Then every escape tells you which loop to work on next.</div>
+    </div>
+    <div class="sb reveal d2">
+      <div class="sbtabs" role="group" aria-label="Scenario">
+        <button class="pill ghost" data-sb="idle" aria-pressed="false" data-hint="compare: loops in place, nobody tuning them">Loops in place, untuned</button>
+        <button class="pill ghost" data-sb="tuned" aria-pressed="true">Tuned every week</button>
+      </div>
+      <svg viewBox="0 0 520 300" id="sbChart" role="img" aria-label="Defects caught at each loop, month by month, with the escape rate"></svg>
+      <div class="sbkey"><span><i style="background:var(--l1)"></i>Local</span><span><i style="background:var(--l2)"></i>CI</span><span><i style="background:var(--l3)"></i>Integration</span><span><i style="background:var(--l4)"></i>Users</span><span><i class="ln"></i>Escape rate</span></div>
+      <div class="sbstat"><div><b id="sbEsc">&ndash;</b><span>escape rate</span></div><div><b id="sbUsers">&ndash;</b><span>defects users found</span></div></div>
+      <div class="sbmove" id="sbMove">&nbsp;</div>
+      <div class="ctl" style="text-align:center"><button class="pill ghost" id="sbReplay">&#x21bb; Replay</button></div>
+    </div>
+  </div>
+</section>
+
 <!-- 7 ------------------------------------------------------------------------------------------>
 <section id="tradeoffs" data-title="Trade-offs">
   <div class="wrap">
@@ -447,7 +488,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">Once you understand the loop, it's engineering all the way down.</h2>
-    <p class="lead reveal d2">Designing the conditions. Placing each check in the right loop. Pushing detection inward. Making loops faster and cheaper, down to the shape of the import graph. Trading time and resources for confidence. Agents go round the loops; engineers design them.</p>
+    <p class="lead reveal d2">Designing the conditions. Placing each check in the right loop. Pushing detection inward. Measuring where every defect is caught, and tuning the loops until fewer escape. Making loops faster and cheaper, down to the shape of the import graph. Trading time and resources for confidence. Agents go round the loops; engineers design them.</p>
     <svg class="down reveal d3" viewBox="0 0 260 260" aria-hidden="true" id="downSvg"></svg>
     <div class="cta reveal d4">
       {{nav}}
@@ -733,6 +774,82 @@ layout: chapter
     addBtn.addEventListener('click', () => { if (n >= LV.length) return; n++; paint(); zoomTo(rectOf(n - 1)); flow(); });
     resetBtn.addEventListener('click', reset);
     reset();
+  }
+
+  // Scoreboard: where defects were caught, month by month. Untuned loops drift; tuned loops push detection inward.
+  {
+    const svg = document.getElementById('sbChart'), move = document.getElementById('sbMove');
+    const escEl = document.getElementById('sbEsc'), usersEl = document.getElementById('sbUsers');
+    const tabs = [...document.querySelectorAll('[data-sb]')];
+    const COL = ['#8785ff', '#d5f37b', '#f08c00', '#e03131'];
+    const M = 12;
+    // Defects found per month at each loop: local, CI, integration, users. Output (and so defects) grows 6% a month.
+    function series(kind) {
+      const out = [];
+      let share = [0.42, 0.28, 0.14, 0.16];
+      for (let m = 0; m < M; m++) {
+        const total = Math.round(50 * Math.pow(1.06, m));
+        if (m > 0) {
+          if (kind === 'idle') share = [share[0] - 0.006, share[1] - 0.006, share[2] + 0.003, share[3] + 0.009];
+          else { const u = share[3] * 0.26, i = share[2] * 0.14; share = [share[0] + u * 0.6 + i * 0.6, share[1] + u * 0.3 + i * 0.4, share[2] - i + u * 0.1, share[3] - u]; }
+        }
+        out.push(share.map((s) => Math.round(s * total)));
+      }
+      return out;
+    }
+    const MOVES = {
+      idle: ['Loops in place. Nobody looks at where defects are caught.', 'The agents ship more each month. The suite doesn\u2019t keep up.', 'Users find more of them. Nothing feeds back into the loops.'],
+      tuned: [
+        'Every escape is reviewed: which loop should have caught this class of defect?',
+        'A bug class users kept finding is now a type error. The compiler catches it in seconds.',
+        'Contract tests move integration failures into CI.',
+        'A flaky test fixed: CI\u2019s red means something again.',
+        'Telemetry alerts become regression tests in the local loop.',
+        'The escape rate keeps falling while the agents ship more.',
+      ],
+    };
+    let kind = 'tuned', run = 0;
+    const X0 = 40, W = 440, H = 230, Y0 = 250, bw = (W / M) * 0.68;
+    const x = (m) => X0 + (W / M) * (m + 0.5);
+    function draw(id, data, upto) {
+      if (id !== run) return;
+      svg.replaceChildren();
+      for (const p of [0, 0.25, 0.5, 0.75, 1]) {
+        el('line', { x1: X0, x2: X0 + W, y1: Y0 - H * p, y2: Y0 - H * p, stroke: 'rgba(27,27,27,.1)' }, svg);
+        el('text', { x: X0 - 6, y: Y0 - H * p + 4, 'text-anchor': 'end' }, svg).textContent = `${p * 100}%`;
+      }
+      const pts = [];
+      for (let m = 0; m < upto; m++) {
+        const d = data[m], tot = d.reduce((a, b) => a + b, 0);
+        let y = Y0;
+        d.forEach((v, i) => { const h = (v / tot) * H; el('rect', { x: x(m) - bw / 2, y: y - h, width: bw, height: Math.max(0, h - 1), rx: 2, fill: COL[i] }, svg); y -= h; });
+        pts.push([x(m), Y0 - (d[3] / tot / 0.3) * H]); // escape rate on its own 0-30% axis
+        if (m % 2 === 0 || m === M - 1) el('text', { x: x(m), y: Y0 + 16, 'text-anchor': 'middle' }, svg).textContent = `M${m + 1}`;
+      }
+      if (pts.length) {
+        el('polyline', { points: pts.map((p) => p.join(',')).join(' '), fill: 'none', stroke: '#1b1b1b', 'stroke-width': 3, 'stroke-linejoin': 'round' }, svg);
+        const [lx, ly] = pts[pts.length - 1];
+        el('circle', { cx: lx, cy: ly, r: 5, fill: '#1b1b1b', stroke: '#fff', 'stroke-width': 2 }, svg);
+      }
+      for (const p of [0, 10, 20, 30]) el('text', { x: X0 + W + 6, y: Y0 - (H * p) / 30 + 4, style: 'fill:#1b1b1b' }, svg).textContent = `${p}%`;
+      el('text', { x: 2, y: 12 }, svg).textContent = 'share caught';
+      el('text', { x: X0 + W + 34, y: 12, 'text-anchor': 'end', style: 'fill:#1b1b1b' }, svg).textContent = 'escape rate';
+      const d = data[Math.max(0, upto - 1)], tot = d.reduce((a, b) => a + b, 0);
+      escEl.textContent = `${Math.round((d[3] / tot) * 100)}%`;
+      escEl.style.color = kind === 'tuned' && upto > 1 ? 'var(--ok)' : upto > 1 ? 'var(--bad)' : '';
+      usersEl.textContent = `${d[3]} / month`;
+      const ms = MOVES[kind];
+      move.textContent = ms[Math.min(ms.length - 1, Math.floor(((upto - 1) / M) * ms.length))];
+    }
+    async function play() {
+      const id = ++run, data = series(kind);
+      for (let m = 1; m <= M; m++) { draw(id, data, m); await sleep(520); if (id !== run) return; }
+    }
+    for (const t of tabs) t.addEventListener('click', () => { kind = t.dataset.sb; tabs.forEach((b) => b.setAttribute('aria-pressed', b === t)); play(); });
+    document.getElementById('sbReplay').addEventListener('click', play);
+    draw(run, series(kind), 1);
+    onEnter('scoreboard', play);
+    window.__sb = { series };
   }
 
   // Escape: the bug walks out through every ring, then detection is pushed back in.

@@ -53,7 +53,7 @@
       {
         "id": "loops",
         "title": "Agentic Loop Engineering",
-        "summary": "Not loop programming: a feedback loop built from an implementer, an implementation and an evaluator that signals back. TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, an import graph that decides how much of the suite runs, and why it's engineering all the way down.",
+        "summary": "Not loop programming: a feedback loop built from an implementer, an implementation and an evaluator that signals back. TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, and the scoreboard: having loops is table stakes; measuring where defects are caught and tuning the loops to cut the escape rate is the job. Trade-offs, an import graph that decides how much of the suite runs, and why it's engineering all the way down.",
         "tagline": "Irrigation: loops that climb to correctness.",
         "kind": "Scroll-through &middot; interactive",
         "length": "~6 min"
