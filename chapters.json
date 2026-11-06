@@ -53,7 +53,7 @@
       {
         "id": "loops",
         "title": "Agentic Loop Engineering",
-        "summary": "It's not a for loop: it's a feedback control loop, and the test run is the thermostat. TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, an import graph that decides how much of the suite runs, and why it's engineering all the way down.",
+        "summary": "Not loop programming: a feedback loop built from an implementer, an implementation and an evaluator that signals back. TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, an import graph that decides how much of the suite runs, and why it's engineering all the way down.",
         "tagline": "Irrigation: loops that climb to correctness.",
         "kind": "Scroll-through &middot; interactive",
         "length": "~6 min"
