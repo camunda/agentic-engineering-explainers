@@ -524,7 +524,8 @@ layout: chapter
         if (!on.measures) return done(`<span style="color:var(--bad)">Shipped with ${defects} defects.</span> Nothing measured it, so the agent stopped when it felt done.`);
         if (!(await travel('measures', id))) return;
         box('eval');
-        const seen = self.checked && round >= 1 ? 0 : defects;
+        // Grading its own work, the implementer misses what it can't see in its own code: it under-reports by two.
+        const seen = self.checked ? Math.max(0, defects - 2) : defects;
         if (seen) { setEval(`red: ${seen} failing`, '#e03131'); B.eval.classList.add('bad'); B.eval.classList.remove('good'); }
         else { setEval(self.checked ? 'green: looks done' : 'green: all pass', '#2f9e44'); B.eval.classList.add('good'); B.eval.classList.remove('bad'); }
         await sleep(450);
@@ -541,7 +542,7 @@ layout: chapter
       }
     }
     btns.forEach((b) => b.addEventListener('click', () => { on[b.dataset.w] = !on[b.dataset.w]; reset(); }));
-    self.addEventListener('change', reset);
+    self.addEventListener('change', () => { reset(); if (on.writes && on.measures && on.signals) run(); });
     runBtn.addEventListener('click', run);
     reset();
     window.__build = { set: (w, s) => { Object.assign(on, w); self.checked = !!s; reset(); }, run };
