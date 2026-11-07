@@ -53,7 +53,7 @@
       {
         "id": "loops",
         "title": "Agentic Loop Engineering",
-        "summary": "TDD is the template: a hard correctness condition lets an agent climb to correctness. Then loops inside loops, escaped defects, trade-offs, an import graph that decides how much of the suite runs, and why it's engineering all the way down.",
+        "summary": "Not loop programming: an implementer, an implementation and an evaluator, wired into a feedback loop. Having the loops is table stakes; measuring and tuning them to cut the escape rate is the job.",
         "tagline": "Irrigation: loops that climb to correctness.",
         "kind": "Scroll-through &middot; interactive",
         "length": "~6 min"

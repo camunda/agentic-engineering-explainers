@@ -72,7 +72,54 @@ layout: chapter
   .lrow i { width: 14px; height: 14px; border-radius: 50%; margin-top: 4px; }
   .lrow b { display: block; font-size: 16px; }
   .lrow span { font-size: 14px; color: var(--muted); }
+  .lrow { transition: opacity .4s; }
+  .lrow.dim { opacity: .3; }
+  .nbuild .ctl { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+  .nbuild .stat { font-size: 14px; font-weight: 800; text-align: center; min-height: 22px; margin-top: 8px; }
+  .nbuild .cap { font-size: 14px; font-weight: 700; min-height: 64px; margin-top: 10px; text-align: center; }
+  #rings { overflow: hidden; }
+  #rings .evl { transition: opacity .4s; }
   .lrow em { font-style: normal; font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+
+  /* Scoreboard */
+  .sb { background: var(--paper); border-radius: 20px; padding: 16px; }
+  .sbtabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; }
+  .sbtabs .pill[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  #sbChart { width: 100%; height: auto; display: block; }
+  #sbChart text { font-size: 11px; font-weight: 700; fill: rgba(27,27,27,.6); }
+  .sbkey { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font-size: 12px; font-weight: 700; margin-top: 4px; }
+  .sbkey i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .sbkey i.ln { height: 3px; width: 16px; background: var(--ink); border-radius: 2px; vertical-align: 3px; }
+  .sbstat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .sbstat div { background: #fff; border-radius: 12px; padding: 8px 12px; text-align: center; }
+  .sbstat b { display: block; font-size: 26px; }
+  .sbstat span { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .sbmove { font-size: 14px; font-weight: 700; text-align: center; min-height: 44px; margin: 10px 0 6px; }
+  .sbnote { font-size: 14px; color: var(--muted); border-left: 4px solid var(--l1); padding-left: 12px; margin-top: 8px; }
+
+  /* The loop that tunes the loops */
+  .tune { background: var(--paper); border-radius: 20px; padding: 16px; margin-top: 22px; text-align: left; }
+  .ttray .tlabel { margin-top: 4px; }
+  #tuneSvg { width: 100%; height: auto; display: block; }
+  #tuneSvg text { font-weight: 800; }
+  .tpanel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 14px; margin-top: 8px; }
+  @media (max-width: 760px) { .tpanel { grid-template-columns: 1fr; } }
+  .tlabel { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .tstat { background: #fff; border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; }
+  .tstat b { font-size: 28px; margin-right: 8px; }
+  .tstat span { font-size: 13px; font-weight: 700; color: var(--muted); }
+  #tTray { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+  #tTray button { border: 0; border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 800; color: #fff; cursor: pointer; }
+  #tTray button[aria-pressed="true"] { outline: 3px solid var(--ink); outline-offset: 2px; }
+  #tTray .none { font-size: 14px; font-weight: 700; color: var(--ok); }
+  .tasst { background: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+  .tasst p { margin: 0 0 8px; }
+  .tasst .opts { display: grid; gap: 6px; }
+  .tasst .opts button { text-align: left; border: 2px solid rgba(27,27,27,.15); background: #fff; border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 14px; cursor: pointer; }
+  .tasst .opts button:hover { border-color: var(--ink); }
+  .tasst .opts button b { display: block; }
+  .tasst .opts button span { color: var(--muted); font-size: 13px; }
+  .tasst .opts .rec { border-color: var(--ok); }
 
   /* Escape story */
   .escape { position: relative; }
@@ -118,9 +165,44 @@ layout: chapter
   .down { width: 260px; height: 260px; margin: 26px auto 0; display: block; }
   .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
+  /* Build the loop: implementer, implementation, evaluator */
+  .build { background: var(--paper); border-radius: 22px; padding: 16px; }
+  .build svg { width: 100%; height: auto; display: block; }
+  .build .box rect { fill: #fff; stroke: rgba(27,27,27,.25); stroke-width: 2; transition: stroke .3s, fill .3s; }
+  .build .box.active rect { stroke: var(--ink); stroke-width: 3; }
+  .build .box.bad rect { fill: #fff0f0; } .build .box.good rect { fill: #effaf1; }
+  .build .box .t { font-size: 15px; font-weight: 800; fill: #1b1b1b; }
+  .build .box .s { font-size: 12px; font-weight: 600; fill: rgba(27,27,27,.6); }
+  .build .box .v { font-size: 12px; font-weight: 800; }
+  .build .wire { fill: none; stroke: rgba(27,27,27,.25); stroke-width: 3; stroke-dasharray: 6 6; transition: stroke .3s; }
+  .build .wire.on { stroke: var(--ink); stroke-dasharray: none; }
+  .build .wl { font-size: 12px; font-weight: 800; fill: rgba(27,27,27,.4); }
+  .build .wl.on { fill: #1b1b1b; }
+  .build .msg { font-size: 11px; font-weight: 700; }
+  .build .ctl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .build .ctl .pill.ghost[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .build .ctl label { display: flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .build .ctl input { accent-color: var(--bad); }
+  .build .cap { font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 10px; }
+  .build .src { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+
+  /* Feedback control mapping */
+  table.map { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 14px; }
+  table.map th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; padding: 0 12px; }
+  table.map td { background: var(--paper); padding: 8px 12px; }
+  table.map td:first-child { border-radius: 12px 0 0 12px; color: var(--muted); }
+  table.map td:last-child { border-radius: 0 12px 12px 0; font-weight: 700; }
+  table.map td:first-child { font-weight: 800; color: var(--ink); }
+  .follows { display: grid; gap: 8px; margin-top: 14px; }
+  .follows div { background: var(--paper); border-radius: 14px; padding: 10px 14px; font-size: 14px; }
+  .follows b { display: block; font-size: 15px; }
+
   @media (max-width: 820px) {
     .wrap, .two, .levers { grid-template-columns: 1fr; }
     .specs { grid-template-columns: repeat(15, 1fr); }
+    table.map { font-size: 12px; table-layout: fixed; }
+    table.map th { font-size: 10px; letter-spacing: 0; padding: 0 5px; }
+    table.map td { padding: 6px 5px; overflow-wrap: anywhere; }
     nav.dots { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -134,7 +216,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">{{kicker}}</div>
     <h1 class="reveal d1">Agentic Loop Engineering</h1>
-    <p class="lead reveal d2">Don't be scared by the &ldquo;loop&rdquo; part. That's the easy bit.<br>Once you grasp it, it's <b>engineering all the way down</b>.</p>
+    <p class="lead reveal d2">The &ldquo;loop&rdquo; is the part everyone gets wrong.<br>Get it right, and the rest is <b>engineering all the way down</b>.</p>
     <svg class="hero-loop reveal d3" viewBox="0 0 220 220" aria-hidden="true">
       <circle cx="110" cy="110" r="80" fill="none" stroke="rgba(27,27,27,.15)" stroke-width="14" />
       <g class="spin"><circle cx="110" cy="30" r="15" fill="#8785ff" /><circle cx="110" cy="30" r="6" fill="#e9cf7a" /></g>
@@ -146,13 +228,78 @@ layout: chapter
 </section>
 
 <!-- 2 ------------------------------------------------------------------------------------------>
+<!-- What everyone gets wrong ------------------------------------------------------------------>
+<section id="wrong" data-title="What everyone gets wrong">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">Yes, this heading is click-bait</div>
+      <h2 class="reveal d1">What everyone gets wrong about loop engineering.</h2>
+      <p class="reveal d2">Developers hear &ldquo;loop&rdquo; and think of the loops they write: <code>for</code>, <code>while</code>. So they hear &ldquo;loop engineering&rdquo; as loop programming: an agent in a <code>while</code> that keeps trying.</p>
+      <p class="reveal d3">It isn't. Loop engineering is building a <b>feedback loop</b> out of three parts: an <b>implementer</b>, an <b>implementation</b>, and an <b>evaluator</b> that measures the implementation and signals the implementer. Nobody writes the loop. It exists because of how the parts are connected, and engineering that system is loop engineering.</p>
+      <p class="reveal d4 muted">We know the heading is click-bait. It's also true: almost everyone starts with the wrong loop in their head, and the wrong loop builds the wrong system.</p>
+    </div>
+    <div class="build reveal d2" id="build">
+      <svg viewBox="0 0 460 350" role="img" aria-label="Three parts: an implementer, an implementation and an evaluator, and the connections between them">
+        <defs><marker id="bArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1b1b1b" /></marker></defs>
+        <path class="wire" id="wWrites" d="M196 70 Q 352 70 352 136" />
+        <path class="wire" id="wMeasures" d="M352 214 Q 352 280 196 280" />
+        <path class="wire" id="wSignals" d="M110 248 L110 102" />
+        <text class="wl" id="lWrites" x="300" y="58" text-anchor="middle">changes</text>
+        <text class="wl" id="lMeasures" x="300" y="304" text-anchor="middle">measures</text>
+        <text class="wl" id="lSignals" x="98" y="180" text-anchor="end">signals</text>
+        <text class="msg" id="sigMsg" x="122" y="180"></text>
+        <g class="box" id="bImpl"><rect x="24" y="38" width="172" height="64" rx="14" /><text class="t" x="110" y="66" text-anchor="middle">Implementer</text><text class="s" x="110" y="86" text-anchor="middle">the agent</text></g>
+        <g class="box" id="bCode"><rect x="266" y="136" width="172" height="78" rx="14" /><text class="t" x="352" y="164" text-anchor="middle">Implementation</text><text class="s" x="352" y="184" text-anchor="middle">the code</text><text class="v" id="codeV" x="352" y="202" text-anchor="middle" fill="#e03131">4 defects</text></g>
+        <g class="box" id="bEval"><rect x="24" y="248" width="172" height="64" rx="14" /><text class="t" id="evalT" x="110" y="276" text-anchor="middle">Evaluator</text><text class="s" id="evalS" x="110" y="296" text-anchor="middle">the test run</text></g>
+        <circle id="tok" r="8" fill="#8785ff" opacity="0" />
+      </svg>
+      <div class="ctl">
+        <button class="pill ghost" data-w="writes" aria-pressed="false" data-hint="connect the parts, then press Run">+ changes</button>
+        <button class="pill ghost" data-w="measures" aria-pressed="false">+ measures</button>
+        <button class="pill ghost" data-w="signals" aria-pressed="false">+ signals</button>
+        <button class="pill" id="bRun">&#x25B6; Run</button>
+      </div>
+      <div class="ctl"><label><input type="checkbox" id="bSelf" /> The implementer grades its own work</label></div>
+      <div class="cap" id="bCap">&nbsp;</div>
+      <p class="src">Illustrative. Connect the parts in any order and run it to see what each wiring does.</p>
+    </div>
+  </div>
+</section>
+
+<!-- A feedback control loop ------------------------------------------------------------------->
+<section id="control" data-title="A feedback control loop">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The right picture</div>
+      <h2 class="reveal d1">It's a feedback control loop. You already know one: TDD.</h2>
+      <p class="reveal d2">In TDD, the developer is the <b>implementer</b>, the code is the <b>implementation</b>, and the test run is the <b>evaluator</b>, feeding back to the implementer. Red means &ldquo;keep going&rdquo;. Green means &ldquo;stop&rdquo;. A thermostat is the same shape: the heater doesn't decide when the room is warm enough; a thermometer does.</p>
+      <p class="reveal d3">Agentic loop engineering keeps the shape and puts an agent in the implementer's seat. Then the engineering is in the parts and the wiring:</p>
+      <div class="follows">
+        <div class="reveal d2"><b>The evaluator has to be independent.</b>An implementer that grades its own work, or can weaken a failing test, stops without doing the work. Tick &ldquo;The implementer grades its own work&rdquo; in the demo above to watch it happen. That's why the evaluator sits where the agent can't quietly change it (<a href="./enforce.html">rules that enforce themselves</a>, <a href="./zero-eyes.html">zero-eyes review</a>).</div>
+        <div class="reveal d3"><b>The signal says which way.</b>&ldquo;Red&rdquo; alone is a retry. &ldquo;Red: this assertion, in this file&rdquo; is directions. That error signal is what lets the implementer <a href="#climb">climb</a> instead of wander.</div>
+        <div class="reveal d4"><b>Feedback loops fail in known ways.</b>Noise: a flaky evaluator makes the implementer chase ghosts (<a href="./no-flaky.html">there are no flaky tests</a>). Lag: slow evaluation means fewer corrections (<a href="#levers">faster, cheaper loops</a>). No convergence: cap the rounds and escalate. Measuring the wrong thing: green, and still wrong (<a href="./fails-somewhere.html">all software fails somewhere</a>).</div>
+      </div>
+    </div>
+    <table class="map reveal d2">
+      <thead><tr><th>Part</th><th>Thermostat</th><th>TDD</th><th>Agentic</th></tr></thead>
+      <tbody>
+        <tr><td>Implementer</td><td>The heater</td><td>The developer</td><td>The agent</td></tr>
+        <tr><td>Implementation</td><td>The room</td><td>The code</td><td>The code</td></tr>
+        <tr><td>Evaluator</td><td>The thermometer</td><td>The test run</td><td>The test run, and every other check</td></tr>
+        <tr><td>Target</td><td>The setting</td><td>The tests</td><td>The spec, as tests</td></tr>
+        <tr><td>Signal</td><td>Too cold / warm enough</td><td>Red / green</td><td>Red with the failures / green</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
 <section id="tdd" data-title="TDD is the template">
   <div class="wrap">
     <div>
       <div class="kicker reveal">The loop</div>
       <h2 class="reveal d1">TDD is the template.</h2>
       <p class="reveal d2">You have a test. You write code and run the test. If the test fails, you change the code and run it again. When it passes, you're done.</p>
-      <p class="reveal d3">That's the whole loop. Put an agent inside it, and the agent does the going round.</p>
+      <p class="reveal d3">That's the whole loop: the developer implements, the test run evaluates, and the result feeds back. Put an agent in the implementer's seat, and the agent does the going round.</p>
     </div>
     <div class="tdd reveal d2" id="tddDemo">
       <svg viewBox="0 0 400 400" aria-hidden="true">
@@ -206,9 +353,15 @@ layout: chapter
         <div class="lrow"><i style="background:var(--l4)"></i><div><b>Production</b><span>Users, monitoring, bug reports, telemetry</span></div><em>days+</em></div>
       </div>
     </div>
-    <svg class="rings reveal d2" viewBox="0 0 480 480" id="rings" aria-label="Four nested loops; the inner one turns fastest">
-      <g id="ringG"></g>
-    </svg>
+    <div class="nbuild reveal d2">
+      <svg viewBox="0 0 1000 700" id="rings" style="width:100%;height:auto;display:block;background:#fff;border-radius:16px" role="img" aria-label="Loops inside loops: each loop of implementer, implementation and evaluator is the implementer of the next loop out">
+        <defs><marker id="fbArr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1b1b1b" /></marker></defs>
+        <g id="ringG"></g>
+      </svg>
+      <div class="ctl"><button class="pill" id="nAdd" data-hint="zoom out to the next loop">+ Zoom out</button><button class="pill ghost" id="nReset">Reset</button></div>
+      <div class="stat" id="nStat">&nbsp;</div>
+      <div class="cap" id="nCap">&nbsp;</div>
+    </div>
   </div>
 </section>
 
@@ -250,6 +403,41 @@ layout: chapter
         <h3>Fix the loops</h3>
         <p class="muted">Escaped defects, slow runs and wasted resources feed back into the design of the loops. Engineers do this: better types, better checks, a better place for each check.</p>
       </div>
+    </div>
+    <div class="tune reveal d3" id="tune">
+      <svg viewBox="0 0 900 430" id="tuneSvg" role="img" aria-label="Defects flow from the agent through four loops; escapes go to an engineer, who changes the loop they escaped from"></svg>
+      <div class="tpanel">
+        <div class="tleft">
+          <div class="tstat"><b id="tEsc">&ndash;</b><span>escape rate, last 30 defects</span></div>
+          <div class="ttray"><div class="tlabel">Escaped to users</div><div id="tTray" data-hint="pick a pile of escapes to analyse"></div></div>
+        </div>
+        <div class="tasst" id="tAsst"><div class="tlabel">&#x1F916; Assistant</div><p>Pick a pile of escaped defects and I'll analyse where they got through.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6b ----------------------------------------------------------------------------------------->
+<section id="scoreboard" data-title="The scoreboard">
+  <div class="wrap">
+    <div>
+      <div class="kicker reveal">The scoreboard</div>
+      <h2 class="reveal d1">Having the loops is table stakes. Tuning them is the job.</h2>
+      <p class="reveal d2">Putting feedback loops in place is where loop engineering starts, not where it ends. Loops that nobody measures drift. The agents ship more, the system grows, and more defects reach users.</p>
+      <p class="reveal d3"><b>The agents write the code. We engineer the loops that determine the quality of the code.</b> Obsessively, and continuously.</p>
+      <p class="reveal d4">So measure them. For every defect, record <b>which loop caught it</b>: local, CI, integration, or a user. Watch how that changes over time. The share that reaches users is the <b>defect escape rate</b>, and it's the score. The game is to keep engineering the loops so it goes down.</p>
+      <div class="sbnote reveal d4">To get the data, label each defect with where it was found and, when you can, the change that introduced it. Then every escape tells you which loop to work on next.</div>
+    </div>
+    <div class="sb reveal d2">
+      <div class="sbtabs" role="group" aria-label="Scenario">
+        <button class="pill ghost" data-sb="idle" aria-pressed="false" data-hint="compare: loops in place, nobody tuning them">Loops in place, untuned</button>
+        <button class="pill ghost" data-sb="tuned" aria-pressed="true">Tuned every week</button>
+      </div>
+      <svg viewBox="0 0 520 300" id="sbChart" role="img" aria-label="Defects caught at each loop, month by month, with the escape rate"></svg>
+      <div class="sbkey"><span><i style="background:var(--l1)"></i>Local</span><span><i style="background:var(--l2)"></i>CI</span><span><i style="background:var(--l3)"></i>Integration</span><span><i style="background:var(--l4)"></i>Users</span><span><i class="ln"></i>Escape rate</span></div>
+      <div class="sbstat"><div><b id="sbEsc">&ndash;</b><span>escape rate</span></div><div><b id="sbUsers">&ndash;</b><span>defects users found</span></div></div>
+      <div class="sbmove" id="sbMove">&nbsp;</div>
+      <div class="ctl" style="text-align:center"><button class="pill ghost" id="sbReplay">&#x21bb; Replay</button></div>
     </div>
   </div>
 </section>
@@ -334,7 +522,7 @@ layout: chapter
   <div class="wrap single">
     <div class="kicker reveal">So</div>
     <h2 class="reveal d1">Once you understand the loop, it's engineering all the way down.</h2>
-    <p class="lead reveal d2">Designing the conditions. Placing each check in the right loop. Pushing detection inward. Making loops faster and cheaper, down to the shape of the import graph. Trading time and resources for confidence. Agents go round the loops; engineers design them.</p>
+    <p class="lead reveal d2">Designing the conditions. Placing each check in the right loop. Pushing detection inward. Measuring where every defect is caught, and tuning the loops until fewer escape. Making loops faster and cheaper, down to the shape of the import graph. Trading time and resources for confidence. Agents go round the loops; engineers design them.</p>
     <svg class="down reveal d3" viewBox="0 0 260 260" aria-hidden="true" id="downSvg"></svg>
     <div class="cta reveal d4">
       {{nav}}
@@ -364,6 +552,79 @@ layout: chapter
   }, { rootMargin: '-45% 0px -45% 0px' });
   for (const s of sections) { seen.observe(s); current.observe(s); }
   const onEnter = (id, f) => document.getElementById(id).addEventListener('enter', f);
+
+  // Build the loop: three parts, three connections. The loop is the wiring, not code.
+  {
+    const root = document.getElementById('build');
+    const W = { writes: document.getElementById('wWrites'), measures: document.getElementById('wMeasures'), signals: document.getElementById('wSignals') };
+    const L = { writes: document.getElementById('lWrites'), measures: document.getElementById('lMeasures'), signals: document.getElementById('lSignals') };
+    const B = { impl: document.getElementById('bImpl'), code: document.getElementById('bCode'), eval: document.getElementById('bEval') };
+    const tok = document.getElementById('tok'), sig = document.getElementById('sigMsg'), codeV = document.getElementById('codeV');
+    const evalT = document.getElementById('evalT'), evalS = document.getElementById('evalS'), cap = document.getElementById('bCap');
+    const runBtn = document.getElementById('bRun'), self = document.getElementById('bSelf');
+    const btns = [...root.querySelectorAll('[data-w]')];
+    const on = { writes: false, measures: false, signals: false };
+    let running = false, runId = 0;
+    const box = (k, cls) => { for (const b of Object.values(B)) b.classList.remove('active'); if (k) B[k].classList.add('active', ...(cls ? [cls] : [])); };
+    const setCode = (n) => { codeV.textContent = n ? `${n} defect${n > 1 ? 's' : ''}` : 'no known defects'; codeV.setAttribute('fill', n ? '#e03131' : '#2f9e44'); B.code.classList.toggle('bad', n > 0); B.code.classList.toggle('good', n === 0); };
+    const setEval = (txt, col) => { evalS.textContent = txt; evalS.setAttribute('fill', col || 'rgba(27,27,27,.6)'); };
+    function describe() {
+      const n = Object.values(on).filter(Boolean).length;
+      if (!n) return 'Three parts. Nothing connected, so nothing happens.';
+      if (on.writes && on.measures && on.signals) return self.checked ? 'Closed, but the evaluator is the implementer marking its own homework. Run it.' : 'Closed. The evaluator\u2019s signal decides whether the implementer goes round again. That\u2019s the loop. Run it.';
+      if (on.writes && on.measures) return 'Something measures the code, but the result goes nowhere. That\u2019s a report, not a loop.';
+      if (on.writes) return 'An implementer changing code. A one-shot: done when the agent stops typing.';
+      return 'Nothing changes the code yet. Connect the implementer to the implementation.';
+    }
+    function paintWires() {
+      for (const k in on) { W[k].classList.toggle('on', on[k]); W[k].setAttribute('marker-end', on[k] ? 'url(#bArr)' : ''); L[k].classList.toggle('on', on[k]); }
+      btns.forEach((b) => { b.setAttribute('aria-pressed', on[b.dataset.w]); b.textContent = (on[b.dataset.w] ? '\u2713 ' : '+ ') + (b.dataset.w === 'writes' ? 'changes' : b.dataset.w); });
+      evalT.textContent = self.checked ? 'Implementer' : 'Evaluator';
+      if (!running) setEval(self.checked ? 'grading itself' : 'the test run');
+    }
+    function reset() { runId++; running = false; tok.setAttribute('opacity', 0); sig.textContent = ''; setCode(4); box(null); B.eval.classList.remove('bad', 'good'); paintWires(); cap.innerHTML = describe(); }
+    async function travel(k, id) {
+      const p = W[k], len = p.getTotalLength(); tok.setAttribute('opacity', 1);
+      for (let t = 0; t <= 1.0001; t += 0.05) { if (id !== runId) return false; const pt = p.getPointAtLength(len * t); tok.setAttribute('cx', pt.x); tok.setAttribute('cy', pt.y); await sleep(22); }
+      return true;
+    }
+    async function run() {
+      const id = ++runId; running = true; runBtn.disabled = true;
+      let defects = 4, round = 0; setCode(4); sig.textContent = ''; B.eval.classList.remove('bad', 'good');
+      const done = (html) => { if (id === runId) { cap.innerHTML = html; tok.setAttribute('opacity', 0); box(null); running = false; runBtn.disabled = false; } };
+      if (!on.writes) return done('Nothing happened. No connection lets the implementer change the code.');
+      for (;;) {
+        round++;
+        box('impl'); if (round > 1) { setEval('\u2026', 'rgba(27,27,27,.6)'); B.eval.classList.remove('bad', 'good'); } await sleep(250); if (id !== runId) return;
+        if (!(await travel('writes', id))) return;
+        // A first attempt fixes one; with a signal pointing at a failure, each round fixes what it was told about.
+        defects = Math.max(0, defects - 1); setCode(defects); box('code'); await sleep(300);
+        if (!on.measures) return done(`<span style="color:var(--bad)">Shipped with ${defects} defects.</span> Nothing measured it, so the agent stopped when it felt done.`);
+        if (!(await travel('measures', id))) return;
+        box('eval');
+        // Grading its own work, the implementer misses what it can't see in its own code: it under-reports by two.
+        const seen = self.checked ? Math.max(0, defects - 2) : defects;
+        if (seen) { setEval(`red: ${seen} failing`, '#e03131'); B.eval.classList.add('bad'); B.eval.classList.remove('good'); }
+        else { setEval(self.checked ? 'green: looks done' : 'green: all pass', '#2f9e44'); B.eval.classList.add('good'); B.eval.classList.remove('bad'); }
+        await sleep(450);
+        if (!seen) {
+          return done(self.checked && defects
+            ? `<span style="color:var(--bad)">Green, from its own judgement. ${defects} defects are still there.</span> The evaluator has to be a separate system.`
+            : `<span style="color:var(--ok)">Green after ${round} rounds. The evaluator said stop.</span> Nobody wrote a loop; the wiring made one.`);
+        }
+        if (!on.signals) return done(`<span style="color:var(--bad)">The evaluator says red. Nobody is listening.</span> Shipped with ${defects} defects.`);
+        sig.textContent = `red: fix ${['parse()', 'retry()', 'auth()', 'close()'][4 - defects] || 'it'}`; sig.setAttribute('fill', '#e03131');
+        if (!(await travel('signals', id))) return;
+        sig.textContent = '';
+        cap.innerHTML = `Round ${round}: the signal sends the implementer round again, at the failure it names.`;
+      }
+    }
+    btns.forEach((b) => b.addEventListener('click', () => { on[b.dataset.w] = !on[b.dataset.w]; reset(); }));
+    self.addEventListener('change', () => { reset(); if (on.writes && on.measures && on.signals) run(); });
+    runBtn.addEventListener('click', run);
+    reset();
+    window.__build = { set: (w, s) => { Object.assign(on, w); self.checked = !!s; reset(); }, run };
+  }
 
   // TDD: step round the cycle; the run fails a few times, then passes.
   onEnter('tdd', async () => {
@@ -427,7 +688,338 @@ layout: chapter
     el('circle', { cx: 240, cy: 240, r: 22, fill: '#8785ff' }, g);
     el('text', { x: 240, y: 244, 'text-anchor': 'middle', fill: '#fff' }, g).textContent = 'code';
   }
-  drawRings(document.getElementById('ringG'), true);
+  // Loops inside loops, as a zoom out: each loop (implementer, implementation, evaluator) is the
+  // implementer of the next one. Same shape at every scale. Adding a loop zooms out to reveal it.
+  {
+    const svg = document.getElementById('rings'), g = document.getElementById('ringG');
+    const addBtn = document.getElementById('nAdd'), resetBtn = document.getElementById('nReset');
+    const cap = document.getElementById('nCap'), stat = document.getElementById('nStat');
+    const rows = [...document.querySelectorAll('#nested .lrow')];
+    const LV = [
+      { name: 'Local loop', when: 'seconds', c: '#8785ff', impl: 'the code', ev: 'types, unit tests' },
+      { name: 'CI loop', when: 'minutes', c: '#9fbf3a', impl: 'the pull request', ev: 'full suite, builds' },
+      { name: 'Integration loop', when: 'hours', c: '#f08c00', impl: 'main, merged', ev: 'scenarios, other systems' },
+      { name: 'Production loop', when: 'days', c: '#e03131', impl: 'the release', ev: 'users, telemetry' },
+    ];
+    const CAPS = [
+      'The local loop: the agent changes the code, types and unit tests evaluate it, and red goes back to the agent. Seconds per round.',
+      'Zoom out: the whole local loop is the implementer of the next one. It produces a pull request; CI evaluates it; red goes back to the local loop, which goes round again.',
+      'Same shape, one scale up. The CI loop is the implementer; what it produces is merged code; integration and acceptance evaluate it, in hours.',
+      'And again. Everything inside is the implementer of a release, and users are its evaluator: the slowest, most expensive signal. Every loop inside exists to keep this one quiet.',
+    ];
+    const low = (s) => s.toLowerCase().replace(/^ci /, 'CI ');
+    const S = 0.46, CX = 60, CY = 175; // where (and how small) the inner loop sits inside the implementer box
+    const lv = []; // per level: { own, tok, sig, ev, imp, scale, x, y }
+    const add = (tag, a, p) => el(tag, a, p);
+    const txt = (p, x, y, s, size, weight, fill, anchor = 'middle') => { const t = add('text', { x, y, 'font-size': size, 'font-weight': weight, fill, 'text-anchor': anchor }, p); t.textContent = s; return t; };
+    // Build from the outside in: level 3 at world scale, each inner level inside its implementer box.
+    function build() {
+      g.replaceChildren(); lv.length = 0;
+      let parent = g, x = 0, y = 0, sc = 1;
+      for (let k = LV.length - 1; k >= 0; k--) {
+        const L = LV[k];
+        const frame = add('g', {}, parent);
+        const own = add('g', { style: 'transition: opacity .6s' }, frame);
+        add('rect', { x: 8, y: 8, width: 984, height: 684, rx: 36, fill: '#fff', stroke: L.c, 'stroke-width': 6, 'stroke-opacity': 0.5 }, own);
+        txt(own, 40, 66, `${L.name} \u00b7 ${L.when}`, 34, 800, L.c, 'start');
+        const imp = add('rect', { x: 40, y: 100, width: 500, height: 500, rx: 26, fill: '#f5f3ed', stroke: 'rgba(27,27,27,.25)', 'stroke-width': 3 }, own);
+        txt(own, 290, 146, 'Implementer', 28, 800, '#1b1b1b');
+        if (k === 0) { add('circle', { cx: 290, cy: 370, r: 90, fill: '#8785ff' }, own); txt(own, 290, 382, 'agent', 40, 800, '#fff'); }
+        add('rect', { x: 680, y: 100, width: 280, height: 160, rx: 22, fill: '#fff', stroke: 'rgba(27,27,27,.25)', 'stroke-width': 3 }, own);
+        txt(own, 820, 170, 'Implementation', 28, 800, '#1b1b1b'); txt(own, 820, 210, L.impl, 24, 600, 'rgba(27,27,27,.6)');
+        const ev = add('rect', { x: 680, y: 440, width: 280, height: 160, rx: 22, fill: '#fff', stroke: L.c, 'stroke-width': 5 }, own);
+        txt(own, 820, 510, 'Evaluator', 28, 800, '#1b1b1b'); txt(own, 820, 550, L.ev, 24, 600, 'rgba(27,27,27,.6)');
+        const wire = (d, label, lx, ly) => { add('path', { d, fill: 'none', stroke: '#1b1b1b', 'stroke-width': 4, 'marker-end': 'url(#fbArr)' }, own); txt(own, lx, ly, label, 22, 800, 'rgba(27,27,27,.55)'); };
+        wire('M540 180 L672 180', 'changes', 610, 166);
+        wire('M820 260 L820 432', 'measures', 880, 356);
+        wire('M680 520 L548 520', 'signals', 610, 506);
+        const sig = add('circle', { r: 14, fill: '#e03131', stroke: '#fff', 'stroke-width': 4, opacity: 0 }, own);
+        const tok = add('circle', { r: 14, fill: L.c, stroke: '#fff', 'stroke-width': 4, opacity: 0 }, own);
+        lv[k] = { own, tok, sig, ev, imp, x, y, sc };
+        if (k > 0) {
+          const inner = add('g', { transform: `translate(${CX} ${CY}) scale(${S})` }, frame);
+          parent = inner; x += CX * sc; y += CY * sc; sc *= S;
+        }
+      }
+    }
+    // The viewBox that frames level k, with a little margin.
+    const rectOf = (k) => { const { x, y, sc } = lv[k], m = 30 * sc; return [x - m, y - m, 1000 * sc + 2 * m, 700 * sc + 2 * m]; };
+    let view = null, anim = 0;
+    const setView = (r) => { view = r; svg.setAttribute('viewBox', r.join(' ')); };
+    function zoomTo(r1) {
+      const r0 = view, id = ++anim, t0 = performance.now(), D = 1400;
+      const step = (now) => {
+        if (id !== anim) return;
+        const k = Math.min(1, (now - t0) / D), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        const w = r0[2] * Math.pow(r1[2] / r0[2], e), f = (w - r0[2]) / (r1[2] - r0[2]); // geometric zoom about a fixed point
+        setView([r0[0] + (r1[0] - r0[0]) * f, r0[1] + (r1[1] - r0[1]) * f, w, r0[3] * w / r0[2]]);
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    // Feedback flow. A level's implementer is the level inside it: run that to green, then this loop's wires.
+    let flowId = 0, n = 1;
+    const frameNow = () => new Promise((r) => requestAnimationFrame(r));
+    async function tween(id, ms, f) { const t0 = performance.now(); for (;;) { if (id !== flowId) throw 0; const k = Math.min(1, (performance.now() - t0) / ms); f(k); if (k >= 1) return; await frameNow(); } }
+    const put = (c, x, y) => { c.setAttribute('cx', x); c.setAttribute('cy', y); };
+    const say = (h) => { stat.innerHTML = h; };
+    const SPEED = [380, 520, 680, 860];
+    async function runLevel(id, k, visits) {
+      const L = lv[k], sp = SPEED[k];
+      for (;;) {
+        L.imp.setAttribute('stroke', LV[k].c);
+        if (k === 0) await tween(id, 300, () => {}); else await runLevel(id, k - 1, visits);
+        L.imp.setAttribute('stroke', 'rgba(27,27,27,.25)');
+        L.tok.setAttribute('opacity', 1);
+        await tween(id, sp, (t) => put(L.tok, 540 + 140 * t, 180));
+        await tween(id, sp * .8, (t) => put(L.tok, 820, 260 + 180 * t));
+        L.tok.setAttribute('opacity', 0);
+        const red = k === 0 ? visits.local-- > 0 : visits[k]++ === 0;
+        L.ev.setAttribute('fill', red ? '#ffe3e3' : '#e6f7e9');
+        if (k === n - 1 || red) say(red ? `<span style="color:var(--bad)">${LV[k].name}: red.</span> The signal goes back to its implementer${k ? ', the ' + low(LV[k - 1].name) + ', which goes round again' : ''}.` : `<span style="color:var(--ok)">${LV[k].name}: green.</span>`);
+        await tween(id, 380, () => {});
+        L.ev.setAttribute('fill', '#fff');
+        if (!red) return;
+        if (k > 0) visits.local = 1;
+        L.sig.setAttribute('opacity', 1);
+        await tween(id, sp, (t) => put(L.sig, 680 - 140 * t, 520));
+        L.sig.setAttribute('opacity', 0);
+      }
+    }
+    async function flow() {
+      const id = ++flowId;
+      try {
+        for (;;) {
+          const visits = { local: 2 }; LV.forEach((_, i) => { visits[i] = 0; });
+          await runLevel(id, n - 1, visits);
+          say(`<span style="color:var(--ok)">Green at every level.</span> Shipped. The next change starts.`);
+          await tween(id, 1500, () => {});
+        }
+      } catch (e) { if (e !== 0) throw e; }
+    }
+    function paint() {
+      lv.forEach((L, k) => L.own.setAttribute('opacity', k < n ? 1 : 0));
+      rows.forEach((r, i) => r.classList.toggle('dim', i >= n));
+      cap.textContent = CAPS[n - 1];
+      addBtn.disabled = n >= LV.length;
+      addBtn.innerHTML = n >= LV.length ? 'All four loops' : `+ Zoom out to the ${low(LV[n].name)}`;
+    }
+    function reset() { anim++; n = 1; build(); setView(rectOf(0)); paint(); say('&nbsp;'); flow(); }
+    addBtn.addEventListener('click', () => { if (n >= LV.length) return; n++; paint(); zoomTo(rectOf(n - 1)); flow(); });
+    resetBtn.addEventListener('click', reset);
+    reset();
+  }
+
+  // Scoreboard: where defects were caught, month by month. Untuned loops drift; tuned loops push detection inward.
+  {
+    const svg = document.getElementById('sbChart'), move = document.getElementById('sbMove');
+    const escEl = document.getElementById('sbEsc'), usersEl = document.getElementById('sbUsers');
+    const tabs = [...document.querySelectorAll('[data-sb]')];
+    const COL = ['#8785ff', '#d5f37b', '#f08c00', '#e03131'];
+    const M = 12;
+    // Defects found per month at each loop: local, CI, integration, users. Output (and so defects) grows 6% a month.
+    function series(kind) {
+      const out = [];
+      let share = [0.42, 0.28, 0.14, 0.16];
+      for (let m = 0; m < M; m++) {
+        const total = Math.round(50 * Math.pow(1.06, m));
+        if (m > 0) {
+          if (kind === 'idle') share = [share[0] - 0.006, share[1] - 0.006, share[2] + 0.003, share[3] + 0.009];
+          else { const u = share[3] * 0.26, i = share[2] * 0.14; share = [share[0] + u * 0.6 + i * 0.6, share[1] + u * 0.3 + i * 0.4, share[2] - i + u * 0.1, share[3] - u]; }
+        }
+        out.push(share.map((s) => Math.round(s * total)));
+      }
+      return out;
+    }
+    const MOVES = {
+      idle: ['Loops in place. Nobody looks at where defects are caught.', 'The agents ship more each month. The suite doesn\u2019t keep up.', 'Users find more of them. Nothing feeds back into the loops.'],
+      tuned: [
+        'Every escape is reviewed: which loop should have caught this class of defect?',
+        'A bug class users kept finding is now a type error. The compiler catches it in seconds.',
+        'Contract tests move integration failures into CI.',
+        'A flaky test fixed: CI\u2019s red means something again.',
+        'Telemetry alerts become regression tests in the local loop.',
+        'The escape rate keeps falling while the agents ship more.',
+      ],
+    };
+    let kind = 'tuned', run = 0;
+    const X0 = 40, W = 440, H = 230, Y0 = 250, bw = (W / M) * 0.68;
+    const x = (m) => X0 + (W / M) * (m + 0.5);
+    function draw(id, data, upto) {
+      if (id !== run) return;
+      svg.replaceChildren();
+      for (const p of [0, 0.25, 0.5, 0.75, 1]) {
+        el('line', { x1: X0, x2: X0 + W, y1: Y0 - H * p, y2: Y0 - H * p, stroke: 'rgba(27,27,27,.1)' }, svg);
+        el('text', { x: X0 - 6, y: Y0 - H * p + 4, 'text-anchor': 'end' }, svg).textContent = `${p * 100}%`;
+      }
+      const pts = [];
+      for (let m = 0; m < upto; m++) {
+        const d = data[m], tot = d.reduce((a, b) => a + b, 0);
+        let y = Y0;
+        d.forEach((v, i) => { const h = (v / tot) * H; el('rect', { x: x(m) - bw / 2, y: y - h, width: bw, height: Math.max(0, h - 1), rx: 2, fill: COL[i] }, svg); y -= h; });
+        pts.push([x(m), Y0 - (d[3] / tot / 0.3) * H]); // escape rate on its own 0-30% axis
+        if (m % 2 === 0 || m === M - 1) el('text', { x: x(m), y: Y0 + 16, 'text-anchor': 'middle' }, svg).textContent = `M${m + 1}`;
+      }
+      if (pts.length) {
+        el('polyline', { points: pts.map((p) => p.join(',')).join(' '), fill: 'none', stroke: '#1b1b1b', 'stroke-width': 3, 'stroke-linejoin': 'round' }, svg);
+        const [lx, ly] = pts[pts.length - 1];
+        el('circle', { cx: lx, cy: ly, r: 5, fill: '#1b1b1b', stroke: '#fff', 'stroke-width': 2 }, svg);
+      }
+      for (const p of [0, 10, 20, 30]) el('text', { x: X0 + W + 6, y: Y0 - (H * p) / 30 + 4, style: 'fill:#1b1b1b' }, svg).textContent = `${p}%`;
+      el('text', { x: 2, y: 12 }, svg).textContent = 'share caught';
+      el('text', { x: X0 + W + 34, y: 12, 'text-anchor': 'end', style: 'fill:#1b1b1b' }, svg).textContent = 'escape rate';
+      const d = data[Math.max(0, upto - 1)], tot = d.reduce((a, b) => a + b, 0);
+      escEl.textContent = `${Math.round((d[3] / tot) * 100)}%`;
+      escEl.style.color = kind === 'tuned' && upto > 1 ? 'var(--ok)' : upto > 1 ? 'var(--bad)' : '';
+      usersEl.textContent = `${d[3]} / month`;
+      const ms = MOVES[kind];
+      move.textContent = ms[Math.min(ms.length - 1, Math.floor(((upto - 1) / M) * ms.length))];
+    }
+    async function play() {
+      const id = ++run, data = series(kind);
+      for (let m = 1; m <= M; m++) { draw(id, data, m); await sleep(520); if (id !== run) return; }
+    }
+    for (const t of tabs) t.addEventListener('click', () => { kind = t.dataset.sb; tabs.forEach((b) => b.setAttribute('aria-pressed', b === t)); play(); });
+    document.getElementById('sbReplay').addEventListener('click', play);
+    draw(run, series(kind), 1);
+    onEnter('scoreboard', play);
+    window.__sb = { series };
+  }
+
+  // The loop that tunes the loops: defects flow through the agent's loops; the engineer analyses escapes
+  // (with an assistant) and changes the loop that should have caught them.
+  {
+    const svg = document.getElementById('tuneSvg'), tray = document.getElementById('tTray'), asst = document.getElementById('tAsst'), escEl = document.getElementById('tEsc');
+    const LOOPS = [
+      { name: 'Local', when: 'seconds', x: 230, c: '#8785ff' },
+      { name: 'CI', when: 'minutes', x: 390, c: '#9fbf3a' },
+      { name: 'Integration', when: 'hours', x: 550, c: '#f08c00' },
+    ];
+    const USERS = { x: 760 }, AGENT = { x: 70 }, Y = 105;
+    const CLASSES = {
+      typo: { label: 'Syntax slip', c: '#868e96', w: 3 },
+      timeout: { label: 'Timeout', c: '#f59f00', w: 2 },
+      nul: { label: 'Unhandled null', c: '#7048e8', w: 3,
+        opts: [{ loop: 0, fix: 'Turn on strict null checks', why: 'The compiler catches it in seconds.' }, { loop: 1, fix: 'Add a lint rule in CI', why: 'Caught in minutes.' }, { loop: 2, fix: 'Add a scenario that sends nulls', why: 'Caught in hours, if the scenario covers it.' }] },
+      contract: { label: 'API contract drift', c: '#1c7ed6', w: 2,
+        opts: [{ loop: 0, fix: 'Generate types from the API spec', why: 'A drift becomes a type error, locally.' }, { loop: 1, fix: 'Add contract tests to CI', why: 'Caught in minutes, before merge.' }, { loop: 2, fix: 'Test against the real service', why: 'Caught in hours, after merge.' }] },
+      config: { label: 'Bad config default', c: '#c2255c', w: 2,
+        opts: [{ loop: 0, fix: 'Validate config against a schema at load', why: 'Every test run fails fast on it.' }, { loop: 2, fix: 'Boot with production config in integration', why: 'Caught in hours.' }] },
+    };
+    const START = { typo: 0, timeout: 2, nul: -1, contract: -1, config: -1 };
+    let catcher, escaped, recent, dots, active = false, timer = 0, seed = 7, picked = null;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const pickClass = () => { const ks = Object.keys(CLASSES), tot = ks.reduce((a, k) => a + CLASSES[k].w, 0); let r = rnd() * tot; for (const k of ks) { r -= CLASSES[k].w; if (r < 0) return k; } return ks[0]; };
+    const txt = (s, a, p = svg) => { const t = el('text', a, p); t.textContent = s; return t; };
+    let chipG, boxes;
+    function scene() {
+      svg.replaceChildren();
+      el('defs', {}, svg).innerHTML = '<marker id="tArr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1b1b1b"/></marker>';
+      txt('The loops the agent runs', { x: 20, y: 24, 'font-size': 14, fill: 'rgba(27,27,27,.55)' });
+      el('line', { x1: AGENT.x, y1: Y, x2: USERS.x - 60, y2: Y, stroke: 'rgba(27,27,27,.2)', 'stroke-width': 4 }, svg);
+      el('circle', { cx: AGENT.x, cy: Y, r: 34, fill: '#8785ff' }, svg);
+      txt('agent', { x: AGENT.x, y: Y + 5, 'text-anchor': 'middle', fill: '#fff', 'font-size': 15 });
+      boxes = LOOPS.map((L) => {
+        const b = el('rect', { x: L.x - 60, y: Y - 36, width: 120, height: 72, rx: 14, fill: '#fff', stroke: L.c, 'stroke-width': 4 }, svg);
+        txt(L.name, { x: L.x, y: Y - 6, 'text-anchor': 'middle', 'font-size': 16 });
+        txt(L.when, { x: L.x, y: Y + 14, 'text-anchor': 'middle', 'font-size': 12, fill: 'rgba(27,27,27,.55)' });
+        return b;
+      });
+      el('rect', { x: USERS.x - 60, y: Y - 36, width: 120, height: 72, rx: 14, fill: '#fff5f5', stroke: '#e03131', 'stroke-width': 4 }, svg);
+      txt('Users', { x: USERS.x, y: Y - 6, 'text-anchor': 'middle', 'font-size': 16 });
+      txt('days', { x: USERS.x, y: Y + 14, 'text-anchor': 'middle', 'font-size': 12, fill: 'rgba(27,27,27,.55)' });
+      txt('catches:', { x: 20, y: Y + 66, 'font-size': 12, fill: 'rgba(27,27,27,.55)' });
+      chipG = el('g', {}, svg);
+      // The engineer's loop: escapes come down to the engineer, changes go back up into a loop.
+      txt('The loop that tunes the loops', { x: 20, y: 290, 'font-size': 14, fill: 'rgba(27,27,27,.55)' });
+      el('path', { d: `M${USERS.x} ${Y + 38} C ${USERS.x} 360, 620 380, 520 380`, fill: 'none', stroke: '#e03131', 'stroke-width': 3, 'stroke-dasharray': '6 6', 'marker-end': 'url(#tArr)' }, svg);
+      txt('escapes', { x: USERS.x - 20, y: 340, 'text-anchor': 'end', 'font-size': 13, fill: '#e03131' });
+      el('circle', { cx: 450, cy: 380, r: 32, fill: '#ff905c' }, svg);
+      txt('engineer', { x: 450, y: 385, 'text-anchor': 'middle', 'font-size': 13, fill: '#fff' });
+      el('circle', { cx: 378, cy: 394, r: 20, fill: '#8785ff' }, svg);
+      txt('\u{1F916}', { x: 378, y: 400, 'text-anchor': 'middle', 'font-size': 16 });
+      fixPath = el('path', { d: '', fill: 'none', stroke: '#ff905c', 'stroke-width': 4, 'marker-end': 'url(#tArr)', opacity: 0 }, svg);
+      fixLbl = txt('', { 'font-size': 13, fill: '#e8590c', 'text-anchor': 'middle' });
+      dots = el('g', {}, svg);
+    }
+    let fixPath, fixLbl;
+    function chips() {
+      chipG.replaceChildren();
+      LOOPS.forEach((L, i) => {
+        const ks = Object.keys(CLASSES).filter((k) => catcher[k] === i);
+        ks.forEach((k, j) => {
+          el('rect', { x: L.x - 60, y: Y + 50 + j * 22, width: 120, height: 18, rx: 9, fill: CLASSES[k].c }, chipG);
+          txt(CLASSES[k].label, { x: L.x, y: Y + 63 + j * 22, 'text-anchor': 'middle', 'font-size': 11, fill: '#fff' }, chipG);
+        });
+      });
+    }
+    function stats() {
+      const n = recent.length, e = recent.filter(Boolean).length;
+      escEl.textContent = n ? `${Math.round((e / n) * 100)}%` : '\u2013';
+      escEl.style.color = !n ? '' : e / n > 0.2 ? 'var(--bad)' : e / n > 0.05 ? '#e8590c' : 'var(--ok)';
+    }
+    function renderTray() {
+      const ks = Object.keys(escaped).filter((k) => escaped[k] > 0);
+      tray.replaceChildren();
+      if (!ks.length) { tray.innerHTML = '<span class="none">Nothing escaping right now.</span>'; return; }
+      for (const k of ks) {
+        const b = document.createElement('button');
+        b.style.background = CLASSES[k].c; b.textContent = `${CLASSES[k].label} \u00d7${escaped[k]}`;
+        b.setAttribute('aria-pressed', picked === k);
+        b.addEventListener('click', () => analyse(k));
+        tray.append(b);
+      }
+    }
+    function analyse(k) {
+      picked = k; renderTray();
+      const C = CLASSES[k];
+      const passed = LOOPS.map((L) => L.name).join(', ');
+      asst.innerHTML = `<div class="tlabel">&#x1F916; Assistant</div><p><b>${escaped[k]} escaped defects: ${C.label.toLowerCase()}.</b> All introduced by agent changes that passed ${passed}: none of the loops has a check for this class. The tightest loop that could catch it is <b>${LOOPS[C.opts[0].loop].name.toLowerCase()}</b>.</p><p>Which loop do you want to change?</p><div class="opts"></div>`;
+      const box = asst.querySelector('.opts');
+      C.opts.forEach((o, i) => {
+        const b = document.createElement('button'); if (i === 0) b.className = 'rec';
+        b.innerHTML = `<b>${LOOPS[o.loop].name}: ${o.fix}${i === 0 ? ' (recommended)' : ''}</b><span>${o.why}</span>`;
+        b.addEventListener('click', () => fix(k, o));
+        box.append(b);
+      });
+    }
+    async function fix(k, o) {
+      const L = LOOPS[o.loop];
+      catcher[k] = o.loop; escaped[k] = 0; picked = null;
+      fixPath.setAttribute('d', `M450 346 C 450 270, ${L.x} 290, ${L.x} ${Y + 42}`); fixPath.setAttribute('opacity', 1);
+      fixLbl.setAttribute('x', (450 + L.x) / 2); fixLbl.setAttribute('x', 450 + 70); fixLbl.setAttribute('y', 318); fixLbl.textContent = 'changes the loop';
+      boxes[o.loop].setAttribute('stroke-width', 8);
+      chips(); renderTray();
+      const left = Object.keys(CLASSES).filter((c) => catcher[c] < 0);
+      asst.innerHTML = `<div class="tlabel">&#x1F916; Assistant</div><p><b>Done: ${o.fix.toLowerCase()}.</b> ${C2(k)} is now caught in the ${L.name.toLowerCase()} loop. ${o.loop > 0 ? 'You could push it further in later. ' : ''}${left.length ? 'Watch the escape rate, then pick the next pile.' : 'Every class is caught before users see it. Next: make the loops faster and cheaper.'}</p>`;
+      await sleep(1600);
+      fixPath.setAttribute('opacity', 0); fixLbl.textContent = ''; boxes[o.loop].setAttribute('stroke-width', 4);
+    }
+    const C2 = (k) => CLASSES[k].label;
+    function spawn() {
+      const k = pickClass(), C = CLASSES[k], dest = catcher[k] >= 0 ? LOOPS[catcher[k]].x : USERS.x;
+      const d = el('circle', { cx: AGENT.x, cy: Y, r: 8, fill: C.c, stroke: '#fff', 'stroke-width': 2 }, dots);
+      const t0 = performance.now(), dur = (dest - AGENT.x) * 3.2;
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / dur);
+        d.setAttribute('cx', AGENT.x + (dest - AGENT.x) * p);
+        if (p < 1) return requestAnimationFrame(step);
+        const esc = catcher[k] < 0;
+        recent.push(esc); if (recent.length > 30) recent.shift(); stats();
+        if (esc) { escaped[k]++; renderTray(); if (picked === k) analyse(k); }
+        d.setAttribute('r', 14); d.setAttribute('opacity', 0.35); d.setAttribute('fill', esc ? '#e03131' : '#2f9e44');
+        setTimeout(() => d.remove(), 350);
+      };
+      requestAnimationFrame(step);
+    }
+    function reset() {
+      catcher = { ...START }; escaped = Object.fromEntries(Object.keys(CLASSES).map((k) => [k, 0])); recent = []; picked = null; seed = 7;
+      scene(); chips(); renderTray(); stats();
+    }
+    reset();
+    new IntersectionObserver((es) => { active = es[0].isIntersecting; clearInterval(timer); if (active) timer = setInterval(spawn, 650); }, { threshold: 0.2 }).observe(document.getElementById('tune'));
+    window.__tune = { reset, analyse, fix: (k, i) => fix(k, CLASSES[k].opts[i]), state: () => ({ catcher, escaped, recent }) };
+  }
 
   // Escape: the bug walks out through every ring, then detection is pushed back in.
   drawRings(document.getElementById('escG'), false);
